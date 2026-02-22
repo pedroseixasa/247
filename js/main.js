@@ -567,6 +567,11 @@ document.addEventListener("DOMContentLoaded", function () {
       slots.push(formatTime(t));
     }
 
+    // ✅ HORÁRIO DE TESTE: Adicionar slot extra às 14:20 para testes
+    // Remover depois de testar!
+    slots.push("14:20");
+    slots.sort(); // Ordenar para manter ordem cronológica
+
     return slots;
   }
 
