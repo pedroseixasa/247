@@ -1062,10 +1062,10 @@
                                 </thead>
                                 <tbody>
                                     ${(stats.monthlyBreakdown || []).map((item, idx) => {
-                                        const revenuePast = item.revenuePast || 0;
-                                        const revenueFuture = item.revenueFuture || 0;
-                                        const isAggregated = item.isAggregated || false;
-                                        return `
+                        const revenuePast = item.revenuePast || 0;
+                        const revenueFuture = item.revenueFuture || 0;
+                        const isAggregated = item.isAggregated || false;
+                        return `
                                         <tr style="border-bottom: 1px solid #e0e0e0; background: ${idx % 2 === 0 ? '#fff' : '#f8f9fa'};">
                                             <td style="padding: 1rem; font-size: 0.9rem; color: #333;">
                                                 ${item.label}
@@ -1076,7 +1076,8 @@
                                             <td style="text-align: right; padding: 1rem; font-weight: 600; color: #3498db;">${formatCurrency(revenueFuture)}</td>
                                             <td style="text-align: right; padding: 1rem; font-weight: 600; color: #2c3e50;">${formatCurrency(item.revenue)}</td>
                                         </tr>
-                                    `;}).join('')}
+                                    `;
+                    }).join('')}
                                 </tbody>
                             </table>
                         </div>

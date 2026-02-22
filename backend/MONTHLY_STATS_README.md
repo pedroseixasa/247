@@ -15,9 +15,11 @@ Este sistema foi criado para **otimizar o espaço da base de dados** (MongoDB At
 ### Exemplo Prático
 
 **Antes da agregação:**
+
 - 500 reservas de Janeiro 2024 = ~250 KB
 
 **Depois da agregação:**
+
 - 1 documento de estatísticas = < 1 KB
 - **Ganho**: 249 KB livres!
 
@@ -41,6 +43,7 @@ node aggregate-monthly-stats.js --auto
 ```
 
 Este comando:
+
 - ✅ Encontra a reserva mais antiga
 - ✅ Agrega todos os meses com mais de 12 meses
 - ✅ Apaga reservas antigas automaticamente
@@ -66,11 +69,13 @@ O dashboard **automaticamente** usa dados agregados quando disponíveis:
 ## 🔄 Manutenção Recomendada
 
 ### Opção 1: Manual (a cada 3-6 meses)
+
 ```bash
 node aggregate-monthly-stats.js --auto
 ```
 
 ### Opção 2: Cron Job Automático (futuro)
+
 Configurar um cron job no Render para executar mensalmente.
 
 ## ⚠️ Avisos Importantes
@@ -84,11 +89,13 @@ Configurar um cron job no Render para executar mensalmente.
 ### Cenário: Barbearia com 200 reservas/mês
 
 **Sem agregação (5 anos):**
+
 - 200 reservas/mês × 60 meses = 12.000 reservas
 - ~500 bytes cada = **6 MB** só em reservas
-- + Índices + Outros dados = **~10-15 MB**
+- - Índices + Outros dados = **~10-15 MB**
 
 **Com agregação (5 anos):**
+
 - Últimos 12 meses: 200 × 12 = 2.400 reservas = **1.2 MB**
 - 48 meses agregados: 48 × 1 KB = **48 KB**
 - **Total**: ~1.5 MB vs 10-15 MB
@@ -97,15 +104,19 @@ Configurar um cron job no Render para executar mensalmente.
 ## 🛠️ Troubleshooting
 
 ### "Nenhuma reserva encontrada"
+
 - Mês/ano incorretos
 - Não há reservas confirmadas/completadas nesse período
 
 ### "Erro ao conectar MongoDB"
+
 - Verificar `.env` com `MONGODB_URI` correto
 - Internet ativa
 
 ### Como reverter se algo correr mal?
+
 Se apagou por engano:
+
 1. Restaurar backup do MongoDB
 2. As estatísticas agregadas ficam na collection `monthlystats`
 3. Pode apagá-la manualmente se necessário
@@ -114,13 +125,13 @@ Se apagou por engano:
 
 ```javascript
 // Ver todos os meses agregados
-db.monthlystats.find({}).sort({ year: -1, month: -1 })
+db.monthlystats.find({}).sort({ year: -1, month: -1 });
 
 // Ver estatísticas de Janeiro 2024
-db.monthlystats.findOne({ year: 2024, month: 0, barberId: null })
+db.monthlystats.findOne({ year: 2024, month: 0, barberId: null });
 
 // Apagar estatísticas de um mês (se quiser refazer)
-db.monthlystats.deleteOne({ year: 2024, month: 0, barberId: null })
+db.monthlystats.deleteOne({ year: 2024, month: 0, barberId: null });
 ```
 
 ## ✅ Checklist de Manutenção
