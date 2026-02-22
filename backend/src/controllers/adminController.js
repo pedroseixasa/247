@@ -504,22 +504,40 @@ exports.getSiteSettings = async (req, res) => {
           reservationDate: { $gte: monthStart, $lte: monthEnd },
         });
 
-        // Separar receita passada vs futura dentro do mês
-        const revenuePast = await sumRevenue({
-          ...confirmedFilter,
-          reservationDate: {
-            $gte: monthStart,
-            $lte: now < monthEnd ? now : monthEnd,
-          },
-        });
+        // ===== LÓGICA CORRIGIDA =====
+        // Determinar se o mês é passado, atual ou futuro
+        const isMonthPast = monthEnd < now;           // monthEnd antes de agora
+        const isMonthCurrent = monthStart <= now && now <= monthEnd; // Agora dentro do mês
+        const isMonthFuture = monthStart > now;       // monthStart depois de agora
 
-        const revenueFuture =
-          now < monthEnd
-            ? await sumRevenue({
-                ...confirmedFilter,
-                reservationDate: { $gt: now, $lte: monthEnd },
-              })
-            : 0;
+        let revenuePast = 0;
+        let revenueFuture = 0;
+
+        if (isMonthPast) {
+          // ✅ Mês passado: TODA a receita é realizada
+          revenuePast = await sumRevenue({
+            ...confirmedFilter,
+            reservationDate: { $gte: monthStart, $lte: monthEnd },
+          });
+          revenueFuture = 0;
+        } else if (isMonthCurrent) {
+          // ✅ Mês atual: SEPARAR realizada vs prevista
+          revenuePast = await sumRevenue({
+            ...confirmedFilter,
+            reservationDate: { $gte: monthStart, $lte: now },
+          });
+          revenueFuture = await sumRevenue({
+            ...confirmedFilter,
+            reservationDate: { $gt: now, $lte: monthEnd },
+          });
+        } else if (isMonthFuture) {
+          // ✅ Mês futuro: TODA a receita é prevista
+          revenuePast = 0;
+          revenueFuture = await sumRevenue({
+            ...confirmedFilter,
+            reservationDate: { $gte: monthStart, $lte: monthEnd },
+          });
+        }
 
         const revenue = revenuePast + revenueFuture;
 
