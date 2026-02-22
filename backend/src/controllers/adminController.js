@@ -1,0 +1,688 @@
+const mongoose = require("mongoose");
+const Barber = require("../models/Barber");
+const Service = require("../models/Service");
+const Reservation = require("../models/Reservation");
+const SiteSettings = require("../models/SiteSettings");
+const Review = require("../models/Review");
+
+const defaultSiteSettings = {
+  header: {
+    brandName: "24.7 Barbearia",
+    logoImage: "images/logo.jpg",
+    hoursText: "📅 Ter–Sáb 09:00–19:00",
+    addressText: "📍 R. Cap. Leitão 84B",
+    phoneText: "+351 963 988 807",
+    phoneHref: "tel:+351963988807",
+  },
+  hero: {
+    title: "24.7 Barbearia",
+    subtitle: "O corte certo, o fade no ponto e a barba como deve ser.",
+    description:
+      "Ambiente relaxado com atendimento profissional. Reservas online fáceis e rápidas — qualidade e atenção ao detalhe em cada visita.",
+    ctaPrimaryText: "Marcar Agora",
+    ctaPrimaryHref: "#services",
+    ctaSecondaryText: "Contacto",
+    ctaSecondaryHref: "#contact",
+    image: "images/1.jpg",
+  },
+  about: {
+    title: "Sobre a 24.7 Barbearia",
+    text: "Somos uma barbearia moderna em Almada, comprometida com a excelência. Cada corte é feito com precisão, cada fade é trabalhado ao detalhe e cada barba é tratada com cuidado. Ambiente descontraído mas profissional, com marcações online, atendimento rápido e sem stress.",
+    coverImage: "images/cunhacorte.png",
+    characterImage: "images/cunha.png",
+  },
+  services: {
+    title: "Serviços & Preços",
+    subtitle: "Experiência premium com preços justos",
+  },
+  gallery: {
+    title: "Galeria de Trabalhos",
+    subtitle: "Confira alguns dos nossos melhores trabalhos",
+    logoImage: "images/logo.jpg",
+    instagramUrl: "https://www.instagram.com/247_barbearia",
+    instagramHandle: "247_barbearia",
+    images: [
+      "https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=500&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=500&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=500&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=500&h=600&fit=crop",
+      "images/1.jpg",
+      "https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=500&h=600&fit=crop",
+      "images/cunhacorte.png",
+    ],
+  },
+  contact: {
+    title: "Localização & Contacto",
+    addressText: "R. Cap. Leitão 84B, 2800-133 Almada",
+    phoneText: "+351 963 988 807",
+    phoneHref: "tel:+351963988807",
+    mapEmbedUrl:
+      "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3114.0838!2d-9.161209!3d38.678998!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzjCsDQwJzQ0LjQiTiA5wrAwOSc0MC40Ilc!5e0!3m2!1spt-PT!2spt!4v1234567890!5m2!1spt-PT!2spt",
+  },
+  hoursRows: [
+    { label: "SEGUNDA A SABADO", value: "09:00 – 19:00", className: "open" },
+    { label: "DOMINGO", value: "Encerrado", className: "closed" },
+  ],
+  cta: {
+    title: "Pronto para o seu próximo corte?",
+    text: "Marque agora mesmo online – rápido, fácil e sem complicações.",
+    buttonText: "Fazer Reserva",
+    buttonHref: "#services",
+  },
+  footerText:
+    "© 2026 24.7 Barbearia. Todos os direitos reservados. | Almada, Portugal",
+  loaderText: "24.7 Barbearia",
+  loaderImage: "images/logo.jpg",
+  barberCards: {
+    barber1Name: "Diogo Cunha",
+    barber1Role: "Barbeiro Profissional",
+    barber2Name: "Ricardo Silva",
+    barber2Role: "Barbeiro Especialista",
+  },
+};
+
+async function getOrCreateSiteSettings() {
+  let settings = await SiteSettings.findOne();
+  if (!settings) {
+    settings = await SiteSettings.create(defaultSiteSettings);
+  }
+  return settings;
+}
+
+// ===== GERENCIAR BARBEIROS =====
+exports.getAllBarbers = async (req, res) => {
+  try {
+    const barbers = await Barber.find().select("-password");
+    res.json(barbers);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.updateBarber = async (req, res) => {
+  try {
+    const { barberId } = req.params;
+    const { name, email, phone, avatar, bio, workingHours, isActive } =
+      req.body;
+
+    let barberIdObj;
+    try {
+      if (typeof barberId === "string") {
+        if (!mongoose.Types.ObjectId.isValid(barberId)) {
+          throw new Error("Barbeiro ID inválido");
+        }
+        barberIdObj = new mongoose.Types.ObjectId(barberId);
+      } else {
+        barberIdObj = barberId;
+      }
+    } catch (err) {
+      console.error("Erro ao validar barberId em updateBarber:", err);
+      return res.status(400).json({ error: "ID inválido: " + err.message });
+    }
+
+    const barber = await Barber.findByIdAndUpdate(
+      barberIdObj,
+      { name, email, phone, avatar, bio, workingHours, isActive },
+      { new: true },
+    ).select("-password");
+
+    if (!barber) {
+      return res.status(404).json({ error: "Barbeiro não encontrado" });
+    }
+
+    res.json(barber);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// ===== GERENCIAR SERVIÇOS =====
+exports.getAllServices = async (req, res) => {
+  try {
+    const services = await Service.find().sort({ order: 1 });
+    res.json(services);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.createService = async (req, res) => {
+  try {
+    const { name, description, price, duration, image, order } = req.body;
+
+    const service = new Service({
+      name,
+      description,
+      price,
+      duration: duration || 30,
+      image,
+      order: order || 0,
+    });
+
+    await service.save();
+    res.status(201).json(service);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.updateService = async (req, res) => {
+  try {
+    const { serviceId } = req.params;
+    const { name, description, price, duration, image, isActive, order } =
+      req.body;
+
+    const service = await Service.findByIdAndUpdate(
+      serviceId,
+      { name, description, price, duration, image, isActive, order },
+      { new: true },
+    );
+
+    if (!service) {
+      return res.status(404).json({ error: "Serviço não encontrado" });
+    }
+
+    res.json(service);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.deleteService = async (req, res) => {
+  try {
+    const { serviceId } = req.params;
+
+    const service = await Service.findByIdAndDelete(serviceId);
+    if (!service) {
+      return res.status(404).json({ error: "Serviço não encontrado" });
+    }
+
+    res.json({ message: "Serviço deletado" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.syncServiceToIndexClean = async (req, res) => {
+  try {
+    const fs = require("fs").promises;
+    const path = require("path");
+    const { service, action } = req.body;
+
+    console.log(`[SYNC] Action: ${action}, Service:`, service);
+
+    const indexCleanPath = path.join(__dirname, "../../..", "index_clean.html");
+
+    console.log(`[SYNC] Index path: ${indexCleanPath}`);
+
+    let html = await fs.readFile(indexCleanPath, "utf-8");
+
+    if (action === "add") {
+      // Generate slug from service name
+      const slug = service.name
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\s+/g, "-")
+        .replace(/[^\w\-]+/g, "");
+
+      const serviceCardHTML = `
+                <div class="service-card-new service-card-compact" data-service="${slug}"
+                    data-service-id="${service._id}">
+                    <div class="service-main-line">
+                        <span class="service-name">${service.name}</span>
+                        <span class="service-price">${service.price} €</span>
+                    </div>
+                    <button class="service-book-btn">Marcar</button>
+                </div>`;
+
+      // Find the closing tag of services-grid and add before it
+      const servicesGridEndPattern =
+        /([\s]*)<\/div>\s*\n\s*<\/div>\s*\n\s*<\/section>\s*\n\s*<section class="gallery/;
+
+      if (servicesGridEndPattern.test(html)) {
+        html = html.replace(
+          servicesGridEndPattern,
+          `${serviceCardHTML}\n            </div>\n\n        </div>\n    </section>\n\n    <section class="gallery`,
+        );
+      } else {
+        console.warn(
+          "Padrão de services-grid não encontrado, tentando alternativa...",
+        );
+        // Fallback: procurar apenas pelo fim do services-grid
+        html = html.replace(
+          /(<div class="service-card-new service-card-compact"[\s\S]*?<\/div>\s*<\/div>)([\s]*<\/div>)/,
+          `$1${serviceCardHTML}\n$2`,
+        );
+      }
+    } else if (action === "update") {
+      // Update existing service card
+      const servicePattern = new RegExp(
+        `(<div class="service-card-new service-card-compact"[^>]*data-service-id="${service._id}"[^>]*>\\s*<div class="service-main-line">\\s*<span class="service-name">)[^<]*(</span>\\s*<span class="service-price">)[^<]*(</span>)`,
+        "g",
+      );
+
+      html = html.replace(
+        servicePattern,
+        `$1${service.name}$2${service.price} €$3`,
+      );
+    } else if (action === "delete") {
+      // Remove service card completely
+      const servicePattern = new RegExp(
+        `\\s*<div class="service-card-new service-card-compact"[^>]*data-service-id="${service._id}"[^>]*>[\\s\\S]*?<\\/div>\\s*<\\/div>`,
+        "g",
+      );
+
+      html = html.replace(servicePattern, "");
+    }
+
+    await fs.writeFile(indexCleanPath, html, "utf-8");
+
+    console.log(`[SYNC] ✅ Ficheiro sincronizado com sucesso!`);
+
+    res.json({ message: "Sincronizado com sucesso" });
+  } catch (error) {
+    console.error("Erro ao sincronizar:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// ===== GERENCIAR RESERVAS =====
+exports.getAllReservations = async (req, res) => {
+  try {
+    // Se for barbeiro (não admin), mostrar apenas suas reservas
+    let barberId = null;
+    try {
+      if (req.barberRole !== "admin") {
+        if (typeof req.barberId === "string") {
+          if (!mongoose.Types.ObjectId.isValid(req.barberId)) {
+            throw new Error("Barbeiro ID inválido");
+          }
+          barberId = new mongoose.Types.ObjectId(req.barberId);
+        } else {
+          barberId = req.barberId;
+        }
+      } else if (req.query.barberId) {
+        if (typeof req.query.barberId === "string") {
+          if (!mongoose.Types.ObjectId.isValid(req.query.barberId)) {
+            throw new Error("Query barberId inválido");
+          }
+          barberId = new mongoose.Types.ObjectId(req.query.barberId);
+        } else {
+          barberId = req.query.barberId;
+        }
+      }
+    } catch (err) {
+      console.error("Erro ao validar barberId em getAllReservations:", err);
+      return res.status(400).json({ error: "ID inválido: " + err.message });
+    }
+
+    const filter = barberId ? { barberId } : {};
+
+    const reservations = await Reservation.find(filter)
+      .populate({
+        path: "barberId",
+        select: "_id name email phone avatar",
+      })
+      .populate({
+        path: "serviceId",
+        select: "_id name price duration",
+      })
+      .sort({ reservationDate: 1, timeSlot: 1 })
+      .lean();
+
+    res.json(reservations);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// ===== GERENCIAR SITE (Fotos, Textos, etc) =====
+function getStartOfWeek(date) {
+  const start = new Date(date);
+  const day = (start.getDay() + 6) % 7; // Monday as start of week
+  start.setDate(start.getDate() - day);
+  start.setHours(0, 0, 0, 0);
+  return start;
+}
+
+function getStartOfMonth(date) {
+  const start = new Date(date.getFullYear(), date.getMonth(), 1);
+  start.setHours(0, 0, 0, 0);
+  return start;
+}
+
+function getMonthRange(year, month) {
+  const start = new Date(year, month - 1, 1);
+  start.setHours(0, 0, 0, 0);
+  const end = new Date(year, month, 0);
+  end.setHours(23, 59, 59, 999);
+  return { start, end };
+}
+
+function parseSelectedMonth(query) {
+  const year = Number(query.year);
+  const month = Number(query.month);
+  if (!Number.isInteger(year) || !Number.isInteger(month)) return null;
+  if (year < 2026 || month < 1 || month > 12) return null;
+  return { year, month };
+}
+
+async function sumRevenue(filter) {
+  const reservations = await Reservation.find(filter).populate({
+    path: "serviceId",
+    select: "price",
+  });
+
+  let total = 0;
+  reservations.forEach((reservation) => {
+    if (reservation.serviceId && reservation.serviceId.price) {
+      total += reservation.serviceId.price;
+    }
+  });
+
+  console.log(
+    `[DEBUG sumRevenue] Filter:`,
+    filter,
+    `| Reservations found:`,
+    reservations.length,
+    `| Total: €${total}`,
+  );
+
+  return total;
+}
+
+exports.getSiteSettings = async (req, res) => {
+  try {
+    const now = new Date();
+
+    // Parâmetro de ano: por default é o ano atual
+    const selectedYear = req.query.year
+      ? Number(req.query.year)
+      : now.getFullYear();
+    if (selectedYear < 2026 || !Number.isInteger(selectedYear)) {
+      return res.status(400).json({ error: "Ano inválido" });
+    }
+
+    // Os 3 cards mostram dados do mês ATUAL
+    const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    currentMonthStart.setHours(0, 0, 0, 0);
+    const currentMonthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    currentMonthEnd.setHours(23, 59, 59, 999);
+
+    let barberId = null;
+    try {
+      if (req.barberRole !== "admin") {
+        if (typeof req.barberId === "string") {
+          if (!mongoose.Types.ObjectId.isValid(req.barberId)) {
+            throw new Error("Barbeiro ID inválido");
+          }
+          barberId = new mongoose.Types.ObjectId(req.barberId);
+        } else {
+          barberId = req.barberId;
+        }
+      } else if (req.query.barberId) {
+        if (typeof req.query.barberId === "string") {
+          if (!mongoose.Types.ObjectId.isValid(req.query.barberId)) {
+            throw new Error("Query barberId inválido");
+          }
+          barberId = new mongoose.Types.ObjectId(req.query.barberId);
+        } else {
+          barberId = req.query.barberId;
+        }
+      }
+    } catch (err) {
+      console.error("Erro ao validar barberId em getSiteSettings:", err);
+      return res.status(400).json({ error: "ID inválido: " + err.message });
+    }
+
+    const baseFilter = barberId ? { barberId } : {};
+    const confirmedFilter = {
+      ...baseFilter,
+      status: { $in: ["confirmed", "completed"] },
+    };
+
+    // ===== CARDS: Dados do mês ATUAL =====
+    const pastFilter = {
+      ...confirmedFilter,
+      reservationDate: { $gte: currentMonthStart, $lte: now },
+    };
+
+    const futureFilter = {
+      ...confirmedFilter,
+      reservationDate: { $gt: now, $lte: currentMonthEnd },
+    };
+
+    const totalMonthFilter = {
+      ...confirmedFilter,
+      reservationDate: { $gte: currentMonthStart, $lte: currentMonthEnd },
+    };
+
+    // Contar reservas do mês atual
+    const reservasPast = await Reservation.countDocuments(pastFilter);
+    const reservasFuture = await Reservation.countDocuments(futureFilter);
+    const reservasTotal = await Reservation.countDocuments(totalMonthFilter);
+
+    // Calcular receitas do mês atual
+    const receitaPast = await sumRevenue(pastFilter);
+    const receitaFuture = await sumRevenue(futureFilter);
+    const receitaTotal = receitaPast + receitaFuture;
+
+    // ===== HISTÓRICO: Todos os 12 meses do ANO SELECIONADO =====
+    const monthlyBreakdown = [];
+    for (let month = 0; month < 12; month++) {
+      const monthStart = new Date(selectedYear, month, 1);
+      monthStart.setHours(0, 0, 0, 0);
+      const monthEnd = new Date(selectedYear, month + 1, 0);
+      monthEnd.setHours(23, 59, 59, 999);
+
+      const count = await Reservation.countDocuments({
+        ...confirmedFilter,
+        reservationDate: { $gte: monthStart, $lte: monthEnd },
+      });
+
+      const revenue = await sumRevenue({
+        ...confirmedFilter,
+        reservationDate: { $gte: monthStart, $lte: monthEnd },
+      });
+
+      monthlyBreakdown.push({
+        label: monthStart.toLocaleDateString("pt-PT", {
+          month: "long",
+          year: "numeric",
+        }),
+        count,
+        revenue,
+      });
+    }
+
+    const barbersCount = await Barber.countDocuments({ isActive: true });
+    const servicesCount = await Service.countDocuments({ isActive: true });
+
+    res.json({
+      stats: {
+        barbersCount,
+        servicesCount,
+
+        // Dados do mês ATUAL
+        reservasPast, // Confirmadas (passado no mês atual)
+        reservasFuture, // Confirmadas (futuro no mês atual)
+        reservasTotal, // Total no mês atual
+
+        receitaPast, // Receita realizada (passado no mês atual)
+        receitaFuture, // Receita estimada (futuro no mês atual)
+        receitaTotal, // Total estimado no mês atual
+
+        monthlyBreakdown, // Todos os 12 meses do ano selecionado
+
+        selectedYear, // Ano selecionado
+        currentMonth: now.getMonth() + 1,
+        currentYear: now.getFullYear(),
+
+        currentMonthLabel: currentMonthStart.toLocaleDateString("pt-PT", {
+          month: "long",
+          year: "numeric",
+        }),
+      },
+    });
+  } catch (error) {
+    console.error("Erro em getSiteSettings:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// ===== GERENCIAR CONTEÚDO DO SITE =====
+exports.getSiteContent = async (req, res) => {
+  try {
+    const settings = await getOrCreateSiteSettings();
+    res.json(settings);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.getPublicSiteSettings = async (req, res) => {
+  try {
+    const settings = await getOrCreateSiteSettings();
+    res.json(settings);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.updateSiteContent = async (req, res) => {
+  try {
+    // Aceitar tanto JSON normal quanto FormData
+    let data = req.body || {};
+    if (req.body && req.body.data) {
+      data = JSON.parse(req.body.data || "{}");
+    }
+
+    data.header = data.header || {};
+    data.hero = data.hero || {};
+    data.about = data.about || {};
+    data.gallery = data.gallery || {};
+    const settings = await getOrCreateSiteSettings();
+
+    // Processar imagens otimizadas
+    if (req.logoImageBase64) {
+      data.header.logoImage = req.logoImageBase64;
+    } else if (req.logoImageUrl) {
+      data.header.logoImage = req.logoImageUrl;
+    }
+
+    if (req.heroImageBase64) {
+      data.hero.image = req.heroImageBase64;
+    } else if (req.heroImageUrl) {
+      data.hero.image = req.heroImageUrl;
+    }
+
+    if (req.aboutCoverImageBase64) {
+      data.about.coverImage = req.aboutCoverImageBase64;
+    } else if (req.aboutCoverImageUrl) {
+      data.about.coverImage = req.aboutCoverImageUrl;
+    }
+
+    if (req.aboutCharacterImageBase64) {
+      data.about.characterImage = req.aboutCharacterImageBase64;
+    } else if (req.aboutCharacterImageUrl) {
+      data.about.characterImage = req.aboutCharacterImageUrl;
+    }
+
+    if (req.galleryLogoImageBase64) {
+      data.gallery.logoImage = req.galleryLogoImageBase64;
+    } else if (req.galleryLogoImageUrl) {
+      data.gallery.logoImage = req.galleryLogoImageUrl;
+    }
+
+    if (req.galleryImagesBase64 && req.galleryImagesBase64.length > 0) {
+      if (
+        req.galleryImagesBase64.length < 3 ||
+        req.galleryImagesBase64.length > 10
+      ) {
+        return res.status(400).json({
+          error: "Selecione entre 3 e 10 imagens para a galeria.",
+        });
+      }
+      data.gallery.images = req.galleryImagesBase64;
+    }
+
+    if (req.loaderImageBase64) {
+      data.loaderImage = req.loaderImageBase64;
+    } else if (req.loaderImageUrl) {
+      data.loaderImage = req.loaderImageUrl;
+    }
+
+    settings.set(data);
+    await settings.save();
+    res.json(settings);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// ===== GERENCIAR REVIEWS =====
+exports.getRandomReviews = async (req, res) => {
+  try {
+    // Pegar 3 reviews aleatórias com rating >= 4 e que estejam ativas
+    const reviews = await Review.aggregate([
+      { $match: { rating: { $gte: 4 }, isActive: true } },
+      { $sample: { size: 3 } },
+      { $sort: { date: -1 } },
+    ]);
+
+    res.json(reviews);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.getAllReviews = async (req, res) => {
+  try {
+    const reviews = await Review.find().sort({ date: -1 });
+    res.json(reviews);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.createReview = async (req, res) => {
+  try {
+    const { author, rating, text, date } = req.body;
+    const review = await Review.create({ author, rating, text, date });
+    res.status(201).json(review);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.updateReview = async (req, res) => {
+  try {
+    const { reviewId } = req.params;
+    const { author, rating, text, date, isActive } = req.body;
+
+    const review = await Review.findByIdAndUpdate(
+      reviewId,
+      { author, rating, text, date, isActive },
+      { new: true },
+    );
+
+    if (!review) {
+      return res.status(404).json({ error: "Review não encontrada" });
+    }
+
+    res.json(review);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.deleteReview = async (req, res) => {
+  try {
+    const { reviewId } = req.params;
+    await Review.findByIdAndDelete(reviewId);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

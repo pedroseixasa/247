@@ -1,0 +1,2101 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Admin - Barbearia 24.7</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1a1a1a;
+            --secondary: #ffffff;
+            --accent: #ff6b35;
+            --border: #e0e0e0;
+            --text-light: #666;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f5f5 0%, #eeeeee 100%);
+            color: var(--primary);
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: var(--primary);
+            color: var(--secondary);
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-logo {
+            padding: 0 1.5rem 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            margin-top: 1rem;
+        }
+
+        .sidebar-menu li {
+            margin: 0;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.5rem;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar-menu a .emoji {
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            color: var(--secondary);
+            background: rgba(255, 255, 255, 0.1);
+            border-left-color: var(--accent);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            flex: 1;
+            padding: 2rem;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            background: var(--secondary);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 2rem;
+            color: var(--primary);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logout-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #e55a24;
+            transform: translateY(-2px);
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: var(--secondary);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-top: 3px solid var(--accent);
+        }
+
+        .card h3 {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .card .value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        /* Tables */
+        .table-container {
+            background: var(--secondary);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f9f9f9;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--primary);
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tr:hover {
+            background: #fafafa;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: #e55a24;
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--secondary);
+            padding: 2rem;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+            padding: 0;
+            width: 30px;
+            height: 30px;
+        }
+
+        /* Status badges */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-danger {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .reservations-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+
+        .reservation-day {
+            margin-bottom: 1.5rem;
+        }
+
+        .reservation-day-header {
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            color: var(--primary);
+        }
+
+        .reservation-list {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .reservation-card {
+            background: var(--secondary);
+            border-radius: 8px;
+            padding: 1rem 1.25rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            display: grid;
+            grid-template-columns: 90px 1fr 140px 100px;
+            gap: 1rem;
+            align-items: center;
+            border-left: 4px solid var(--accent);
+        }
+
+        .reservation-time {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-align: center;
+        }
+
+        .reservation-service {
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .reservation-meta {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .reservation-status {
+            text-align: right;
+        }
+
+        .reservation-actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+        }
+
+        .btn-action {
+            padding: 0.4rem 0.8rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-cancel {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background: #c82333;
+        }
+
+        /* Login Page */
+        .login-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary) 0%, #333 100%);
+        }
+
+        .login-box {
+            background: var(--secondary);
+            padding: 2rem;
+            border-radius: 8px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .login-box h1 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: var(--accent);
+        }
+
+        .login-box .form-group {
+            margin-bottom: 1rem;
+        }
+
+        /* Responsivo */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 70px;
+            }
+
+            .sidebar-logo {
+                font-size: 0;
+                padding: 1rem;
+            }
+
+            .sidebar-logo::before {
+                content: '24.7';
+                font-size: 1.25rem;
+            }
+
+            .sidebar-menu a {
+                padding: 1rem;
+                font-size: 1.25rem;
+                text-align: center;
+            }
+
+            .sidebar-menu a span:not(.emoji) {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 70px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                top: auto;
+                width: 100%;
+                height: 70px;
+                z-index: 1000;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+                border-right: none;
+            }
+
+            .sidebar-logo {
+                display: none;
+            }
+
+            .sidebar-menu {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-around;
+                margin: 0;
+                height: 100%;
+            }
+
+            .sidebar-menu li {
+                flex: 1;
+            }
+
+            .sidebar-menu a {
+                padding: 0.75rem;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.5rem;
+                gap: 0.25rem;
+                height: 100%;
+                border-left: none;
+                border-top: 3px solid transparent;
+            }
+
+            .sidebar-menu a:hover,
+            .sidebar-menu a.active {
+                border-left-color: transparent;
+                border-top-color: var(--accent);
+            }
+
+            .sidebar-menu a span:not(.emoji) {
+                font-size: 0.65rem;
+                display: block;
+            }
+
+            .main-content {
+                margin-left: 0;
+                margin-bottom: 70px;
+                padding: 1rem;
+            }
+
+            header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .reservation-card {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .reservation-time {
+                text-align: left;
+                font-size: 1.5rem;
+            }
+
+            .reservation-status,
+            .reservation-actions {
+                text-align: left;
+                justify-content: flex-start;
+            }
+
+            .reservation-actions {
+                flex-wrap: wrap;
+            }
+
+            .table-container {
+                overflow-x: auto;
+            }
+
+            table {
+                font-size: 0.85rem;
+            }
+
+            th,
+            td {
+                padding: 0.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 0.75rem;
+            }
+
+            header {
+                padding: 0.75rem;
+            }
+
+            .user-info {
+                font-size: 0.875rem;
+            }
+
+            .logout-btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.875rem;
+            }
+
+            .btn-action {
+                padding: 0.35rem 0.6rem;
+                font-size: 0.75rem;
+            }
+
+            .reservation-day-header {
+                font-size: 0.9rem;
+                padding: 0.75rem;
+            }
+
+            .reservation-card {
+                padding: 0.75rem;
+            }
+
+            .reservation-service {
+                font-size: 0.95rem;
+            }
+
+            .reservation-meta {
+                font-size: 0.8rem;
+            }
+        }
+
+        .alert {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background: #e7f3ff;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .floating-save-btn {
+            position: fixed;
+            right: 2rem;
+            bottom: 2rem;
+            z-index: 1200;
+            padding: 0.85rem 1.6rem;
+            background: #ff6b35;
+            color: #fff;
+            border: none;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            box-shadow: 0 10px 24px rgba(255, 107, 53, 0.35);
+            cursor: pointer;
+            transition: transform 180ms ease, box-shadow 180ms ease, opacity 180ms ease;
+        }
+
+        .floating-save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 30px rgba(255, 107, 53, 0.45);
+        }
+
+        .floating-save-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .status-modal {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .status-modal.active {
+            display: flex;
+        }
+
+        .status-modal-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+        }
+
+        .status-modal-content {
+            position: relative;
+            background: #fff;
+            border-radius: 12px;
+            padding: 1.5rem 1.75rem;
+            max-width: 420px;
+            width: 90%;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .status-modal-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .status-modal-message {
+            font-size: 0.95rem;
+            color: #444;
+            margin-bottom: 1.25rem;
+            line-height: 1.5;
+        }
+
+        .status-modal-actions {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .status-modal-close {
+            padding: 0.5rem 1.25rem;
+            background: #111;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .status-modal[data-type="success"] .status-modal-title {
+            color: #1b5e20;
+        }
+
+        .status-modal[data-type="error"] .status-modal-title {
+            color: #b71c1c;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app"></div>
+
+    <script>
+        const hostname = window.location.hostname || 'localhost';
+        const API_URL = `http://${hostname}:5000/api`;
+        let token = localStorage.getItem('admin_token');
+        let currentUser = JSON.parse(localStorage.getItem('admin_user') || '{}');
+
+        // Login
+        if (!token) {
+            showLoginPage();
+        } else {
+            showAdminPanel();
+        }
+
+        function showLoginPage() {
+            document.getElementById('app').innerHTML = `
+                <div class="login-container">
+                    <div class="login-box">
+                        <h1>🔐 Painel Admin</h1>
+                        <form id="loginForm">
+                            <div class="form-group">
+                                <label>Email:</label>
+                                <input type="email" id="email" required />
+                            </div>
+                            <div class="form-group">
+                                <label>Password:</label>
+                                <input type="password" id="password" required />
+                            </div>
+                            <div id="alertBox"></div>
+                            <button type="submit" style="width: 100%;">Login</button>
+                        </form>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('loginForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+
+                try {
+                    const response = await fetch(`${API_URL}/auth/login`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, password })
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        showAlert('alertBox', data.error, 'error');
+                        return;
+                    }
+
+                    token = data.token;
+                    currentUser = data.barber;
+                    localStorage.setItem('admin_token', token);
+                    localStorage.setItem('admin_user', JSON.stringify(currentUser));
+
+                    showAdminPanel();
+                } catch (error) {
+                    showAlert('alertBox', 'Erro ao conectar: ' + error.message, 'error');
+                }
+            });
+        }
+
+        function showAdminPanel() {
+            const isAdmin = currentUser.role === 'admin';
+            const menuItems = isAdmin
+                ? `
+                    <li><a href="#dashboard" class="menu-link active"><span class="emoji">📊</span><span>Dashboard</span></a></li>
+                    <li><a href="#reservations" class="menu-link"><span class="emoji">📅</span><span>Reservas</span></a></li>
+                    <li><a href="#services" class="menu-link"><span class="emoji">✂️</span><span>Serviços</span></a></li>
+                    <li><a href="#settings" class="menu-link"><span class="emoji">⚙️</span><span>Config</span></a></li>
+                `
+                : `
+                    <li><a href="#reservations" class="menu-link active"><span class="emoji">📅</span><span>Reservas</span></a></li>
+                `;
+
+            const panelTitle = isAdmin ? '24.7 Admin' : '24.7 Painel';
+
+            document.getElementById('app').innerHTML = `
+                <div class="container">
+                    <aside class="sidebar">
+                        <div class="sidebar-logo">${panelTitle}</div>
+                        <ul class="sidebar-menu">
+                            ${menuItems}
+                        </ul>
+                    </aside>
+
+                    <main class="main-content">
+                        <header>
+                            <h1 id="pageTitle">${isAdmin ? 'Dashboard' : 'Minhas Reservas'}</h1>
+                            <div class="user-info">
+                                <span>Olá, <strong>${currentUser.name}</strong></span>
+                                <button class="logout-btn" onclick="logout()">Sair</button>
+                            </div>
+                        </header>
+
+                        <div id="content"></div>
+                    </main>
+                </div>
+            `;
+
+            if (!document.getElementById('statusModal')) {
+                document.body.insertAdjacentHTML('beforeend', `
+                    <div id="statusModal" class="status-modal" data-type="success">
+                        <div class="status-modal-backdrop" data-close="true"></div>
+                        <div class="status-modal-content" role="dialog" aria-live="polite">
+                            <div class="status-modal-title" id="statusModalTitle">Estado</div>
+                            <div class="status-modal-message" id="statusModalMessage"></div>
+                            <div class="status-modal-actions">
+                                <button type="button" class="status-modal-close" data-close="true">Fechar</button>
+                            </div>
+                        </div>
+                    </div>
+                `);
+
+                document.body.addEventListener('click', (event) => {
+                    if (event.target && event.target.getAttribute('data-close') === 'true') {
+                        closeStatusModal();
+                    }
+                });
+            }
+
+            // Menu listeners
+            document.querySelectorAll('.menu-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const page = link.getAttribute('href').substring(1);
+
+                    document.querySelectorAll('.menu-link').forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+
+                    loadPage(page);
+                });
+            });
+
+            // Carregar página inicial baseado no role
+            const initialPage = currentUser.role === 'admin' ? 'dashboard' : 'reservations';
+            loadPage(initialPage);
+        }
+
+        async function loadPage(page) {
+            const pageTitles = {
+                'dashboard': '📊 Dashboard',
+                'reservations': currentUser.role === 'admin' ? '📅 Reservas' : '📅 Minhas Reservas',
+                'services': '✂️ Serviços',
+                'settings': '⚙️ Configurações'
+            };
+
+            document.getElementById('pageTitle').textContent = pageTitles[page] || page;
+
+            const content = document.getElementById('content');
+
+            switch (page) {
+                case 'dashboard':
+                    loadDashboard(content);
+                    break;
+                case 'reservations':
+                    loadReservations(content);
+                    break;
+                case 'services':
+                    loadServices(content);
+                    break;
+                case 'barbers':
+                    loadBarbers(content);
+                    break;
+                case 'settings':
+                    loadSettings(content);
+                    break;
+            }
+        }
+
+        function formatCurrency(value) {
+            const amount = Number(value || 0);
+            return new Intl.NumberFormat('pt-PT', {
+                style: 'currency',
+                currency: 'EUR'
+            }).format(amount);
+        }
+
+        async function fetchJson(url, options = {}) {
+            const response = await fetch(url, options);
+            const text = await response.text();
+            let data = {};
+
+            if (text) {
+                try {
+                    data = JSON.parse(text);
+                } catch (error) {
+                    throw new Error('Resposta inválida do servidor. Reinicia o backend.');
+                }
+            }
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Erro ao comunicar com o servidor');
+            }
+
+            return data;
+        }
+
+        async function fetchBarbers() {
+            return fetchJson(`${API_URL}/admin/barbers`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+        }
+
+        function buildBarberOptions(barbers, selectedId) {
+            const defaultOption = `<option value=""${selectedId ? '' : ' selected'}>Todos os barbeiros</option>`;
+            const options = barbers.map(barber => {
+                const selected = barber._id === selectedId ? ' selected' : '';
+                return `<option value="${barber._id}"${selected}>${barber.name}</option>`;
+            });
+            return [defaultOption].concat(options).join('');
+        }
+
+        function buildYearOptions(selectedYear = 0) {
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            const defaultYear = selectedYear || currentYear;
+
+            let html = '';
+            for (let year = 2026; year <= currentYear + 5; year++) {
+                const selected = year === defaultYear ? ' selected' : '';
+                html += `<option value="${year}"${selected}>${year}</option>`;
+            }
+            return html;
+        }
+
+        function buildDashboardUrl(barberId, year) {
+            const params = new URLSearchParams();
+            if (barberId) {
+                params.set('barberId', barberId);
+            }
+            if (year) {
+                params.set('year', year);
+            }
+            const query = params.toString();
+            return query ? `${API_URL}/admin/settings?${query}` : `${API_URL}/admin/settings`;
+        }
+
+        async function loadDashboard(container) {
+            try {
+                container.innerHTML = '<p>A carregar dashboard...</p>';
+
+                const selectedBarberId = '';
+                const selectedYear = new Date().getFullYear();
+                const statsUrl = buildDashboardUrl(selectedBarberId, selectedYear);
+
+                const [barbers, data] = await Promise.all([
+                    fetchBarbers(),
+                    fetchJson(statsUrl, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    })
+                ]);
+
+                const stats = data.stats || {};
+                const barberOptions = buildBarberOptions(barbers, selectedBarberId);
+                const yearOptions = buildYearOptions(selectedYear);
+
+                const renderDashboard = (stats, barberOptions, yearOptions) => {
+                    return `
+                        <!-- Seção de Filtros -->
+                        <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid #e0e0e0;">
+                            <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                                <label style="font-weight: 600; margin: 0;">Filtros:</label>
+                                <select id="dashboardBarberFilter" style="flex: 1; min-width: 200px;">
+                                    ${barberOptions}
+                                </select>
+                                <select id="dashboardYearFilter" style="flex: 0 0 auto; min-width: 120px;">
+                                    ${yearOptions}
+                                </select>
+                                <button id="dashboardApply" style="padding: 0.5rem 1.5rem; background: #555; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">Aplicar</button>
+                            </div>
+                        </div>
+
+                        <!-- Cards Principais (Mês Atual) -->
+                        <div style="display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); margin-bottom: 2rem;">
+                            <div class="card" style="background: #fff; color: #333; padding: 1.5rem; border-radius: 6px; border-left: 4px solid #27ae60; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+                                <div style="margin-bottom: 1rem;">
+                                    <h3 style="margin: 0; font-size: 0.9rem; font-weight: 500; color: #666; text-transform: uppercase; letter-spacing: 0.5px;">Receitas Realizadas</h3>
+                                </div>
+                                <div style="font-size: 2.2rem; font-weight: 700; margin-bottom: 0.75rem; color: #27ae60;">${formatCurrency(stats.receitaPast)}</div>
+                                <div style="font-size: 0.85rem; color: #999;">Confirmadas: ${stats.reservasPast || 0}</div>
+                            </div>
+
+                            <div class="card" style="background: #fff; color: #333; padding: 1.5rem; border-radius: 6px; border-left: 4px solid #3498db; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+                                <div style="margin-bottom: 1rem;">
+                                    <h3 style="margin: 0; font-size: 0.9rem; font-weight: 500; color: #666; text-transform: uppercase; letter-spacing: 0.5px;">Receitas Previstas</h3>
+                                </div>
+                                <div style="font-size: 2.2rem; font-weight: 700; margin-bottom: 0.75rem; color: #3498db;">${formatCurrency(stats.receitaFuture)}</div>
+                                <div style="font-size: 0.85rem; color: #999;">Futuras: ${stats.reservasFuture || 0}</div>
+                            </div>
+
+                            <div class="card" style="background: #fff; color: #333; padding: 1.5rem; border-radius: 6px; border-left: 4px solid #2c3e50; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+                                <div style="margin-bottom: 1rem;">
+                                    <h3 style="margin: 0; font-size: 0.9rem; font-weight: 500; color: #666; text-transform: uppercase; letter-spacing: 0.5px;">Total Estimado</h3>
+                                </div>
+                                <div style="font-size: 2.2rem; font-weight: 700; margin-bottom: 0.75rem; color: #2c3e50;">${formatCurrency(stats.receitaTotal)}</div>
+                                <div style="font-size: 0.85rem; color: #999;">Total do mês: ${stats.reservasTotal || 0}</div>
+                            </div>
+                        </div>
+
+                        <!-- Histórico Mensal do Ano Selecionado -->
+                        <div style="background: white; border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+                            <div style="padding: 1.5rem; border-bottom: 1px solid #e0e0e0;">
+                                <h3 style="margin: 0; font-size: 1rem; color: #333; font-weight: 600;">Histórico Mensal - ${stats.selectedYear}</h3>
+                            </div>
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <thead>
+                                    <tr style="background: #f8f9fa; border-bottom: 1px solid #e0e0e0;">
+                                        <th style="text-align: left; padding: 1rem; color: #666; font-weight: 600; font-size: 0.9rem;">Mês</th>
+                                        <th style="text-align: right; padding: 1rem; color: #666; font-weight: 600; font-size: 0.9rem;">Reservas</th>
+                                        <th style="text-align: right; padding: 1rem; color: #666; font-weight: 600; font-size: 0.9rem;">Receita</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${(stats.monthlyBreakdown || []).map((item, idx) => `
+                                        <tr style="border-bottom: 1px solid #e0e0e0; background: ${idx % 2 === 0 ? '#fff' : '#f8f9fa'};">
+                                            <td style="padding: 1rem; font-size: 0.9rem; color: #333;">${item.label}</td>
+                                            <td style="text-align: right; padding: 1rem; color: #666;">${item.count}</td>
+                                            <td style="text-align: right; padding: 1rem; font-weight: 600; color: #27ae60;">${formatCurrency(item.revenue)}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                };
+
+                container.innerHTML = renderDashboard(stats, barberOptions, yearOptions);
+
+                const applyDashboardFilters = async () => {
+                    const barberId = document.getElementById('dashboardBarberFilter').value;
+                    const year = document.getElementById('dashboardYearFilter').value;
+                    const url = buildDashboardUrl(barberId, year);
+
+                    const refreshData = await fetchJson(url, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+
+                    const refreshStats = refreshData.stats || {};
+                    const refreshedBarberOptions = buildBarberOptions(barbers, barberId);
+                    const refreshedYearOptions = buildYearOptions(Number(year));
+
+                    container.innerHTML = renderDashboard(refreshStats, refreshedBarberOptions, refreshedYearOptions);
+
+                    document.getElementById('dashboardApply').addEventListener('click', applyDashboardFilters);
+                };
+
+                document.getElementById('dashboardApply').addEventListener('click', applyDashboardFilters);
+            } catch (error) {
+                container.innerHTML = `<div class="alert alert-error">Erro ao carregar dashboard: ${error.message}</div>`;
+            }
+        }
+
+        async function loadReservations(container) {
+            try {
+                container.innerHTML = '<p>A carregar reservas...</p>';
+
+                const barbers = currentUser.role === 'admin' ? await fetchBarbers() : [];
+                const barberOptions = currentUser.role === 'admin'
+                    ? buildBarberOptions(barbers, '')
+                    : '';
+
+                const reservations = await fetchJson(`${API_URL}/admin/reservations`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const buildReservationsHtml = (items) => {
+                    let html = `
+                        <div class="reservations-toolbar">
+                            <span><strong>Total:</strong> ${items.length}</span>
+                            ${currentUser.role === 'admin' ? `
+                                <div style="display:flex; gap:0.75rem; flex-wrap: wrap;">
+                                    <select id="reservationsBarberFilter">${barberOptions}</select>
+                                    <button id="reservationsApply">Filtrar</button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+
+                    if (!Array.isArray(items) || items.length === 0) {
+                        html += '<div class="alert alert-info">Sem reservas registradas.</div>';
+                        return html;
+                    }
+
+                    const groupedItems = {};
+                    items.forEach((reservation) => {
+                        const dateObj = new Date(reservation.reservationDate);
+                        const dateKey = dateObj.toISOString().split('T')[0];
+
+                        if (!groupedItems[dateKey]) {
+                            groupedItems[dateKey] = { date: dateObj, items: [] };
+                        }
+
+                        groupedItems[dateKey].items.push(reservation);
+                    });
+
+                    const sortedItemKeys = Object.keys(groupedItems).sort(
+                        (a, b) => new Date(a) - new Date(b)
+                    );
+
+                    sortedItemKeys.forEach((key) => {
+                        const group = groupedItems[key];
+                        const dateLabel = group.date.toLocaleDateString('pt-PT', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                        });
+
+                        html += `
+                            <div class="reservation-day">
+                                <div class="reservation-day-header">${dateLabel}</div>
+                                <div class="reservation-list">
+                        `;
+
+                        group.items
+                            .sort((a, b) => (a.timeSlot || '').localeCompare(b.timeSlot || ''))
+                            .forEach((reservation) => {
+                                // Try to get barber name: first from populated object, then from map, then fallback
+                                let barberName = '—';
+                                if (reservation.barberId) {
+                                    if (typeof reservation.barberId === 'string') {
+                                        // barberId is just an ID string - lookup in barbers array
+                                        const barber = barbers.find(b => b._id === reservation.barberId);
+                                        barberName = barber ? barber.name : '—';
+                                    } else if (reservation.barberId.name) {
+                                        // barberId is populated object with name
+                                        barberName = reservation.barberId.name;
+                                    } else if (reservation.barberId._id) {
+                                        // barberId is populated but no name - lookup in barbers array
+                                        const barber = barbers.find(b => b._id === reservation.barberId._id);
+                                        barberName = barber ? barber.name : '—';
+                                    }
+                                }
+
+                                const serviceName = reservation.serviceId && reservation.serviceId.name
+                                    ? reservation.serviceId.name
+                                    : '—';
+
+                                const clientLine = [
+                                    reservation.clientName,
+                                    reservation.clientPhone,
+                                    reservation.clientEmail
+                                ].filter(Boolean).join(' • ');
+
+                                html += `
+                                    <div class="reservation-card">
+                                        <div class="reservation-time">${reservation.timeSlot || '--:--'}</div>
+                                        <div>
+                                            <div class="reservation-service">${serviceName}</div>
+                                            <div class="reservation-meta">Barbeiro: ${barberName}</div>
+                                            <div class="reservation-meta">Cliente: ${clientLine}</div>
+                                        </div>
+                                        <div class="reservation-status"></div>
+                                        <div class="reservation-actions">
+                                            <button class="btn-action btn-cancel" onclick="cancelReservation('${reservation._id}')">Cancelar</button>
+                                        </div>
+                                    </div>
+                                `;
+                            });
+
+                        html += `
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    return html;
+                };
+
+                container.innerHTML = buildReservationsHtml(reservations);
+
+                const attachReservationsFilter = () => {
+                    if (currentUser.role !== 'admin') return;
+                    const applyButton = document.getElementById('reservationsApply');
+                    if (!applyButton) return;
+
+                    applyButton.addEventListener('click', async () => {
+                        const barberId = document.getElementById('reservationsBarberFilter').value;
+                        const url = barberId
+                            ? `${API_URL}/admin/reservations?barberId=${barberId}`
+                            : `${API_URL}/admin/reservations`;
+
+                        const refreshData = await fetchJson(url, {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+
+                        const updatedOptions = buildBarberOptions(barbers, barberId);
+                        container.innerHTML = buildReservationsHtml(refreshData);
+                        const filterSelect = document.getElementById('reservationsBarberFilter');
+                        if (filterSelect) {
+                            filterSelect.innerHTML = updatedOptions;
+                        }
+                        attachReservationsFilter();
+                    });
+                };
+
+                attachReservationsFilter();
+            } catch (error) {
+                container.innerHTML = `<div class="alert alert-error">Erro ao carregar reservas: ${error.message}</div>`;
+            }
+        }
+
+        async function loadServices(container) {
+            try {
+                const services = await fetchJson(`${API_URL}/admin/services`);
+
+                let html = '<button onclick="showAddServiceModal()" style="margin-bottom: 1rem;">+ Novo Serviço</button>';
+                html += '<div class="table-container"><table>';
+                html += '<thead><tr><th>Nome</th><th>Preço</th><th>Duração</th><th>Ações</th></tr></thead><tbody>';
+
+                services.forEach(service => {
+                    html += `
+                        <tr>
+                            <td>${service.name}</td>
+                            <td>€${service.price}</td>
+                            <td>${service.duration} min</td>
+                            <td>
+                                <button onclick="editService('${service._id}')" style="background: #007bff; padding: 0.5rem 1rem; font-size: 0.9rem;">Editar</button>
+                                <button onclick="deleteService('${service._id}')" style="background: #dc3545; padding: 0.5rem 1rem; font-size: 0.9rem;">Deletar</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                html += '</tbody></table></div>';
+                container.innerHTML = html;
+            } catch (error) {
+                container.innerHTML = `<div class="alert alert-error">Erro: ${error.message}</div>`;
+            }
+        }
+
+        async function loadBarbers(container) {
+            try {
+                const barbers = await fetchJson(`${API_URL}/admin/barbers`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                let html = '<div class="table-container"><table>';
+                html += '<thead><tr><th>Nome</th><th>Email</th><th>Role</th><th>Ações</th></tr></thead><tbody>';
+
+                barbers.forEach(barber => {
+                    html += `
+                        <tr>
+                            <td>${barber.name}</td>
+                            <td>${barber.email}</td>
+                            <td><span class="badge ${barber.role === 'admin' ? 'badge-success' : 'badge-warning'}">${barber.role}</span></td>
+                            <td>
+                                <button onclick="editBarber('${barber._id}')" style="background: #007bff; padding: 0.5rem 1rem; font-size: 0.9rem;">Editar</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                html += '</tbody></table></div>';
+                container.innerHTML = html;
+            } catch (error) {
+                container.innerHTML = `<div class="alert alert-error">Erro: ${error.message}</div>`;
+            }
+        }
+
+        async function loadSettings(container) {
+            try {
+                container.innerHTML = '<p>A carregar configurações...</p>';
+
+                const settings = await fetchJson(`${API_URL}/admin/site-settings`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const hoursRowsText = (settings.hoursRows || [])
+                    .map(row => `${row.label} | ${row.value} | ${row.className || ''}`)
+                    .join('\n');
+
+                const galleryImagesText = (settings.gallery && settings.gallery.images || []).join('\n');
+
+                container.innerHTML = `
+                    <h2>Configurações do Site</h2>
+                    <form id="settingsForm">
+                        <div class="form-group">
+                            <label>Texto do loader</label>
+                            <input type="text" id="loaderText" value="${settings.loaderText || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>Imagem do loader</label>
+                            <input type="file" id="loaderImage" accept="image/*">
+                            <small style="color: var(--text-light);">Selecione uma imagem (sera otimizada e guardada na BD)</small>
+                            ${settings.loaderImage || settings.header?.logoImage ? `<p style="margin-top: 0.5rem; color: var(--text-light); font-size: 0.9rem;">Imagem atual: <strong>${(settings.loaderImage || settings.header?.logoImage || '').split('/').pop()}</strong></p>` : ''}
+                        </div>
+
+                        <div class="form-group">
+                            <label>Nome da marca</label>
+                            <input type="text" id="brandName" value="${settings.header?.brandName || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>Logo</label>
+                            <input type="file" id="logoImage" accept="image/*">
+                            <small style="color: var(--text-light);">Selecione uma imagem (será otimizada e guardada na BD)</small>
+                            ${settings.header?.logoImage ? `<p style="margin-top: 0.5rem; color: var(--text-light); font-size: 0.9rem;">Imagem atual: <strong>${settings.header.logoImage.split('/').pop()}</strong></p>` : ''}
+                        </div>
+                        <div class="form-group">
+                            <label>Header: Horário</label>
+                            <input type="text" id="headerHours" value="${settings.header?.hoursText || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>Header: Morada</label>
+                            <input type="text" id="headerAddress" value="${settings.header?.addressText || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>Header: Telefone (texto)</label>
+                            <input type="text" id="headerPhoneText" value="${settings.header?.phoneText || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>Header: Telefone (link)</label>
+                            <input type="text" id="headerPhoneHref" value="${settings.header?.phoneHref || ''}">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Hero: Título</label>
+                            <input type="text" id="heroTitle" value="${settings.hero?.title || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>Hero: Subtítulo</label>
+                            <input type="text" id="heroSubtitle" value="${settings.hero?.subtitle || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>Hero: Descrição</label>
+                            <textarea id="heroDescription">${settings.hero?.description || ''}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Hero: Imagem</label>
+                            <input type="file" id="heroImage" accept="image/*">
+                            <small style="color: var(--text-light);">Selecione uma imagem (será otimizada e guardada na BD)</small>
+                            ${settings.hero?.image ? `<p style="margin-top: 0.5rem; color: var(--text-light); font-size: 0.9rem;">Imagem atual: <strong>${settings.hero.image.split('/').pop()}</strong></p>` : ''}
+                        </div>
+
+                        <div class="form-group">
+                            <label>Sobre: Título</label>
+                            <input type="text" id="aboutTitle" value="${settings.about?.title || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>Sobre: Texto</label>
+                            <textarea id="aboutText">${settings.about?.text || ''}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Sobre: Imagem principal</label>
+                            <input type="file" id="aboutCoverImage" accept="image/*">
+                            <small style="color: var(--text-light);">Selecione uma imagem (será otimizada e guardada na BD)</small>
+                            ${settings.about?.coverImage ? `<p style="margin-top: 0.5rem; color: var(--text-light); font-size: 0.9rem;">Imagem atual: <strong>${settings.about.coverImage.split('/').pop()}</strong></p>` : ''}
+                        </div>
+                        <div class="form-group">
+                            <label>Sobre: Imagem personagem</label>
+                            <input type="file" id="aboutCharacterImage" accept="image/*">
+                            <small style="color: var(--text-light);">Selecione uma imagem (será otimizada e guardada na BD)</small>
+                            ${settings.about?.characterImage ? `<p style="margin-top: 0.5rem; color: var(--text-light); font-size: 0.9rem;">Imagem atual: <strong>${settings.about.characterImage.split('/').pop()}</strong></p>` : ''}
+                        </div>
+
+                        <div class="form-group">
+                            <label>Serviços: Título</label>
+                            <input type="text" id="servicesTitle" value="${settings.services?.title || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>Serviços: Subtítulo</label>
+                            <input type="text" id="servicesSubtitle" value="${settings.services?.subtitle || ''}">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Galeria: Título</label>
+                            <input type="text" id="galleryTitle" value="${settings.gallery?.title || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>Galeria: Subtítulo</label>
+                            <input type="text" id="gallerySubtitle" value="${settings.gallery?.subtitle || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>Galeria: Logo</label>
+                            <input type="file" id="galleryLogoImage" accept="image/*">
+                            <small style="color: var(--text-light);">Selecione uma imagem (será otimizada e guardada na BD)</small>
+                            ${settings.gallery?.logoImage ? `<p style="margin-top: 0.5rem; color: var(--text-light); font-size: 0.9rem;">Imagem atual: <strong>${settings.gallery.logoImage.split('/').pop()}</strong></p>` : ''}
+                        </div>
+                        <div class="form-group">
+                            <label>Instagram: URL</label>
+                            <input type="text" id="instagramUrl" value="${settings.gallery?.instagramUrl || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>Instagram: Handle</label>
+                            <input type="text" id="instagramHandle" value="${settings.gallery?.instagramHandle || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>Imagens da galeria (min 3, max 10)</label>
+                            <input type="file" id="galleryImages" accept="image/*" multiple>
+                            <small style="color: var(--text-light);">Seleciona 3 a 10 imagens (serao otimizadas e guardadas na BD)</small>
+                            ${settings.gallery?.images?.length ? `<p style="margin-top: 0.5rem; color: var(--text-light); font-size: 0.9rem;">Imagens atuais: <strong>${settings.gallery.images.length}</strong></p>` : ''}
+                        </div>
+
+                        <div class="form-group">
+                            <label>Contacto: Título</label>
+                            <input type="text" id="contactTitle" value="${settings.contact?.title || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>Contacto: Morada</label>
+                            <input type="text" id="contactAddress" value="${settings.contact?.addressText || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>Contacto: Telefone (texto)</label>
+                            <input type="text" id="contactPhoneText" value="${settings.contact?.phoneText || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>Contacto: Telefone (link)</label>
+                            <input type="text" id="contactPhoneHref" value="${settings.contact?.phoneHref || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>Mapa (URL embed)</label>
+                            <input type="text" id="mapEmbedUrl" value="${settings.contact?.mapEmbedUrl || ''}">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Horário (1 linha por item: LABEL | VALOR | CLASSE)</label>
+                            <textarea id="hoursRows">${hoursRowsText}</textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>CTA: Título</label>
+                            <input type="text" id="ctaTitle" value="${settings.cta?.title || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>CTA: Texto</label>
+                            <textarea id="ctaText">${settings.cta?.text || ''}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>CTA: Botão (texto)</label>
+                            <input type="text" id="ctaButtonText" value="${settings.cta?.buttonText || ''}">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Barbeiro 1: Nome</label>
+                            <input type="text" id="barber1Name" value="${settings.barberCards?.barber1Name || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>Barbeiro 1: Cargo</label>
+                            <input type="text" id="barber1Role" value="${settings.barberCards?.barber1Role || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>Barbeiro 2: Nome</label>
+                            <input type="text" id="barber2Name" value="${settings.barberCards?.barber2Name || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>Barbeiro 2: Cargo</label>
+                            <input type="text" id="barber2Role" value="${settings.barberCards?.barber2Role || ''}">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Rodapé</label>
+                            <input type="text" id="footerText" value="${settings.footerText || ''}">
+                        </div>
+
+                        <hr style="margin: 2rem 0; border: none; border-top: 1px solid #ddd;">
+                        
+                        <h3 style="margin-top: 2rem;">Reviews dos Clientes (Máximo 3)</h3>
+                        <p style="font-size: 0.9rem; color: #666; margin-bottom: 1rem;">Gerencie as 3 reviews que aparecem no site. Estas reviews aparecerão em cards lado a lado na seção "O que dizem os nossos clientes".</p>
+                        
+                        <div id="reviewsContainer" style="margin-bottom: 2rem;"></div>
+                    </form>
+                    <button type="button" id="floatingSaveBtn" class="floating-save-btn">Guardar</button>
+                `;
+
+                const settingsForm = document.getElementById('settingsForm');
+                const floatingSaveBtn = document.getElementById('floatingSaveBtn');
+                if (floatingSaveBtn) {
+                    floatingSaveBtn.addEventListener('click', () => {
+                        if (settingsForm) {
+                            settingsForm.requestSubmit();
+                        }
+                    });
+                }
+
+                settingsForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+
+                    const hoursRows = document.getElementById('hoursRows').value
+                        .split('\n')
+                        .map(line => line.split('|').map(part => part.trim()))
+                        .filter(parts => parts[0] && parts[1])
+                        .map(parts => ({
+                            label: parts[0],
+                            value: parts[1],
+                            className: parts[2] || ''
+                        }));
+
+                    const galleryImagesInput = document.getElementById('galleryImages');
+                    const galleryFiles = Array.from(galleryImagesInput.files || []);
+
+                    if (galleryFiles.length > 0 && (galleryFiles.length < 3 || galleryFiles.length > 10)) {
+                        showStatusModal('Selecione entre 3 e 10 imagens para a galeria.', 'error');
+                        return;
+                    }
+
+                    // Preparar FormData para suportar upload de imagens
+                    const formData = new FormData();
+
+                    // Adicionar imagens se foram carregadas
+                    const logoImageFile = document.getElementById('logoImage').files[0];
+                    if (logoImageFile) {
+                        formData.append('logoImage', logoImageFile);
+                    } else {
+                        formData.append('logoImageUrl', settings.header?.logoImage || '');
+                    }
+
+                    const loaderImageFile = document.getElementById('loaderImage').files[0];
+                    if (loaderImageFile) {
+                        formData.append('loaderImage', loaderImageFile);
+                    } else {
+                        formData.append('loaderImageUrl', settings.loaderImage || settings.header?.logoImage || '');
+                    }
+
+                    const heroImageFile = document.getElementById('heroImage').files[0];
+                    if (heroImageFile) {
+                        formData.append('heroImage', heroImageFile);
+                    } else {
+                        formData.append('heroImageUrl', settings.hero?.image || '');
+                    }
+
+                    const aboutCoverFile = document.getElementById('aboutCoverImage').files[0];
+                    if (aboutCoverFile) {
+                        formData.append('aboutCoverImage', aboutCoverFile);
+                    } else {
+                        formData.append('aboutCoverImageUrl', settings.about?.coverImage || '');
+                    }
+
+                    const aboutCharacterFile = document.getElementById('aboutCharacterImage').files[0];
+                    if (aboutCharacterFile) {
+                        formData.append('aboutCharacterImage', aboutCharacterFile);
+                    } else {
+                        formData.append('aboutCharacterImageUrl', settings.about?.characterImage || '');
+                    }
+
+                    const galleryLogoFile = document.getElementById('galleryLogoImage').files[0];
+                    if (galleryLogoFile) {
+                        formData.append('galleryLogoImage', galleryLogoFile);
+                    } else {
+                        formData.append('galleryLogoImageUrl', settings.gallery?.logoImage || '');
+                    }
+
+                    if (galleryFiles.length > 0) {
+                        galleryFiles.forEach((file) => {
+                            formData.append('galleryImages', file);
+                        });
+                    }
+
+                    // Adicionar outros dados como JSON em um campo separado
+                    const payload = {
+                        loaderText: document.getElementById('loaderText').value,
+                        loaderImage: settings.loaderImage || settings.header?.logoImage || '',
+                        header: {
+                            brandName: document.getElementById('brandName').value,
+                            hoursText: document.getElementById('headerHours').value,
+                            addressText: document.getElementById('headerAddress').value,
+                            phoneText: document.getElementById('headerPhoneText').value,
+                            phoneHref: document.getElementById('headerPhoneHref').value
+                        },
+                        hero: {
+                            title: document.getElementById('heroTitle').value,
+                            subtitle: document.getElementById('heroSubtitle').value,
+                            description: document.getElementById('heroDescription').value
+                        },
+                        about: {
+                            title: document.getElementById('aboutTitle').value,
+                            text: document.getElementById('aboutText').value
+                        },
+                        services: {
+                            title: document.getElementById('servicesTitle').value,
+                            subtitle: document.getElementById('servicesSubtitle').value
+                        },
+                        gallery: {
+                            title: document.getElementById('galleryTitle').value,
+                            subtitle: document.getElementById('gallerySubtitle').value,
+                            instagramUrl: document.getElementById('instagramUrl').value,
+                            instagramHandle: document.getElementById('instagramHandle').value,
+                            images: settings.gallery?.images || []
+                        },
+                        contact: {
+                            title: document.getElementById('contactTitle').value,
+                            addressText: document.getElementById('contactAddress').value,
+                            phoneText: document.getElementById('contactPhoneText').value,
+                            phoneHref: document.getElementById('contactPhoneHref').value,
+                            mapEmbedUrl: document.getElementById('mapEmbedUrl').value
+                        },
+                        hoursRows,
+                        cta: {
+                            title: document.getElementById('ctaTitle').value,
+                            text: document.getElementById('ctaText').value,
+                            buttonText: document.getElementById('ctaButtonText').value,
+                            buttonHref: '#services'
+                        },
+                        footerText: document.getElementById('footerText').value,
+                        barberCards: {
+                            barber1Name: document.getElementById('barber1Name').value,
+                            barber1Role: document.getElementById('barber1Role').value,
+                            barber2Name: document.getElementById('barber2Name').value,
+                            barber2Role: document.getElementById('barber2Role').value
+                        }
+                    };
+
+                    formData.append('data', JSON.stringify(payload));
+
+                    try {
+                        if (!token) {
+                            showStatusModal('Sessao expirada. Faz login novamente.', 'error');
+                            logout();
+                            return;
+                        }
+
+                        const saveResponse = await fetch(`${API_URL}/admin/site-settings`, {
+                            method: 'PUT',
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: formData
+                        });
+
+                        const saveData = await saveResponse.json();
+
+                        if (!saveResponse.ok) {
+                            if (saveData && saveData.error && saveData.error.toLowerCase().includes('token')) {
+                                showStatusModal('Sessao expirada. Faz login novamente.', 'error');
+                                logout();
+                                return;
+                            }
+                            throw new Error(saveData.error || 'Erro ao guardar');
+                        }
+
+                        showStatusModal('Configuracoes guardadas!', 'success');
+
+                        // Recarregar as configurações para atualizar a interface
+                        setTimeout(() => {
+                            loadSettings();
+                        }, 1000);
+                    } catch (error) {
+                        showStatusModal(error.message, 'error');
+                    }
+                });
+
+                // ===== GERENCIAR REVIEWS =====
+                await loadAndDisplayReviews();
+
+                async function loadAndDisplayReviews() {
+                    try {
+                        const reviews = await fetchJson(`${API_URL}/admin/reviews`, {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+
+                        renderReviews(reviews.slice(0, 3)); // Máximo 3
+                    } catch (error) {
+                        console.error('Erro ao carregar reviews:', error);
+                        document.getElementById('reviewsContainer').innerHTML = '<p style="color: red;">Erro ao carregar reviews</p>';
+                    }
+                }
+
+                function renderReviews(reviews) {
+                    const container = document.getElementById('reviewsContainer');
+
+                    if (reviews.length === 0) {
+                        container.innerHTML = '<p style="color: #999; font-style: italic;">Nenhuma review adicionada ainda.</p>';
+                        return;
+                    }
+
+                    container.innerHTML = reviews.map((review, idx) => `
+                        <div class="review-item" style="background: #f9f9f9; padding: 1rem; margin-bottom: 1rem; border: 1px solid #e0e0e0; border-radius: 4px;">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                                <div>
+                                    <strong style="font-size: 1rem;">${review.author || 'Sem nome'}</strong>
+                                    <span style="color: #f39c12; margin-left: 0.5rem;">${'⭐'.repeat(review.rating || 0)}</span>
+                                </div>
+                                <div style="gap: 0.5rem; display: flex;">
+                                    <button type="button" class="edit-review-btn" data-id="${review._id}" style="padding: 0.3rem 0.8rem; background: #3498db; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 0.85rem;">Editar</button>
+                                    <button type="button" class="delete-review-btn" data-id="${review._id}" style="padding: 0.3rem 0.8rem; background: #e74c3c; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 0.85rem;">Apagar</button>
+                                </div>
+                            </div>
+                            <p style="margin: 0.5rem 0; color: #333; line-height: 1.5;">${review.text || ''}</p>
+                            <small style="color: #999;">${new Date(review.date).toLocaleDateString('pt-PT')}</small>
+                        </div>
+                    `).join('');
+
+                    // Adicionar listeners para editar e apagar
+                    container.querySelectorAll('.edit-review-btn').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            const reviewId = btn.getAttribute('data-id');
+                            const review = reviews.find(r => r._id === reviewId);
+                            if (review) editReviewForm(review, reviews);
+                        });
+                    });
+
+                    container.querySelectorAll('.delete-review-btn').forEach(btn => {
+                        btn.addEventListener('click', async () => {
+                            const reviewId = btn.getAttribute('data-id');
+                            if (confirm('Tem a certeza que quer apagar esta review?')) {
+                                try {
+                                    await fetchJson(`${API_URL}/admin/reviews/${reviewId}`, {
+                                        method: 'DELETE',
+                                        headers: { 'Authorization': `Bearer ${token}` }
+                                    });
+                                    await loadAndDisplayReviews();
+                                    showStatusModal('Review apagada!', 'success');
+                                } catch (error) {
+                                    showStatusModal('Erro ao apagar review: ' + error.message, 'error');
+                                }
+                            }
+                        });
+                    });
+                }
+
+                function addReviewForm() {
+                    const container = document.getElementById('reviewsContainer');
+                    const formId = 'review-form-' + Date.now();
+
+                    container.innerHTML += `
+                        <div class="review-form" id="${formId}" style="background: #fff3cd; padding: 1rem; margin-bottom: 1rem; border: 2px solid #ffc107; border-radius: 4px;">
+                            <h4 style="margin-top: 0;">Nova Review</h4>
+                            <div style="display: grid; gap: 0.5rem; margin-bottom: 1rem;">
+                                <input type="text" class="review-author" placeholder="Nome do cliente" maxlength="100" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 3px;">
+                                <select class="review-rating" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 3px;">
+                                    <option value="">Selecionar estrelas</option>
+                                    <option value="5">⭐⭐⭐⭐⭐ (5 estrelas)</option>
+                                    <option value="4">⭐⭐⭐⭐ (4 estrelas)</option>
+                                    <option value="3">⭐⭐⭐ (3 estrelas)</option>
+                                </select>
+                                <textarea class="review-text" placeholder="Texto da review" maxlength="500" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 3px; min-height: 80px; font-family: inherit;"></textarea>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button type="button" class="save-review-btn" data-form="${formId}" style="padding: 0.5rem 1rem; background: #27ae60; color: white; border: none; border-radius: 3px; cursor: pointer;">Guardar Review</button>
+                                <button type="button" class="cancel-review-btn" data-form="${formId}" style="padding: 0.5rem 1rem; background: #95a5a6; color: white; border: none; border-radius: 3px; cursor: pointer;">Cancelar</button>
+                            </div>
+                        </div>
+                    `;
+
+                    // Listeners para o formulário
+                    const form = document.getElementById(formId);
+                    form.querySelector('.save-review-btn').addEventListener('click', async () => {
+                        await saveReview(
+                            form.querySelector('.review-author').value,
+                            form.querySelector('.review-rating').value,
+                            form.querySelector('.review-text').value,
+                            null
+                        );
+                        await loadAndDisplayReviews();
+                    });
+
+                    form.querySelector('.cancel-review-btn').addEventListener('click', () => {
+                        form.remove();
+                    });
+                }
+
+                function editReviewForm(review, allReviews) {
+                    const container = document.getElementById('reviewsContainer');
+                    const formId = 'review-form-' + Date.now();
+
+                    const beforeIndex = allReviews.findIndex(r => r._id === review._id);
+                    const before = container.children[beforeIndex];
+
+                    const form = document.createElement('div');
+                    form.className = 'review-form';
+                    form.id = formId;
+                    form.style.cssText = 'background: #cfe9ff; padding: 1rem; margin-bottom: 1rem; border: 2px solid #3498db; border-radius: 4px;';
+                    form.innerHTML = `
+                        <h4 style="margin-top: 0;">Editar Review</h4>
+                        <div style="display: grid; gap: 0.5rem; margin-bottom: 1rem;">
+                            <input type="text" class="review-author" value="${review.author || ''}" placeholder="Nome do cliente" maxlength="100" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 3px;">
+                            <select class="review-rating" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 3px;">
+                                <option value="">Selecionar estrelas</option>
+                                <option value="5" ${review.rating === 5 ? 'selected' : ''}>⭐⭐⭐⭐⭐ (5 estrelas)</option>
+                                <option value="4" ${review.rating === 4 ? 'selected' : ''}>⭐⭐⭐⭐ (4 estrelas)</option>
+                                <option value="3" ${review.rating === 3 ? 'selected' : ''}>⭐⭐⭐ (3 estrelas)</option>
+                            </select>
+                            <textarea class="review-text" placeholder="Texto da review" maxlength="500" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 3px; min-height: 80px; font-family: inherit;">${review.text || ''}</textarea>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button type="button" class="save-review-btn" data-id="${review._id}" data-form="${formId}" style="padding: 0.5rem 1rem; background: #27ae60; color: white; border: none; border-radius: 3px; cursor: pointer;">Guardar Alterações</button>
+                            <button type="button" class="cancel-review-btn" data-form="${formId}" style="padding: 0.5rem 1rem; background: #95a5a6; color: white; border: none; border-radius: 3px; cursor: pointer;">Cancelar</button>
+                        </div>
+                    `;
+
+                    if (before) {
+                        before.replaceWith(form);
+                    }
+
+                    form.querySelector('.save-review-btn').addEventListener('click', async () => {
+                        await saveReview(
+                            form.querySelector('.review-author').value,
+                            form.querySelector('.review-rating').value,
+                            form.querySelector('.review-text').value,
+                            review._id
+                        );
+                        await loadAndDisplayReviews();
+                    });
+
+                    form.querySelector('.cancel-review-btn').addEventListener('click', () => {
+                        form.remove();
+                        loadAndDisplayReviews();
+                    });
+                }
+
+                async function saveReview(author, rating, text, reviewId) {
+                    if (!author || !rating || !text) {
+                        showStatusModal('Por favor, preencha todos os campos', 'error');
+                        return;
+                    }
+
+                    const method = reviewId ? 'PUT' : 'POST';
+                    const url = reviewId ? `${API_URL}/admin/reviews/${reviewId}` : `${API_URL}/admin/reviews`;
+
+                    try {
+                        await fetchJson(url, {
+                            method,
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({
+                                author,
+                                rating: parseInt(rating),
+                                text,
+                                date: new Date().toISOString(),
+                                isActive: true
+                            })
+                        });
+
+                        showStatusModal(reviewId ? 'Review atualizada!' : 'Review adicionada!', 'success');
+                    } catch (error) {
+                        showStatusModal('Erro ao guardar review: ' + error.message, 'error');
+                    }
+                }
+            } catch (error) {
+                container.innerHTML = `<div class="alert alert-error">Erro ao carregar configurações: ${error.message}</div>`;
+            }
+        }
+
+        function showAlert(targetId, message, type) {
+            const alert = document.getElementById(targetId);
+            if (!alert) return;
+            alert.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            setTimeout(() => {
+                alert.innerHTML = '';
+            }, 5000);
+        }
+
+        function showStatusModal(message, type) {
+            const modal = document.getElementById('statusModal');
+            const title = document.getElementById('statusModalTitle');
+            const body = document.getElementById('statusModalMessage');
+            if (!modal || !title || !body) return;
+
+            modal.setAttribute('data-type', type);
+            title.textContent = type === 'success' ? 'Sucesso' : 'Erro';
+            body.textContent = message || '';
+            modal.classList.add('active');
+        }
+
+        function closeStatusModal() {
+            const modal = document.getElementById('statusModal');
+            if (modal) {
+                modal.classList.remove('active');
+            }
+        }
+
+        // ===== SERVICE CRUD FUNCTIONS =====
+        async function showAddServiceModal() {
+            const modal = document.createElement('div');
+            modal.id = 'serviceModal';
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;';
+
+            modal.innerHTML = `
+                <div style="background: white; padding: 2rem; border-radius: 8px; max-width: 500px; width: 90%;">
+                    <h2 style="margin-top: 0;">Adicionar Novo Serviço</h2>
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; margin-bottom: 0.5rem;">Nome:</label>
+                        <input type="text" id="serviceName" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; margin-bottom: 0.5rem;">Preço (€):</label>
+                        <input type="number" id="servicePrice" step="0.01" min="0" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; margin-bottom: 0.5rem;">Duração (minutos):</label>
+                        <input type="number" id="serviceDuration" min="5" step="5" value="30" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; margin-bottom: 0.5rem;">Descrição (opcional):</label>
+                        <textarea id="serviceDescription" rows="3" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+                    </div>
+                    <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                        <button onclick="closeServiceModal()" style="padding: 0.5rem 1.5rem; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">Cancelar</button>
+                        <button onclick="saveNewService()" style="padding: 0.5rem 1.5rem; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">Adicionar</button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+        }
+
+        async function showEditServiceModal(serviceId) {
+            const services = await fetchJson(`${API_URL}/admin/services`);
+            const service = services.find(s => s._id === serviceId);
+            if (!service) return alert('Serviço não encontrado');
+
+            const modal = document.createElement('div');
+            modal.id = 'serviceModal';
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;';
+
+            modal.innerHTML = `
+                <div style="background: white; padding: 2rem; border-radius: 8px; max-width: 500px; width: 90%;">
+                    <h2 style="margin-top: 0;">Editar Serviço</h2>
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; margin-bottom: 0.5rem;">Nome:</label>
+                        <input type="text" id="serviceName" value="${service.name}" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; margin-bottom: 0.5rem;">Preço (€):</label>
+                        <input type="number" id="servicePrice" step="0.01" min="0" value="${service.price}" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; margin-bottom: 0.5rem;">Duração (minutos):</label>
+                        <input type="number" id="serviceDuration" min="5" step="5" value="${service.duration}" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; margin-bottom: 0.5rem;">Descrição (opcional):</label>
+                        <textarea id="serviceDescription" rows="3" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">${service.description || ''}</textarea>
+                    </div>
+                    <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                        <button onclick="closeServiceModal()" style="padding: 0.5rem 1.5rem; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">Cancelar</button>
+                        <button onclick="saveEditedService('${serviceId}')" style="padding: 0.5rem 1.5rem; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Guardar</button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+        }
+
+        function closeServiceModal() {
+            const modal = document.getElementById('serviceModal');
+            if (modal) modal.remove();
+        }
+
+        async function saveNewService() {
+            const name = document.getElementById('serviceName').value.trim();
+            const price = parseFloat(document.getElementById('servicePrice').value);
+            const duration = parseInt(document.getElementById('serviceDuration').value);
+            const description = document.getElementById('serviceDescription').value.trim();
+
+            if (!name || !price || !duration) {
+                return alert('Por favor preencha todos os campos obrigatórios');
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/admin/services`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ name, price, duration, description })
+                });
+
+                if (!response.ok) throw new Error('Erro ao criar serviço');
+
+                const newService = await response.json();
+
+                alert('✅ Serviço adicionado com sucesso!');
+                closeServiceModal();
+                loadPage('services');
+            } catch (error) {
+                alert('❌ Erro: ' + error.message);
+            }
+        }
+
+        async function saveEditedService(serviceId) {
+            const name = document.getElementById('serviceName').value.trim();
+            const price = parseFloat(document.getElementById('servicePrice').value);
+            const duration = parseInt(document.getElementById('serviceDuration').value);
+            const description = document.getElementById('serviceDescription').value.trim();
+
+            if (!name || !price || !duration) {
+                return alert('Por favor preencha todos os campos obrigatórios');
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/admin/services/${serviceId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ name, price, duration, description })
+                });
+
+                if (!response.ok) throw new Error('Erro ao atualizar serviço');
+
+                const updatedService = await response.json();
+
+                alert('✅ Serviço atualizado com sucesso!');
+                closeServiceModal();
+                loadPage('services');
+            } catch (error) {
+                alert('❌ Erro: ' + error.message);
+            }
+        }
+
+        async function deleteService(serviceId) {
+            if (!confirm('Tem certeza que deseja deletar este serviço? Esta ação não pode ser desfeita!')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/admin/services/${serviceId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) throw new Error('Erro ao deletar serviço');
+
+                alert('✅ Serviço deletado com sucesso!');
+                loadPage('services');
+            } catch (error) {
+                alert('❌ Erro: ' + error.message);
+            }
+        }
+
+        function editService(serviceId) {
+            showEditServiceModal(serviceId);
+        }
+
+        async function cancelReservation(reservationId) {
+            if (!confirm('Tem a certeza que quer cancelar esta reserva? Esta ação não pode ser desfeita!')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/reservations/${reservationId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) throw new Error('Erro ao cancelar reserva');
+
+                alert('✅ Reserva cancelada com sucesso!');
+                loadPage('reservations'); // Reload reservations
+            } catch (error) {
+                alert('❌ Erro: ' + error.message);
+            }
+        }
+
+        function logout() {
+            localStorage.clear();
+            token = null;
+            currentUser = {};
+            showLoginPage();
+        }
+    </script>
+</body>
+
+</html>
