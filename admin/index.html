@@ -1124,9 +1124,17 @@
                 });
 
                 const buildReservationsHtml = (items) => {
+                    const now = new Date();
+                    
+                    // Filtrar apenas reservas futuras (que ainda não passaram)
+                    const futureReservations = items.filter(res => {
+                        const resDate = new Date(res.reservationDate);
+                        return resDate > now;
+                    });
+
                     let html = `
                         <div class="reservations-toolbar">
-                            <span><strong>Total:</strong> ${items.length}</span>
+                            <span><strong>Total:</strong> ${futureReservations.length}</span>
                             ${currentUser.role === 'admin' ? `
                                 <div style="display:flex; gap:0.75rem; flex-wrap: wrap;">
                                     <select id="reservationsBarberFilter">${barberOptions}</select>
@@ -1136,98 +1144,113 @@
                         </div>
                     `;
 
-                    if (!Array.isArray(items) || items.length === 0) {
-                        html += '<div class="alert alert-info">Sem reservas registradas.</div>';
+                    if (!Array.isArray(futureReservations) || futureReservations.length === 0) {
+                        html += '<div class="alert alert-info">Sem reservas futuras.</div>';
                         return html;
                     }
 
-                    const groupedItems = {};
-                    items.forEach((reservation) => {
+                    // Agrupar por mês
+                    const groupedByMonth = {};
+                    futureReservations.forEach((reservation) => {
                         const dateObj = new Date(reservation.reservationDate);
-                        const dateKey = dateObj.toISOString().split('T')[0];
-
-                        if (!groupedItems[dateKey]) {
-                            groupedItems[dateKey] = { date: dateObj, items: [] };
+                        const monthKey = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
+                        
+                        if (!groupedByMonth[monthKey]) {
+                            groupedByMonth[monthKey] = { date: new Date(dateObj.getFullYear(), dateObj.getMonth(), 1), reservations: {} };
                         }
-
-                        groupedItems[dateKey].items.push(reservation);
+                        
+                        const dayKey = dateObj.getDate();
+                        if (!groupedByMonth[monthKey].reservations[dayKey]) {
+                            groupedByMonth[monthKey].reservations[dayKey] = [];
+                        }
+                        groupedByMonth[monthKey].reservations[dayKey].push(reservation);
                     });
 
-                    const sortedItemKeys = Object.keys(groupedItems).sort(
-                        (a, b) => new Date(a) - new Date(b)
-                    );
-
-                    sortedItemKeys.forEach((key) => {
-                        const group = groupedItems[key];
-                        const dateLabel = group.date.toLocaleDateString('pt-PT', {
-                            weekday: 'long',
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
+                    // Renderizar calendários mensais
+                    const sortedMonths = Object.keys(groupedByMonth).sort();
+                    sortedMonths.forEach((monthKey) => {
+                        const monthData = groupedByMonth[monthKey];
+                        const monthDate = monthData.date;
+                        const monthLabel = monthDate.toLocaleDateString('pt-PT', { month: 'long', year: 'numeric' }).toUpperCase();
+                        
+                        const firstDay = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1).getDay();
+                        const lastDay = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0).getDate();
+                        
+                        html += `<div style="margin-bottom: 2rem;">
+                            <h3 style="margin-bottom: 1rem; color: #333; font-size: 1.1rem;">${monthLabel}</h3>
+                            <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; background: white; padding: 1rem; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+                        `;
+                        
+                        // Headers dos dias da semana
+                        const weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'];
+                        weekDays.forEach(day => {
+                            html += `<div style="text-align: center; font-weight: 600; color: #666; font-size: 0.85rem; padding: 0.5rem;">${day}</div>`;
                         });
-
-                        html += `
-                            <div class="reservation-day">
-                                <div class="reservation-day-header">${dateLabel}</div>
-                                <div class="reservation-list">
-                        `;
-
-                        group.items
-                            .sort((a, b) => (a.timeSlot || '').localeCompare(b.timeSlot || ''))
-                            .forEach((reservation) => {
-                                // Try to get barber name: first from populated object, then from map, then fallback
-                                let barberName = '—';
-                                if (reservation.barberId) {
-                                    if (typeof reservation.barberId === 'string') {
-                                        // barberId is just an ID string - lookup in barbers array
-                                        const barber = barbers.find(b => b._id === reservation.barberId);
-                                        barberName = barber ? barber.name : '—';
-                                    } else if (reservation.barberId.name) {
-                                        // barberId is populated object with name
-                                        barberName = reservation.barberId.name;
-                                    } else if (reservation.barberId._id) {
-                                        // barberId is populated but no name - lookup in barbers array
-                                        const barber = barbers.find(b => b._id === reservation.barberId._id);
-                                        barberName = barber ? barber.name : '—';
-                                    }
-                                }
-
-                                const serviceName = reservation.serviceId && reservation.serviceId.name
-                                    ? reservation.serviceId.name
-                                    : '—';
-
-                                const clientLine = [
-                                    reservation.clientName,
-                                    reservation.clientPhone,
-                                    reservation.clientEmail
-                                ].filter(Boolean).join(' • ');
-
-                                html += `
-                                    <div class="reservation-card">
-                                        <div class="reservation-time">${reservation.timeSlot || '--:--'}</div>
-                                        <div>
-                                            <div class="reservation-service">${serviceName}</div>
-                                            <div class="reservation-meta">Barbeiro: ${barberName}</div>
-                                            <div class="reservation-meta">Cliente: ${clientLine}</div>
-                                        </div>
-                                        <div class="reservation-status"></div>
-                                        <div class="reservation-actions">
-                                            <button class="btn-action btn-cancel" onclick="cancelReservation('${reservation._id}')">Cancelar</button>
-                                        </div>
-                                    </div>
-                                `;
-                            });
-
-                        html += `
+                        
+                        // Células vazias antes do primeiro dia
+                        for (let i = 0; i < firstDay; i++) {
+                            html += `<div style="min-height: 80px;"></div>`;
+                        }
+                        
+                        // Dias do mês
+                        for (let day = 1; day <= lastDay; day++) {
+                            const reservasDodia = monthData.reservations[day] || [];
+                            const hasReserva = reservasDodia.length > 0;
+                            
+                            html += `
+                                <div style="min-height: 80px; border: 1px solid #e0e0e0; border-radius: 4px; padding: 0.5rem; background: ${hasReserva ? '#f0f8ff' : '#fff'}; cursor: ${hasReserva ? 'pointer' : 'default'}; position: relative; overflow: hidden;" 
+                                     onclick="${hasReserva ? `document.getElementById('dayDetails_${monthKey}_${day}').style.display = document.getElementById('dayDetails_${monthKey}_${day}').style.display === 'none' ? 'block' : 'none'` : ''}">
+                                    <div style="font-weight: 700; color: #333; margin-bottom: 0.25rem;">${day}</div>
+                                    ${hasReserva ? `
+                                        <div style="font-size: 0.75rem; color: #3498db; font-weight: 600;">${reservasDodia.length} reserva${reservasDodia.length > 1 ? 's' : ''}</div>
+                                    ` : ''}
                                 </div>
-                            </div>
-                        `;
+                                
+                                ${hasReserva ? `
+                                    <div id="dayDetails_${monthKey}_${day}" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border: 2px solid #3498db; border-radius: 8px; padding: 1.5rem; z-index: 1000; max-width: 500px; max-height: 80vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                            <h3 style="margin: 0; color: #333;">${day} de ${monthLabel}</h3>
+                                            <button onclick="document.getElementById('dayDetails_${monthKey}_${day}').style.display='none'" style="background: #e74c3c; color: white; border: none; padding: 0.5rem 1rem; cursor: pointer; border-radius: 4px;">Fechar</button>
+                                        </div>
+                                        ${reservasDodia.map(res => {
+                                            let barberName = '—';
+                                            if (res.barberId) {
+                                                if (typeof res.barberId === 'string') {
+                                                    const barber = barbers.find(b => b._id === res.barberId);
+                                                    barberName = barber ? barber.name : '—';
+                                                } else if (res.barberId.name) {
+                                                    barberName = res.barberId.name;
+                                                } else if (res.barberId._id) {
+                                                    const barber = barbers.find(b => b._id === res.barberId._id);
+                                                    barberName = barber ? barber.name : '—';
+                                                }
+                                            }
+                                            const serviceName = res.serviceId && res.serviceId.name ? res.serviceId.name : '—';
+                                            const clientLine = [res.clientName, res.clientPhone, res.clientEmail].filter(Boolean).join(' • ');
+                                            
+                                            return `
+                                                <div style="border-bottom: 1px solid #e0e0e0; padding: 0.75rem 0; margin-bottom: 0.75rem;">
+                                                    <div style="font-weight: 700; color: #27ae60; margin-bottom: 0.25rem;">${res.timeSlot || '--:--'}</div>
+                                                    <div style="font-size: 0.9rem; color: #333; margin-bottom: 0.25rem;">${serviceName}</div>
+                                                    <div style="font-size: 0.85rem; color: #666; margin-bottom: 0.25rem;">👨 ${barberName}</div>
+                                                    <div style="font-size: 0.85rem; color: #666; margin-bottom: 0.5rem;">👤 ${clientLine}</div>
+                                                    <button class="btn-action btn-cancel" onclick="cancelReservation('${res._id}')" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">Cancelar</button>
+                                                </div>
+                                            `;
+                                        }).join('')}
+                                    </div>
+                                    <div onclick="document.getElementById('dayDetails_${monthKey}_${day}').style.display='none'; event.stopPropagation();" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.3); z-index: 999;" id="overlay_${monthKey}_${day}"></div>
+                                ` : ''}
+                            `;
+                        }
+                        
+                        html += `</div></div>`;
                     });
 
                     return html;
                 };
 
-                container.innerHTML = buildReservationsHtml(reservations);
+                container.innerHTML = buildReservationsHtml(futureReservations);
 
                 const attachReservationsFilter = () => {
                     if (currentUser.role !== 'admin') return;
