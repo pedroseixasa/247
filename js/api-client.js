@@ -3,7 +3,7 @@
  * Adicionar este arquivo no HTML: <script src="js/api-client.js"></script>
  */
 
-const API_BASE_URL = "http://localhost:5000/api"; // Mudar URL em produção
+const API_BASE_URL = "https://two4-7-barbearia.onrender.com/api";
 
 class APIClient {
   constructor(baseURL = API_BASE_URL) {

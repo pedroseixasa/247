@@ -379,8 +379,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // ===== SITE SETTINGS =====
 (function () {
-  const hostname = window.location.hostname || "localhost";
-  const API_BASE_URL = `http://${hostname}:5000/api`;
+  const API_BASE_URL = "https://two4-7-barbearia.onrender.com/api";
 
   function setText(id, value) {
     const el = document.getElementById(id);
@@ -515,8 +514,7 @@ document.addEventListener("DOMContentLoaded", function () {
 // ===== SISTEMA DE RESERVAS =====
 (function () {
   // API Configuration
-  const hostname = window.location.hostname || "localhost";
-  const API_BASE_URL = `http://${hostname}:5000/api`;
+  const API_BASE_URL = "https://two4-7-barbearia.onrender.com/api";
 
   const bookingState = {
     currentStep: 1,
