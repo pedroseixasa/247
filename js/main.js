@@ -1072,7 +1072,13 @@ document.addEventListener("DOMContentLoaded", function () {
       clientName: name,
       clientPhone: phone,
       clientEmail: email,
-      reservationDate: bookingState.date.toISOString().split("T")[0],
+      // ✅ Combinar data + hora para enviar DateTime completo
+      reservationDate: (() => {
+        const dateObj = new Date(bookingState.date);
+        const [hours, minutes] = bookingState.time.split(":").map(Number);
+        dateObj.setHours(hours, minutes, 0, 0);
+        return dateObj.toISOString(); // Ex: "2026-02-22T14:25:00.000Z"
+      })(),
       timeSlot: bookingState.time,
       notes: "",
     };
