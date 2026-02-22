@@ -568,9 +568,18 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // ✅ HORÁRIO DE TESTE: Adicionar slot extra às 14:20 para testes
-    // Remover depois de testar!
-    slots.push("14:20");
-    slots.sort(); // Ordenar para manter ordem cronológica
+    // Este slot sempre fica disponível independente da hora (para testes)
+    // Remover depois de testar completado!
+    const testSlot = "14:20";
+    if (!slots.includes(testSlot)) {
+      slots.push(testSlot);
+      // Ordenar slots por hora
+      slots.sort((a, b) => {
+        const [aH, aM] = a.split(":").map(Number);
+        const [bH, bM] = b.split(":").map(Number);
+        return aH * 60 + aM - (bH * 60 + bM);
+      });
+    }
 
     return slots;
   }
@@ -940,6 +949,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Filtrar horários que já passaram se for hoje
     const availableHours = barberHours.filter((time) => {
+      // 🧪 Slot de teste 14:20 - sempre disponível para testing
+      if (time === "14:20") {
+        console.log(`✅ ${time} - SLOT DE TESTE, sempre liberado`);
+        return true;
+      }
+
       if (!isToday) {
         console.log(`✅ ${time} - Não é hoje, liberado`);
         return true; // Se não for hoje, todos os horários estão disponíveis
