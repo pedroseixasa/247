@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const Reservation = require("./src/models/Reservation");
 
 /**
- * Script para deletar a reserva de teste de 14:20
+ * Script para deletar reservas de teste de 14:20/14:25
  * Uso: node delete-test-reservation.js
  */
 
@@ -20,7 +20,7 @@ async function deleteTestReservation() {
       today.getDate(),
       0,
       0,
-      0
+      0,
     );
     const todayEnd = new Date(
       today.getFullYear(),
@@ -28,13 +28,12 @@ async function deleteTestReservation() {
       today.getDate(),
       23,
       59,
-      59
+      59,
     );
 
     const result = await Reservation.deleteMany({
-      timeSlot: "14:20",
+      timeSlot: { $in: ["14:20", "14:25"] },
       reservationDate: { $gte: todayStart, $lte: todayEnd },
-      clientName: "Teste",
     });
 
     console.log(`\n✅ ${result.deletedCount} reserva(s) de teste deletada(s)`);

@@ -567,16 +567,6 @@ document.addEventListener("DOMContentLoaded", function () {
       slots.push(formatTime(t));
     }
 
-    // ✅ HORÁRIOS DE TESTE: Adicionar slots extras para testes
-    // Estes slots sempre ficam disponíveis independente da hora (para testes)
-    // Remover depois de testar completado!
-    const testSlots = ["14:20", "14:25"];
-    testSlots.forEach((testSlot) => {
-      if (!slots.includes(testSlot)) {
-        slots.push(testSlot);
-      }
-    });
-
     // Ordenar slots por hora
     slots.sort((a, b) => {
       const [aH, aM] = a.split(":").map(Number);
@@ -952,12 +942,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Filtrar horários que já passaram se for hoje
     const availableHours = barberHours.filter((time) => {
-      // 🧪 Slots de teste - sempre disponíveis para testing
-      if (time === "14:20" || time === "14:25") {
-        console.log(`✅ ${time} - SLOT DE TESTE, sempre liberado`);
-        return true;
-      }
-
       if (!isToday) {
         console.log(`✅ ${time} - Não é hoje, liberado`);
         return true; // Se não for hoje, todos os horários estão disponíveis
