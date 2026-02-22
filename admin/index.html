@@ -1055,17 +1055,28 @@
                                     <tr style="background: #f8f9fa; border-bottom: 1px solid #e0e0e0;">
                                         <th style="text-align: left; padding: 1rem; color: #666; font-weight: 600; font-size: 0.9rem;">Mês</th>
                                         <th style="text-align: right; padding: 1rem; color: #666; font-weight: 600; font-size: 0.9rem;">Reservas</th>
-                                        <th style="text-align: right; padding: 1rem; color: #666; font-weight: 600; font-size: 0.9rem;">Receita</th>
+                                        <th style="text-align: right; padding: 1rem; color: #666; font-weight: 600; font-size: 0.9rem;">Realizada</th>
+                                        <th style="text-align: right; padding: 1rem; color: #666; font-weight: 600; font-size: 0.9rem;">Prevista</th>
+                                        <th style="text-align: right; padding: 1rem; color: #666; font-weight: 600; font-size: 0.9rem;">Total</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${(stats.monthlyBreakdown || []).map((item, idx) => `
+                                    ${(stats.monthlyBreakdown || []).map((item, idx) => {
+                                        const revenuePast = item.revenuePast || 0;
+                                        const revenueFuture = item.revenueFuture || 0;
+                                        const isAggregated = item.isAggregated || false;
+                                        return `
                                         <tr style="border-bottom: 1px solid #e0e0e0; background: ${idx % 2 === 0 ? '#fff' : '#f8f9fa'};">
-                                            <td style="padding: 1rem; font-size: 0.9rem; color: #333;">${item.label}</td>
+                                            <td style="padding: 1rem; font-size: 0.9rem; color: #333;">
+                                                ${item.label}
+                                                ${isAggregated ? '<span style="background: #3498db; color: white; font-size: 0.7rem; padding: 0.15rem 0.4rem; border-radius: 3px; margin-left: 0.5rem;">Agregado</span>' : ''}
+                                            </td>
                                             <td style="text-align: right; padding: 1rem; color: #666;">${item.count}</td>
-                                            <td style="text-align: right; padding: 1rem; font-weight: 600; color: #27ae60;">${formatCurrency(item.revenue)}</td>
+                                            <td style="text-align: right; padding: 1rem; font-weight: 600; color: #27ae60;">${formatCurrency(revenuePast)}</td>
+                                            <td style="text-align: right; padding: 1rem; font-weight: 600; color: #3498db;">${formatCurrency(revenueFuture)}</td>
+                                            <td style="text-align: right; padding: 1rem; font-weight: 600; color: #2c3e50;">${formatCurrency(item.revenue)}</td>
                                         </tr>
-                                    `).join('')}
+                                    `;}).join('')}
                                 </tbody>
                             </table>
                         </div>

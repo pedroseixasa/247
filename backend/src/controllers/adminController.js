@@ -4,6 +4,7 @@ const Service = require("../models/Service");
 const Reservation = require("../models/Reservation");
 const SiteSettings = require("../models/SiteSettings");
 const Review = require("../models/Review");
+const MonthlyStats = require("../models/MonthlyStats");
 
 const defaultSiteSettings = {
   header: {
@@ -476,24 +477,64 @@ exports.getSiteSettings = async (req, res) => {
       const monthEnd = new Date(selectedYear, month + 1, 0);
       monthEnd.setHours(23, 59, 59, 999);
 
-      const count = await Reservation.countDocuments({
-        ...confirmedFilter,
-        reservationDate: { $gte: monthStart, $lte: monthEnd },
+      // Verificar se existe estatística agregada para este mês
+      const monthlyStats = await MonthlyStats.findOne({
+        year: selectedYear,
+        month: month,
+        barberId: barberId || null,
       });
 
-      const revenue = await sumRevenue({
-        ...confirmedFilter,
-        reservationDate: { $gte: monthStart, $lte: monthEnd },
-      });
+      if (monthlyStats) {
+        // Usar dados agregados (receita toda é "realizada" porque já passou)
+        monthlyBreakdown.push({
+          label: monthStart.toLocaleDateString("pt-PT", {
+            month: "long",
+            year: "numeric",
+          }),
+          count: monthlyStats.totalReservations,
+          revenue: monthlyStats.totalRevenue,
+          revenuePast: monthlyStats.totalRevenue, // Tudo é passado
+          revenueFuture: 0,
+          isAggregated: true,
+        });
+      } else {
+        // Calcular dados das reservas normalmente
+        const count = await Reservation.countDocuments({
+          ...confirmedFilter,
+          reservationDate: { $gte: monthStart, $lte: monthEnd },
+        });
 
-      monthlyBreakdown.push({
-        label: monthStart.toLocaleDateString("pt-PT", {
-          month: "long",
-          year: "numeric",
-        }),
-        count,
-        revenue,
-      });
+        // Separar receita passada vs futura dentro do mês
+        const revenuePast = await sumRevenue({
+          ...confirmedFilter,
+          reservationDate: {
+            $gte: monthStart,
+            $lte: now < monthEnd ? now : monthEnd,
+          },
+        });
+
+        const revenueFuture =
+          now < monthEnd
+            ? await sumRevenue({
+                ...confirmedFilter,
+                reservationDate: { $gt: now, $lte: monthEnd },
+              })
+            : 0;
+
+        const revenue = revenuePast + revenueFuture;
+
+        monthlyBreakdown.push({
+          label: monthStart.toLocaleDateString("pt-PT", {
+            month: "long",
+            year: "numeric",
+          }),
+          count,
+          revenue,
+          revenuePast,
+          revenueFuture,
+          isAggregated: false,
+        });
+      }
     }
 
     const barbersCount = await Barber.countDocuments({ isActive: true });
