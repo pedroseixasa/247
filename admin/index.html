@@ -1125,7 +1125,7 @@
 
                 const buildReservationsHtml = (items) => {
                     const now = new Date();
-                    
+
                     // Filtrar apenas reservas futuras (que ainda não passaram)
                     const futureReservations = items.filter(res => {
                         const resDate = new Date(res.reservationDate);
@@ -1154,11 +1154,11 @@
                     futureReservations.forEach((reservation) => {
                         const dateObj = new Date(reservation.reservationDate);
                         const monthKey = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
-                        
+
                         if (!groupedByMonth[monthKey]) {
                             groupedByMonth[monthKey] = { date: new Date(dateObj.getFullYear(), dateObj.getMonth(), 1), reservations: {} };
                         }
-                        
+
                         const dayKey = dateObj.getDate();
                         if (!groupedByMonth[monthKey].reservations[dayKey]) {
                             groupedByMonth[monthKey].reservations[dayKey] = [];
@@ -1172,31 +1172,31 @@
                         const monthData = groupedByMonth[monthKey];
                         const monthDate = monthData.date;
                         const monthLabel = monthDate.toLocaleDateString('pt-PT', { month: 'long', year: 'numeric' }).toUpperCase();
-                        
+
                         const firstDay = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1).getDay();
                         const lastDay = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0).getDate();
-                        
+
                         html += `<div style="margin-bottom: 2rem;">
                             <h3 style="margin-bottom: 1rem; color: #333; font-size: 1.1rem;">${monthLabel}</h3>
                             <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; background: white; padding: 1rem; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
                         `;
-                        
+
                         // Headers dos dias da semana
                         const weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'];
                         weekDays.forEach(day => {
                             html += `<div style="text-align: center; font-weight: 600; color: #666; font-size: 0.85rem; padding: 0.5rem;">${day}</div>`;
                         });
-                        
+
                         // Células vazias antes do primeiro dia
                         for (let i = 0; i < firstDay; i++) {
                             html += `<div style="min-height: 80px;"></div>`;
                         }
-                        
+
                         // Dias do mês
                         for (let day = 1; day <= lastDay; day++) {
                             const reservasDodia = monthData.reservations[day] || [];
                             const hasReserva = reservasDodia.length > 0;
-                            
+
                             html += `
                                 <div style="min-height: 80px; border: 1px solid #e0e0e0; border-radius: 4px; padding: 0.5rem; background: ${hasReserva ? '#f0f8ff' : '#fff'}; cursor: ${hasReserva ? 'pointer' : 'default'}; position: relative; overflow: hidden;" 
                                      onclick="${hasReserva ? `document.getElementById('dayDetails_${monthKey}_${day}').style.display = document.getElementById('dayDetails_${monthKey}_${day}').style.display === 'none' ? 'block' : 'none'` : ''}">
@@ -1213,22 +1213,22 @@
                                             <button onclick="document.getElementById('dayDetails_${monthKey}_${day}').style.display='none'" style="background: #e74c3c; color: white; border: none; padding: 0.5rem 1rem; cursor: pointer; border-radius: 4px;">Fechar</button>
                                         </div>
                                         ${reservasDodia.map(res => {
-                                            let barberName = '—';
-                                            if (res.barberId) {
-                                                if (typeof res.barberId === 'string') {
-                                                    const barber = barbers.find(b => b._id === res.barberId);
-                                                    barberName = barber ? barber.name : '—';
-                                                } else if (res.barberId.name) {
-                                                    barberName = res.barberId.name;
-                                                } else if (res.barberId._id) {
-                                                    const barber = barbers.find(b => b._id === res.barberId._id);
-                                                    barberName = barber ? barber.name : '—';
-                                                }
-                                            }
-                                            const serviceName = res.serviceId && res.serviceId.name ? res.serviceId.name : '—';
-                                            const clientLine = [res.clientName, res.clientPhone, res.clientEmail].filter(Boolean).join(' • ');
-                                            
-                                            return `
+                                let barberName = '—';
+                                if (res.barberId) {
+                                    if (typeof res.barberId === 'string') {
+                                        const barber = barbers.find(b => b._id === res.barberId);
+                                        barberName = barber ? barber.name : '—';
+                                    } else if (res.barberId.name) {
+                                        barberName = res.barberId.name;
+                                    } else if (res.barberId._id) {
+                                        const barber = barbers.find(b => b._id === res.barberId._id);
+                                        barberName = barber ? barber.name : '—';
+                                    }
+                                }
+                                const serviceName = res.serviceId && res.serviceId.name ? res.serviceId.name : '—';
+                                const clientLine = [res.clientName, res.clientPhone, res.clientEmail].filter(Boolean).join(' • ');
+
+                                return `
                                                 <div style="border-bottom: 1px solid #e0e0e0; padding: 0.75rem 0; margin-bottom: 0.75rem;">
                                                     <div style="font-weight: 700; color: #27ae60; margin-bottom: 0.25rem;">${res.timeSlot || '--:--'}</div>
                                                     <div style="font-size: 0.9rem; color: #333; margin-bottom: 0.25rem;">${serviceName}</div>
@@ -1237,13 +1237,13 @@
                                                     <button class="btn-action btn-cancel" onclick="cancelReservation('${res._id}')" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">Cancelar</button>
                                                 </div>
                                             `;
-                                        }).join('')}
+                            }).join('')}
                                     </div>
                                     <div onclick="document.getElementById('dayDetails_${monthKey}_${day}').style.display='none'; event.stopPropagation();" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.3); z-index: 999;" id="overlay_${monthKey}_${day}"></div>
                                 ` : ''}
                             `;
                         }
-                        
+
                         html += `</div></div>`;
                     });
 
