@@ -66,3 +66,44 @@ exports.getCurrentBarber = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({
+        error: "Password atual e nova password são obrigatórias",
+      });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        error: "A nova password deve ter pelo menos 6 caracteres",
+      });
+    }
+
+    // Buscar o barbeiro
+    const barber = await Barber.findById(req.barberId);
+    if (!barber) {
+      return res.status(404).json({ error: "Utilizador não encontrado" });
+    }
+
+    // Verificar password atual
+    const isPasswordValid = await barber.comparePassword(currentPassword);
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: "Password atual incorreta" });
+    }
+
+    // Atualizar password
+    barber.password = newPassword;
+    await barber.save();
+
+    res.json({
+      success: true,
+      message: "Password alterada com sucesso",
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

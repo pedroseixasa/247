@@ -1673,12 +1673,42 @@
 
                         // Recarregar as configurações para atualizar a interface
                         setTimeout(() => {
-                            loadSettings();
+                            loadSettings(container);
                         }, 1000);
                     } catch (error) {
                         showStatusModal(error.message, 'error');
                     }
                 });
+
+                // ===== MUDAR PASSWORD =====
+                // Adicionar formulário de mudar password no início
+                const passwordFormHTML = `
+                    <div style="background: white; padding: 2rem; border-radius: 8px; margin-bottom: 2rem; max-width: 500px;">
+                        <h2 style="margin-top: 0;">🔐 Mudar Password</h2>
+                        <form id="changePasswordForm">
+                            <div class="form-group">
+                                <label>Password Atual</label>
+                                <input type="password" id="currentPassword" required autocomplete="current-password">
+                            </div>
+                            <div class="form-group">
+                                <label>Nova Password</label>
+                                <input type="password" id="newPassword" required autocomplete="new-password" minlength="6">
+                                <small style="color: var(--text-light);">Mínimo 6 caracteres</small>
+                            </div>
+                            <div class="form-group">
+                                <label>Confirmar Nova Password</label>
+                                <input type="password" id="confirmPassword" required autocomplete="new-password" minlength="6">
+                            </div>
+                            <button type="submit" style="background: var(--accent); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 4px; cursor: pointer;">
+                                Alterar Password
+                            </button>
+                        </form>
+                    </div>
+                `;
+                container.insertAdjacentHTML('afterbegin', passwordFormHTML);
+                
+                // Setup event listener para o formulário de mudar password
+                setupChangePasswordForm();
 
                 // ===== GERENCIAR REVIEWS =====
                 await loadAndDisplayReviews();
@@ -2086,6 +2116,51 @@
             } catch (error) {
                 alert('❌ Erro: ' + error.message);
             }
+        }
+
+        async function setupChangePasswordForm() {
+            const form = document.getElementById('changePasswordForm');
+            if (!form) return;
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const currentPassword = document.getElementById('currentPassword').value;
+                const newPassword = document.getElementById('newPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+
+                if (newPassword !== confirmPassword) {
+                    showStatusModal('As passwords não coincidem', 'error');
+                    return;
+                }
+
+                if (newPassword.length < 6) {
+                    showStatusModal('A password deve ter pelo menos 6 caracteres', 'error');
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`${API_URL}/auth/change-password`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ currentPassword, newPassword })
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data.error || 'Erro ao alterar password');
+                    }
+
+                    showStatusModal('Password alterada com sucesso!', 'success');
+                    form.reset();
+                } catch (error) {
+                    showStatusModal(error.message, 'error');
+                }
+            });
         }
 
         function logout() {

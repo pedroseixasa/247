@@ -13,6 +13,11 @@ const router = express.Router();
 // ===== AUTENTICAÇÃO =====
 router.post("/auth/login", authController.login);
 router.get("/auth/me", authMiddleware, authController.getCurrentBarber);
+router.put(
+  "/auth/change-password",
+  authMiddleware,
+  authController.changePassword,
+);
 
 // ===== RESERVAS =====
 router.post("/reservations", reservationController.createReservation);
