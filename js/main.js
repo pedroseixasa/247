@@ -900,7 +900,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     console.log("🕐 Renderizando slots para:", bookingState.barber, dateKey);
     console.log("📅 Dia da semana:", dayNames[dayOfWeek]);
-    console.log("📋 Horários disponíveis:", barberHours);
+    console.log("📋 Horários disponíveis da agenda:", barberHours);
 
     if (barberHours.length === 0) {
       timeSlotsContainer.innerHTML =
@@ -917,6 +917,11 @@ document.addEventListener("DOMContentLoaded", function () {
       bookingState.date.getDate(),
     );
     const isToday = today.getTime() === selectedDate.getTime();
+    
+    console.log("📅 Data de hoje:", today.toLocaleDateString("pt-PT"));
+    console.log("📅 Data selecionada:", selectedDate.toLocaleDateString("pt-PT"));
+    console.log("🔍 É hoje?", isToday);
+    console.log("⏰ Hora atual:", `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`);
 
     // Se for hoje, obter hora e minuto atual
     const currentHour = now.getHours();
@@ -924,20 +929,32 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Filtrar horários que já passaram se for hoje
     const availableHours = barberHours.filter((time) => {
-      if (!isToday) return true; // Se não for hoje, todos os horários estão disponíveis
+      if (!isToday) {
+        console.log(`✅ ${time} - Não é hoje, liberado`);
+        return true; // Se não for hoje, todos os horários estão disponíveis
+      }
 
       const [slotHour, slotMinute] = time.split(":").map(Number);
+      
+      console.log(`🕐 Verificando ${time} (${slotHour}:${slotMinute}) vs agora ${currentHour}:${currentMinute}`);
 
       // Horário já passou se:
       // - A hora do slot é menor que a hora atual, OU
       // - A hora do slot é igual mas os minutos são menores ou iguais
-      if (slotHour < currentHour) return false;
-      if (slotHour === currentHour && slotMinute <= currentMinute) return false;
-
+      if (slotHour < currentHour) {
+        console.log(`❌ ${time} - Hora passou (${slotHour} < ${currentHour})`);
+        return false;
+      }
+      if (slotHour === currentHour && slotMinute <= currentMinute) {
+        console.log(`❌ ${time} - Minuto passou (${slotMinute} <= ${currentMinute})`);
+        return false;
+      }
+      
+      console.log(`✅ ${time} - Liberado`);
       return true;
     });
 
-    console.log("⏰ Horários após filtro de tempo:", availableHours);
+    console.log("✅ Horários após filtro:", availableHours);
 
     if (availableHours.length === 0) {
       timeSlotsContainer.innerHTML =
@@ -967,7 +984,8 @@ document.addEventListener("DOMContentLoaded", function () {
       timeSlotsContainer.appendChild(timeSlot);
     });
 
-    console.log("✅ Slots renderizados:", availableHours.length);
+    console.log("✅ Total de slots renderizados:", availableHours.length);
+  }
   }
 
   window.refreshBookingSchedule = function () {
