@@ -567,19 +567,22 @@ document.addEventListener("DOMContentLoaded", function () {
       slots.push(formatTime(t));
     }
 
-    // ✅ HORÁRIO DE TESTE: Adicionar slot extra às 14:20 para testes
-    // Este slot sempre fica disponível independente da hora (para testes)
+    // ✅ HORÁRIOS DE TESTE: Adicionar slots extras para testes
+    // Estes slots sempre ficam disponíveis independente da hora (para testes)
     // Remover depois de testar completado!
-    const testSlot = "14:20";
-    if (!slots.includes(testSlot)) {
-      slots.push(testSlot);
-      // Ordenar slots por hora
-      slots.sort((a, b) => {
-        const [aH, aM] = a.split(":").map(Number);
-        const [bH, bM] = b.split(":").map(Number);
-        return aH * 60 + aM - (bH * 60 + bM);
-      });
-    }
+    const testSlots = ["14:20", "14:25"];
+    testSlots.forEach((testSlot) => {
+      if (!slots.includes(testSlot)) {
+        slots.push(testSlot);
+      }
+    });
+
+    // Ordenar slots por hora
+    slots.sort((a, b) => {
+      const [aH, aM] = a.split(":").map(Number);
+      const [bH, bM] = b.split(":").map(Number);
+      return aH * 60 + aM - (bH * 60 + bM);
+    });
 
     return slots;
   }
@@ -949,8 +952,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Filtrar horários que já passaram se for hoje
     const availableHours = barberHours.filter((time) => {
-      // 🧪 Slot de teste 14:20 - sempre disponível para testing
-      if (time === "14:20") {
+      // 🧪 Slots de teste - sempre disponíveis para testing
+      if (time === "14:20" || time === "14:25") {
         console.log(`✅ ${time} - SLOT DE TESTE, sempre liberado`);
         return true;
       }
