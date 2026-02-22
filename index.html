@@ -4144,7 +4144,7 @@
             const servicesGrid = document.getElementById('servicesGrid');
 
             try {
-                const response = await fetch('http://localhost:5000/api/admin/services');
+                const response = await fetch('https://two4-7-barbearia.onrender.com/api/admin/services');
                 if (!response.ok) throw new Error('Failed to load services');
 
                 const services = await response.json();
@@ -4195,7 +4195,7 @@
             if (!container) return;
 
             try {
-                const response = await fetch('http://localhost:5000/api/reviews/random');
+                const response = await fetch('https://two4-7-barbearia.onrender.com/api/reviews/random');
                 if (!response.ok) throw new Error('Failed to load reviews');
 
                 const reviews = await response.json();
