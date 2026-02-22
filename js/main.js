@@ -917,11 +917,17 @@ document.addEventListener("DOMContentLoaded", function () {
       bookingState.date.getDate(),
     );
     const isToday = today.getTime() === selectedDate.getTime();
-    
+
     console.log("📅 Data de hoje:", today.toLocaleDateString("pt-PT"));
-    console.log("📅 Data selecionada:", selectedDate.toLocaleDateString("pt-PT"));
+    console.log(
+      "📅 Data selecionada:",
+      selectedDate.toLocaleDateString("pt-PT"),
+    );
     console.log("🔍 É hoje?", isToday);
-    console.log("⏰ Hora atual:", `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`);
+    console.log(
+      "⏰ Hora atual:",
+      `${now.getHours()}:${String(now.getMinutes()).padStart(2, "0")}`,
+    );
 
     // Se for hoje, obter hora e minuto atual
     const currentHour = now.getHours();
@@ -935,8 +941,10 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       const [slotHour, slotMinute] = time.split(":").map(Number);
-      
-      console.log(`🕐 Verificando ${time} (${slotHour}:${slotMinute}) vs agora ${currentHour}:${currentMinute}`);
+
+      console.log(
+        `🕐 Verificando ${time} (${slotHour}:${slotMinute}) vs agora ${currentHour}:${currentMinute}`,
+      );
 
       // Horário já passou se:
       // - A hora do slot é menor que a hora atual, OU
@@ -946,10 +954,12 @@ document.addEventListener("DOMContentLoaded", function () {
         return false;
       }
       if (slotHour === currentHour && slotMinute <= currentMinute) {
-        console.log(`❌ ${time} - Minuto passou (${slotMinute} <= ${currentMinute})`);
+        console.log(
+          `❌ ${time} - Minuto passou (${slotMinute} <= ${currentMinute})`,
+        );
         return false;
       }
-      
+
       console.log(`✅ ${time} - Liberado`);
       return true;
     });
@@ -985,7 +995,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     console.log("✅ Total de slots renderizados:", availableHours.length);
-  }
   }
 
   window.refreshBookingSchedule = function () {
