@@ -738,8 +738,7 @@
     <div id="app"></div>
 
     <script>
-        const hostname = window.location.hostname || 'localhost';
-        const API_URL = `http://${hostname}:5000/api`;
+        const API_URL = "https://two4-7-barbearia.onrender.com/api";
         let token = localStorage.getItem('admin_token');
         let currentUser = JSON.parse(localStorage.getItem('admin_user') || '{}');
 
