@@ -908,7 +908,40 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    barberHours.forEach((time) => {
+    // Verificar se a data selecionada é hoje
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const selectedDate = new Date(bookingState.date.getFullYear(), bookingState.date.getMonth(), bookingState.date.getDate());
+    const isToday = today.getTime() === selectedDate.getTime();
+    
+    // Se for hoje, obter hora e minuto atual
+    const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
+
+    // Filtrar horários que já passaram se for hoje
+    const availableHours = barberHours.filter((time) => {
+      if (!isToday) return true; // Se não for hoje, todos os horários estão disponíveis
+      
+      const [slotHour, slotMinute] = time.split(':').map(Number);
+      
+      // Horário já passou se:
+      // - A hora do slot é menor que a hora atual, OU
+      // - A hora do slot é igual mas os minutos são menores ou iguais
+      if (slotHour < currentHour) return false;
+      if (slotHour === currentHour && slotMinute <= currentMinute) return false;
+      
+      return true;
+    });
+
+    console.log("⏰ Horários após filtro de tempo:", availableHours);
+
+    if (availableHours.length === 0) {
+      timeSlotsContainer.innerHTML =
+        '<p class="time-slots-empty">Sem horários disponíveis para hoje</p>';
+      return;
+    }
+
+    availableHours.forEach((time) => {
       const slotKey = `${bookingState.barber}-${dateKey}-${time}`;
       const isBooked = bookedSlots[slotKey];
 
@@ -930,7 +963,7 @@ document.addEventListener("DOMContentLoaded", function () {
       timeSlotsContainer.appendChild(timeSlot);
     });
 
-    console.log("✅ Slots renderizados:", barberHours.length);
+    console.log("✅ Slots renderizados:", availableHours.length);
   }
 
   window.refreshBookingSchedule = function () {
