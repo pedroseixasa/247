@@ -1250,7 +1250,7 @@
                     return html;
                 };
 
-                container.innerHTML = buildReservationsHtml(futureReservations);
+                container.innerHTML = buildReservationsHtml(reservations);
 
                 const attachReservationsFilter = () => {
                     if (currentUser.role !== 'admin') return;
