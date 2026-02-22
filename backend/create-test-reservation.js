@@ -36,7 +36,7 @@ async function createTestReservation() {
       14,
       20,
       0,
-      0
+      0,
     );
 
     console.log(`\n📅 Criando reserva de teste:`);
@@ -61,7 +61,9 @@ async function createTestReservation() {
       console.log("   Status:", existing.status);
 
       if (existing.status !== "confirmed") {
-        await Reservation.findByIdAndUpdate(existing._id, { status: "confirmed" });
+        await Reservation.findByIdAndUpdate(existing._id, {
+          status: "confirmed",
+        });
         console.log("\n✅ Reserva atualizada para 'confirmed'");
       }
     } else {
@@ -87,7 +89,9 @@ async function createTestReservation() {
     console.log("   1. Abra o painel admin em produção");
     console.log("   2. O dashboard mostrará receita prevista");
     console.log("   3. Quando passar de 14:20, recarregue a página");
-    console.log("   4. A receita deve passar de 'prevista' para 'realizada' ✅");
+    console.log(
+      "   4. A receita deve passar de 'prevista' para 'realizada' ✅",
+    );
 
     console.log("\n🗑️  Para deletar esta reserva depois:");
     console.log(`   node delete-test-reservation.js\n`);

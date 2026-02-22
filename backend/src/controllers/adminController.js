@@ -506,9 +506,9 @@ exports.getSiteSettings = async (req, res) => {
 
         // ===== LÓGICA CORRIGIDA =====
         // Determinar se o mês é passado, atual ou futuro
-        const isMonthPast = monthEnd < now;           // monthEnd antes de agora
+        const isMonthPast = monthEnd < now; // monthEnd antes de agora
         const isMonthCurrent = monthStart <= now && now <= monthEnd; // Agora dentro do mês
-        const isMonthFuture = monthStart > now;       // monthStart depois de agora
+        const isMonthFuture = monthStart > now; // monthStart depois de agora
 
         let revenuePast = 0;
         let revenueFuture = 0;

@@ -1207,10 +1207,10 @@
                                 </div>
                                 
                                 ${hasReserva ? `
-                                    <div id="dayDetails_${monthKey}_${day}" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border: 2px solid #3498db; border-radius: 8px; padding: 1.5rem; z-index: 1000; max-width: 500px; max-height: 80vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
-                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                    <div id="dayDetails_${monthKey}_${day}" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border: 2px solid #3498db; border-radius: 8px; padding: 1rem; z-index: 1000; max-width: 420px; max-height: 70vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
                                             <h3 style="margin: 0; color: #333;">${day} de ${monthLabel}</h3>
-                                            <button onclick="document.getElementById('dayDetails_${monthKey}_${day}').style.display='none'" style="background: #e74c3c; color: white; border: none; padding: 0.5rem 1rem; cursor: pointer; border-radius: 4px;">Fechar</button>
+                                            <button onclick="document.getElementById('dayDetails_${monthKey}_${day}').style.display='none'" style="background: #e74c3c; color: white; border: none; padding: 0.35rem 0.7rem; cursor: pointer; border-radius: 4px; font-size: 0.85rem;">Fechar</button>
                                         </div>
                                         ${reservasDodia.map(res => {
                                 let barberName = '—';
@@ -1226,15 +1226,21 @@
                                     }
                                 }
                                 const serviceName = res.serviceId && res.serviceId.name ? res.serviceId.name : '—';
-                                const clientLine = [res.clientName, res.clientPhone, res.clientEmail].filter(Boolean).join(' • ');
+                                const clientName = res.clientName || '—';
+                                const clientPhone = res.clientPhone || '';
+                                const clientLine = clientPhone ? `${clientName} • ${clientPhone}` : clientName;
 
                                 return `
-                                                <div style="border-bottom: 1px solid #e0e0e0; padding: 0.75rem 0; margin-bottom: 0.75rem;">
-                                                    <div style="font-weight: 700; color: #27ae60; margin-bottom: 0.25rem;">${res.timeSlot || '--:--'}</div>
-                                                    <div style="font-size: 0.9rem; color: #333; margin-bottom: 0.25rem;">${serviceName}</div>
-                                                    <div style="font-size: 0.85rem; color: #666; margin-bottom: 0.25rem;">👨 ${barberName}</div>
-                                                    <div style="font-size: 0.85rem; color: #666; margin-bottom: 0.5rem;">👤 ${clientLine}</div>
-                                                    <button class="btn-action btn-cancel" onclick="cancelReservation('${res._id}')" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">Cancelar</button>
+                                                <div style="border-bottom: 1px solid #e0e0e0; padding: 0.5rem 0; margin-bottom: 0.5rem;">
+                                                    <div style="display: grid; grid-template-columns: 52px 1fr auto; gap: 0.5rem; align-items: center;">
+                                                        <div style="font-weight: 700; color: #27ae60; font-size: 0.9rem;">${res.timeSlot || '--:--'}</div>
+                                                        <div>
+                                                            <div style="font-size: 0.85rem; color: #333; font-weight: 600;">${serviceName}</div>
+                                                            <div style="font-size: 0.8rem; color: #666;">${barberName}</div>
+                                                            <div style="font-size: 0.8rem; color: #666;">${clientLine}</div>
+                                                        </div>
+                                                        <button class="btn-action btn-cancel" onclick="cancelReservation('${res._id}')" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;">Cancelar</button>
+                                                    </div>
                                                 </div>
                                             `;
                             }).join('')}
