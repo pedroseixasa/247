@@ -12,13 +12,17 @@ async function createAdmin() {
     console.log("✓ Conectado ao MongoDB");
 
     // Verificar se já existe admin
-    const existingAdmin = await Barber.findOne({ email: "cunha@247barbearia.com" });
-    
+    const existingAdmin = await Barber.findOne({
+      email: "cunha@247barbearia.com",
+    });
+
     if (existingAdmin) {
       console.log("⚠️  Admin já existe!");
       console.log("Email:", existingAdmin.email);
       console.log("Nome:", existingAdmin.name);
-      console.log("\nSe perdeste a password, apaga este user no MongoDB Atlas e corre este script de novo.");
+      console.log(
+        "\nSe perdeste a password, apaga este user no MongoDB Atlas e corre este script de novo.",
+      );
       process.exit(0);
     }
 
