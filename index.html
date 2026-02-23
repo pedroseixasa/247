@@ -4287,25 +4287,43 @@
         });
     </script>
 
-    <!-- Mobile Menu Close on Link Click -->
+    <!-- Anchor Scroll Script for Mobile -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const nav = document.querySelector('nav');
-            const mobileToggle = document.querySelector('.mobile-menu-toggle');
-            const header = document.querySelector('header');
+        function performScroll(target) {
+            if (!target) return;
             
-            if (!nav || !mobileToggle || !header) return;
+            const header = document.querySelector('header');
+            const headerHeight = header ? header.offsetHeight : 0;
+            const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - headerHeight - 10;
+            
+            window.scrollTo({
+                top: targetPosition,
+                behavior: 'smooth'
+            });
+        }
 
-            // Apenas fecha o menu quando clicar nos links - NAO previne o scroll!
-            document.querySelectorAll('nav a[href^="#"]').forEach(link => {
-                link.addEventListener('click', function() {
-                    setTimeout(() => {
-                        nav.classList.remove('mobile-menu-open');
-                        mobileToggle.classList.remove('active');
-                        header.classList.remove('menu-is-open');
-                        mobileToggle.setAttribute('aria-expanded', 'false');
-                    }, 50);
-                });
+        // Intercepta todos os anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                
+                if (href && href !== '#') {
+                    const target = document.querySelector(href);
+                    if (target) {
+                        e.preventDefault();
+                        
+                        // Fecha menu se aberto
+                        const nav = document.querySelector('nav');
+                        const toggle = document.querySelector('.mobile-menu-toggle');
+                        if (nav && nav.classList.contains('mobile-menu-open')) {
+                            nav.classList.remove('mobile-menu-open');
+                            toggle && toggle.classList.remove('active');
+                        }
+                        
+                        // Faz scroll após fechar menu
+                        setTimeout(() => performScroll(target), 100);
+                    }
+                }
             });
         });
     </script>
