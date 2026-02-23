@@ -54,10 +54,11 @@ exports.createReservation = async (req, res) => {
     // Validar formato de telefone português
     if (clientPhone) {
       const phoneRegex = /^(\+351\s?)?[29]\d{8}$/;
-      const cleanPhone = clientPhone.replace(/\s/g, '');
+      const cleanPhone = clientPhone.replace(/\s/g, "");
       if (!phoneRegex.test(cleanPhone)) {
-        return res.status(400).json({ 
-          error: "Número de telefone inválido. Use formato: +351 912345678 ou 912345678" 
+        return res.status(400).json({
+          error:
+            "Número de telefone inválido. Use formato: +351 912345678 ou 912345678",
         });
       }
     }
@@ -65,16 +66,21 @@ exports.createReservation = async (req, res) => {
     // Validar formato de email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(clientEmail)) {
-      return res.status(400).json({ 
-        error: "Email inválido" 
+      return res.status(400).json({
+        error: "Email inválido",
       });
     }
 
     // Verificar se o email tem domínio válido
-    const domain = clientEmail.split('@')[1];
-    if (!domain || domain.split('.').length < 2 || domain.endsWith('.test') || domain.endsWith('.fake')) {
-      return res.status(400).json({ 
-        error: "Por favor, use um email real" 
+    const domain = clientEmail.split("@")[1];
+    if (
+      !domain ||
+      domain.split(".").length < 2 ||
+      domain.endsWith(".test") ||
+      domain.endsWith(".fake")
+    ) {
+      return res.status(400).json({
+        error: "Por favor, use um email real",
       });
     }
 

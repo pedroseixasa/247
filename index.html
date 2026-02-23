@@ -3265,6 +3265,31 @@
             background: rgba(255, 107, 53, 0.02);
         }
 
+        /* Error Message */
+        .booking-error {
+            background: #fee;
+            color: #c33;
+            padding: 1rem 1.5rem;
+            margin: 0 2rem 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #c33;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         /* Footer */
         .booking-footer {
             display: flex;
@@ -4113,6 +4138,8 @@
                     </form>
                 </div>
             </div>
+
+            <div class="booking-error" id="bookingError" style="display: none;"></div>
 
             <div class="booking-footer">
                 <button class="booking-btn booking-btn-back" id="bookingBack" style="display: none;">Voltar</button>

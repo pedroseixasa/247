@@ -766,6 +766,12 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     }
 
+    // Limpar mensagem de erro ao editar os campos do formulário
+    const formInputs = document.querySelectorAll("#clientName, #clientPhone, #clientEmail");
+    formInputs.forEach(input => {
+      input.addEventListener("input", hideBookingError);
+    });
+
     // Calendário
     const prevMonthBtn = document.getElementById("prevMonth");
     const nextMonthBtn = document.getElementById("nextMonth");
@@ -782,26 +788,52 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function validateStep(step) {
     if (step === 1 && !bookingState.barber) {
-      alert("Por favor, selecione um barbeiro");
+      showBookingError("Por favor, selecione um barbeiro");
       return false;
     }
     if (step === 2 && (!bookingState.date || !bookingState.time)) {
-      alert("Por favor, selecione data e horário");
+      showBookingError("Por favor, selecione data e horário");
       return false;
     }
     if (step === 3) {
       const name = document.getElementById("clientName");
       const email = document.getElementById("clientEmail");
       if (!name || !email || !name.value || !email.value) {
-        alert("Por favor, preencha nome e email");
+        showBookingError("Por favor, preencha nome e email");
         return false;
       }
     }
     return true;
   }
 
+  function showBookingError(message) {
+    const errorDiv = document.getElementById("bookingError");
+    if (errorDiv) {
+      errorDiv.textContent = message;
+      errorDiv.style.display = "block";
+
+      // Scroll suave para a mensagem de erro
+      errorDiv.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+      // Auto-hide após 5 segundos
+      setTimeout(() => {
+        errorDiv.style.display = "none";
+      }, 5000);
+    }
+  }
+
+  function hideBookingError() {
+    const errorDiv = document.getElementById("bookingError");
+    if (errorDiv) {
+      errorDiv.style.display = "none";
+    }
+  }
+
   function goToStep(step) {
     bookingState.currentStep = step;
+
+    // Limpar mensagem de erro ao mudar de passo
+    hideBookingError();
 
     document.querySelectorAll(".booking-step").forEach((s, i) => {
       s.classList.toggle("active", i + 1 === step);
@@ -1109,7 +1141,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const email = document.getElementById("clientEmail").value;
 
     if (!name || !phone || !email) {
-      alert("Por favor, preencha todos os dados");
+      showBookingError("Por favor, preencha todos os dados");
       return;
     }
 
@@ -1117,8 +1149,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const phoneRegex = /^(\+351\s?)?[29]\d{8}$/;
     const cleanPhone = phone.replace(/\s/g, "");
     if (!phoneRegex.test(cleanPhone)) {
-      alert(
-        "❌ Número de telefone inválido!\n\nFormato válido:\n• +351 912345678\n• 912345678\n• 212345678",
+      showBookingError(
+        "Número de telefone inválido! Use formato: +351 912345678 ou 912345678",
       );
       return;
     }
@@ -1126,8 +1158,8 @@ document.addEventListener("DOMContentLoaded", function () {
     // Validar email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      alert(
-        "❌ Email inválido!\n\nInsira um email válido como:\nexemplo@email.com",
+      showBookingError(
+        "Email inválido! Insira um email válido como: exemplo@email.com",
       );
       return;
     }
@@ -1140,9 +1172,12 @@ document.addEventListener("DOMContentLoaded", function () {
       domain.endsWith(".test") ||
       domain.endsWith(".fake")
     ) {
-      alert("❌ Email inválido!\n\nPor favor, use um email real.");
+      showBookingError("Email inválido! Por favor, use um email real.");
       return;
     }
+
+    // Limpar mensagens de erro anteriores
+    hideBookingError();
 
     // Preparar dados para enviar à API
     const reservationData = {
@@ -1173,7 +1208,7 @@ document.addEventListener("DOMContentLoaded", function () {
       .then((response) => response.json())
       .then((data) => {
         if (data.error) {
-          alert("❌ Erro: " + data.error);
+          showBookingError("Erro: " + data.error);
           return;
         }
 
@@ -1230,11 +1265,7 @@ document.addEventListener("DOMContentLoaded", function () {
       })
       .catch((error) => {
         console.error("Erro ao criar reserva:", error);
-        alert(
-          "❌ Erro ao processar reserva: " +
-            error.message +
-            "\n\nTentando guardar localmente...",
-        );
+        showBookingError("Erro ao processar reserva: " + error.message);
 
         // Fallback: guardar em localStorage se API falhar
         const dateKey = bookingState.date.toISOString().split("T")[0];
