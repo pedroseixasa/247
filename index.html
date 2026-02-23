@@ -4287,22 +4287,51 @@
         });
     </script>
 
-    <!-- Smooth Scroll Script -->
+    <!-- Mobile Smooth Scroll Script -->
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            document.querySelectorAll('a[href^="#"]').forEach(link => {
-                link.addEventListener('click', function (e) {
-                    const href = this.getAttribute('href');
+        function isMobileDevice() {
+            return window.innerWidth <= 768;
+        }
 
-                    if (href && href !== '#') {
-                        const target = document.querySelector(href);
+        function handleMobileScroll(e) {
+            if (!isMobileDevice()) return;
 
-                        if (target) {
-                            e.preventDefault();
-                            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        }
-                    }
+            const href = e.currentTarget.getAttribute('href');
+            if (!href || href === '#') return;
+
+            const target = document.querySelector(href);
+            if (!target) return;
+
+            e.preventDefault();
+
+            const elementTop = target.offsetTop;
+            const header = document.querySelector('header');
+            const headerHeight = header ? header.offsetHeight : 0;
+            const scrollTop = elementTop - headerHeight - 20;
+
+            // Scroll simples
+            window.scrollTo(0, scrollTop);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Aplicar apenas em mobile
+            if (isMobileDevice()) {
+                document.querySelectorAll('a[href^="#"]').forEach(link => {
+                    link.addEventListener('click', handleMobileScroll);
                 });
+            }
+
+            // Reaplica quando redimensiona
+            window.addEventListener('resize', function() {
+                document.querySelectorAll('a[href^="#"]').forEach(link => {
+                    link.removeEventListener('click', handleMobileScroll);
+                });
+
+                if (isMobileDevice()) {
+                    document.querySelectorAll('a[href^="#"]').forEach(link => {
+                        link.addEventListener('click', handleMobileScroll);
+                    });
+                }
             });
         });
     </script>
