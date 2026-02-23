@@ -4288,6 +4288,38 @@
         });
     </script>
 
+    <!-- Smooth Scroll Script -->
+    <script>
+        (function () {
+            // Smooth scroll for all anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    const href = this.getAttribute('href');
+                    
+                    // Ignore empty anchors
+                    if (href === '#' || !href) return;
+                    
+                    const target = document.querySelector(href);
+                    if (target) {
+                        e.preventDefault();
+                        
+                        // Get header height for offset
+                        const header = document.querySelector('header');
+                        const offset = header ? header.offsetHeight + 20 : 80;
+                        
+                        const targetPosition = target.getBoundingClientRect().top + window.pageYOffset;
+                        const offsetPosition = targetPosition - offset;
+
+                        window.scrollTo({
+                            top: offsetPosition,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+        })();
+    </script>
+
     <!-- Mobile Menu Script -->
     <script>
         (function () {
@@ -4321,10 +4353,12 @@
             // Close menu when clicking nav links
             nav.querySelectorAll('a').forEach(link => {
                 link.addEventListener('click', function () {
-                    nav.classList.remove('mobile-menu-open');
-                    mobileToggle.classList.remove('active');
-                    header.classList.remove('menu-is-open');
-                    mobileToggle.setAttribute('aria-expanded', 'false');
+                    setTimeout(() => {
+                        nav.classList.remove('mobile-menu-open');
+                        mobileToggle.classList.remove('active');
+                        header.classList.remove('menu-is-open');
+                        mobileToggle.setAttribute('aria-expanded', 'false');
+                    }, 100);
                 });
             });
 
