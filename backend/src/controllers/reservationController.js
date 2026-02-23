@@ -51,6 +51,33 @@ exports.createReservation = async (req, res) => {
       return res.status(400).json({ error: "Dados obrigatórios faltando" });
     }
 
+    // Validar formato de telefone português
+    if (clientPhone) {
+      const phoneRegex = /^(\+351\s?)?[29]\d{8}$/;
+      const cleanPhone = clientPhone.replace(/\s/g, '');
+      if (!phoneRegex.test(cleanPhone)) {
+        return res.status(400).json({ 
+          error: "Número de telefone inválido. Use formato: +351 912345678 ou 912345678" 
+        });
+      }
+    }
+
+    // Validar formato de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(clientEmail)) {
+      return res.status(400).json({ 
+        error: "Email inválido" 
+      });
+    }
+
+    // Verificar se o email tem domínio válido
+    const domain = clientEmail.split('@')[1];
+    if (!domain || domain.split('.').length < 2 || domain.endsWith('.test') || domain.endsWith('.fake')) {
+      return res.status(400).json({ 
+        error: "Por favor, use um email real" 
+      });
+    }
+
     // Converter IDs para ObjectId com validação
     let barberIdObj, serviceIdObj;
     try {

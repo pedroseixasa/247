@@ -702,6 +702,70 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     }
 
+    // Validação em tempo real do telefone
+    const phoneInput = document.getElementById("clientPhone");
+    if (phoneInput) {
+      phoneInput.addEventListener("input", function (e) {
+        const phone = e.target.value.replace(/\s/g, "");
+        const phoneRegex = /^(\+351)?[29]\d{8}$/;
+
+        if (phone.length > 0 && !phoneRegex.test(phone)) {
+          e.target.style.borderColor = "#ff6b35";
+        } else {
+          e.target.style.borderColor = "";
+        }
+      });
+
+      phoneInput.addEventListener("blur", function (e) {
+        const phone = e.target.value.replace(/\s/g, "");
+        const phoneRegex = /^(\+351)?[29]\d{8}$/;
+
+        if (phone.length > 0 && !phoneRegex.test(phone)) {
+          e.target.setCustomValidity("Formato: +351 912345678 ou 912345678");
+        } else {
+          e.target.setCustomValidity("");
+        }
+      });
+    }
+
+    // Validação em tempo real do email
+    const emailInput = document.getElementById("clientEmail");
+    if (emailInput) {
+      emailInput.addEventListener("input", function (e) {
+        const email = e.target.value;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (email.length > 0 && !emailRegex.test(email)) {
+          e.target.style.borderColor = "#ff6b35";
+        } else {
+          e.target.style.borderColor = "";
+        }
+      });
+
+      emailInput.addEventListener("blur", function (e) {
+        const email = e.target.value;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const domain = email.split("@")[1];
+
+        if (email.length > 0) {
+          if (!emailRegex.test(email)) {
+            e.target.setCustomValidity("Insira um email válido");
+          } else if (
+            !domain ||
+            domain.split(".").length < 2 ||
+            domain.endsWith(".test") ||
+            domain.endsWith(".fake")
+          ) {
+            e.target.setCustomValidity("Use um email real");
+          } else {
+            e.target.setCustomValidity("");
+          }
+        } else {
+          e.target.setCustomValidity("");
+        }
+      });
+    }
+
     // Calendário
     const prevMonthBtn = document.getElementById("prevMonth");
     const nextMonthBtn = document.getElementById("nextMonth");
@@ -1046,6 +1110,37 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (!name || !phone || !email) {
       alert("Por favor, preencha todos os dados");
+      return;
+    }
+
+    // Validar telefone português
+    const phoneRegex = /^(\+351\s?)?[29]\d{8}$/;
+    const cleanPhone = phone.replace(/\s/g, "");
+    if (!phoneRegex.test(cleanPhone)) {
+      alert(
+        "❌ Número de telefone inválido!\n\nFormato válido:\n• +351 912345678\n• 912345678\n• 212345678",
+      );
+      return;
+    }
+
+    // Validar email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      alert(
+        "❌ Email inválido!\n\nInsira um email válido como:\nexemplo@email.com",
+      );
+      return;
+    }
+
+    // Verificar se o email tem domínio válido (não apenas @test ou @fake)
+    const domain = email.split("@")[1];
+    if (
+      !domain ||
+      domain.split(".").length < 2 ||
+      domain.endsWith(".test") ||
+      domain.endsWith(".fake")
+    ) {
+      alert("❌ Email inválido!\n\nPor favor, use um email real.");
       return;
     }
 
