@@ -4287,39 +4287,24 @@
         });
     </script>
 
-    <!-- Mobile Scroll Script -->
+    <!-- Mobile Menu Close on Link Click -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const isMobile = window.innerWidth <= 768;
+            const nav = document.querySelector('nav');
+            const mobileToggle = document.querySelector('.mobile-menu-toggle');
+            const header = document.querySelector('header');
             
-            if (!isMobile) return;
+            if (!nav || !mobileToggle || !header) return;
 
-            document.querySelectorAll('a[href^="#"]').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    const href = this.getAttribute('href');
-                    
-                    if (!href || href === '#') return;
-
-                    const target = document.querySelector(href);
-                    if (!target) return;
-
-                    e.preventDefault();
-                    
-                    console.log('Tentando scroll para:', href);
-
-                    // Fecha menu
-                    const nav = document.querySelector('nav');
-                    if (nav && nav.classList.contains('mobile-menu-open')) {
+            // Apenas fecha o menu quando clicar nos links - NAO previne o scroll!
+            document.querySelectorAll('nav a[href^="#"]').forEach(link => {
+                link.addEventListener('click', function() {
+                    setTimeout(() => {
                         nav.classList.remove('mobile-menu-open');
-                    }
-
-                    // Tenta element.scrollIntoView()
-                    try {
-                        target.scrollIntoView(true);
-                        console.log('ScrollIntoView chamado com sucesso');
-                    } catch (err) {
-                        console.log('ScrollIntoView erro:', err);
-                    }
+                        mobileToggle.classList.remove('active');
+                        header.classList.remove('menu-is-open');
+                        mobileToggle.setAttribute('aria-expanded', 'false');
+                    }, 50);
                 });
             });
         });
