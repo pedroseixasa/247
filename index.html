@@ -4304,35 +4304,37 @@
 
             e.preventDefault();
 
-            const elementTop = target.offsetTop;
-            const header = document.querySelector('header');
-            const headerHeight = header ? header.offsetHeight : 0;
-            const scrollTop = elementTop - headerHeight - 20;
+            // Fecha o menu se estiver aberto
+            const nav = document.querySelector('nav');
+            const mobileToggle = document.querySelector('.mobile-menu-toggle');
+            if (nav && nav.classList.contains('mobile-menu-open')) {
+                nav.classList.remove('mobile-menu-open');
+                mobileToggle.classList.remove('active');
+                document.querySelector('header').classList.remove('menu-is-open');
+            }
 
-            // Scroll simples
-            window.scrollTo(0, scrollTop);
+            // Aguarda um pouco para o menu fechar antes de fazer scroll
+            setTimeout(() => {
+                const header = document.querySelector('header');
+                const headerHeight = header ? header.offsetHeight : 0;
+                
+                // Usa getBoundingClientRect para calcular posição exata
+                const rect = target.getBoundingClientRect();
+                const scrollPosition = window.pageYOffset + rect.top - headerHeight - 20;
+
+                window.scrollTo({
+                    top: scrollPosition,
+                    behavior: 'smooth'
+                });
+            }, 100);
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Aplicar apenas em mobile
             if (isMobileDevice()) {
                 document.querySelectorAll('a[href^="#"]').forEach(link => {
                     link.addEventListener('click', handleMobileScroll);
                 });
             }
-
-            // Reaplica quando redimensiona
-            window.addEventListener('resize', function() {
-                document.querySelectorAll('a[href^="#"]').forEach(link => {
-                    link.removeEventListener('click', handleMobileScroll);
-                });
-
-                if (isMobileDevice()) {
-                    document.querySelectorAll('a[href^="#"]').forEach(link => {
-                        link.addEventListener('click', handleMobileScroll);
-                    });
-                }
-            });
         });
     </script>
 
