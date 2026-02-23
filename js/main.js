@@ -1446,21 +1446,24 @@ document.addEventListener("DOMContentLoaded", function () {
   console.log("✅ About image effect initialized");
 
   // Ajustar threshold conforme o tamanho da tela
-  let threshold = 0.9;
+  let threshold = 0.7;
   const screenWidth = window.innerWidth;
+  const isMobile = screenWidth < 768;
 
-  if (screenWidth < 768) {
+  if (isMobile) {
     // Mobile
-    threshold = 0.95;
+    threshold = 0.35;
   } else if (screenWidth < 1024) {
     // Tablet
-    threshold = 0.9;
-  } else {
-    // Desktop
-    threshold = 0.9;
+    threshold = 0.6;
   }
 
   console.log(`📱 Screen width: ${screenWidth}px, threshold: ${threshold}`);
+
+  if (!("IntersectionObserver" in window)) {
+    aboutCard.classList.add("is-3d");
+    return;
+  }
 
   // IntersectionObserver - ativa 3D para TODOS (mobile, tablet, desktop) com scroll
   const observer = new IntersectionObserver(
@@ -1477,7 +1480,7 @@ document.addEventListener("DOMContentLoaded", function () {
     },
     {
       threshold: threshold,
-      rootMargin: "0px",
+      rootMargin: isMobile ? "0px 0px -10% 0px" : "0px",
     },
   );
 

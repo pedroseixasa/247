@@ -2140,6 +2140,7 @@
             align-items: center;
             padding: 0 24px;
             perspective: 2000px;
+            transform-style: preserve-3d;
         }
 
         .about-cover-image {
@@ -2164,6 +2165,7 @@
             z-index: -1;
             border-radius: 0.75rem;
             overflow: hidden;
+            transform-style: preserve-3d;
         }
 
         /* estado 3D: será ativado com a classe .is-3d */
@@ -2224,9 +2226,21 @@
 
         /* mobile: empilha texto + card */
         @media (max-width: 900px) {
+            .about {
+                padding: var(--spacing-lg) 0;
+            }
+
             .about-layout {
                 grid-template-columns: 1fr;
-                gap: 2rem;
+                gap: 1.5rem;
+            }
+
+            .section-title {
+                margin-bottom: var(--spacing-md);
+            }
+
+            .about-content {
+                margin-bottom: 0;
             }
 
             .about-card {
