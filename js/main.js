@@ -767,8 +767,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Limpar mensagem de erro ao editar os campos do formulário
-    const formInputs = document.querySelectorAll("#clientName, #clientPhone, #clientEmail");
-    formInputs.forEach(input => {
+    const formInputs = document.querySelectorAll(
+      "#clientName, #clientPhone, #clientEmail",
+    );
+    formInputs.forEach((input) => {
       input.addEventListener("input", hideBookingError);
     });
 
