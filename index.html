@@ -4287,54 +4287,57 @@
         });
     </script>
 
-    <!-- Mobile Smooth Scroll Script -->
+    <!-- Mobile Scroll Script -->
     <script>
-        function isMobileDevice() {
-            return window.innerWidth <= 768;
-        }
-
-        function handleMobileScroll(e) {
-            if (!isMobileDevice()) return;
-
-            const href = e.currentTarget.getAttribute('href');
-            if (!href || href === '#') return;
-
-            const target = document.querySelector(href);
-            if (!target) return;
-
-            e.preventDefault();
-
-            // Fecha o menu se estiver aberto
-            const nav = document.querySelector('nav');
-            const mobileToggle = document.querySelector('.mobile-menu-toggle');
-            if (nav && nav.classList.contains('mobile-menu-open')) {
-                nav.classList.remove('mobile-menu-open');
-                mobileToggle.classList.remove('active');
-                document.querySelector('header').classList.remove('menu-is-open');
-            }
-
-            // Aguarda um pouco para o menu fechar antes de fazer scroll
-            setTimeout(() => {
-                const header = document.querySelector('header');
-                const headerHeight = header ? header.offsetHeight : 0;
-                
-                // Usa getBoundingClientRect para calcular posição exata
-                const rect = target.getBoundingClientRect();
-                const scrollPosition = window.pageYOffset + rect.top - headerHeight - 20;
-
-                window.scrollTo({
-                    top: scrollPosition,
-                    behavior: 'smooth'
-                });
-            }, 100);
-        }
-
+        console.log('Mobile scroll script loading...');
+        
         document.addEventListener('DOMContentLoaded', function() {
-            if (isMobileDevice()) {
-                document.querySelectorAll('a[href^="#"]').forEach(link => {
-                    link.addEventListener('click', handleMobileScroll);
-                });
+            console.log('DOMContentLoaded - initializing mobile scroll');
+            console.log('Window width:', window.innerWidth);
+            
+            const isMobile = window.innerWidth <= 768;
+            console.log('Is mobile:', isMobile);
+            
+            if (!isMobile) {
+                console.log('Not mobile, skipping');
+                return;
             }
+
+            const allLinks = document.querySelectorAll('a[href^="#"]');
+            console.log('Found links:', allLinks.length);
+
+            allLinks.forEach((link, index) => {
+                const href = link.getAttribute('href');
+                console.log(`Link ${index}: ${href}`);
+                
+                link.addEventListener('click', function(e) {
+                    console.log('Link clicked:', href);
+                    
+                    if (!href || href === '#') return;
+
+                    const target = document.querySelector(href);
+                    console.log('Target:', target);
+                    
+                    if (!target) return;
+
+                    e.preventDefault();
+                    console.log('Prevented default');
+
+                    // Fecha menu
+                    const nav = document.querySelector('nav');
+                    if (nav && nav.classList.contains('mobile-menu-open')) {
+                        nav.classList.remove('mobile-menu-open');
+                    }
+
+                    // Scroll imediato
+                    const header = document.querySelector('header');
+                    const offset = header ? header.offsetHeight + 20 : 80;
+                    const scrollPos = target.offsetTop - offset;
+                    
+                    console.log('Scrolling to:', scrollPos);
+                    window.scrollTo(0, scrollPos);
+                });
+            });
         });
     </script>
 
