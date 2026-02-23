@@ -41,8 +41,7 @@
         }
 
         html {
-            scroll-behavior: smooth;
-            scroll-padding-top: 2rem;
+            scroll-behavior: auto;
         }
 
         body {
@@ -4290,34 +4289,29 @@
 
     <!-- Smooth Scroll Script -->
     <script>
-        (function () {
-            // Smooth scroll for all anchor links
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function (e) {
-                    const href = this.getAttribute('href');
-                    
-                    // Ignore empty anchors
-                    if (href === '#' || !href) return;
-                    
-                    const target = document.querySelector(href);
-                    if (target) {
-                        e.preventDefault();
-                        
-                        // Get header height for offset
-                        const header = document.querySelector('header');
-                        const offset = header ? header.offsetHeight + 20 : 80;
-                        
-                        const targetPosition = target.getBoundingClientRect().top + window.pageYOffset;
-                        const offsetPosition = targetPosition - offset;
-
-                        window.scrollTo({
-                            top: offsetPosition,
-                            behavior: 'smooth'
-                        });
-                    }
-                });
+        function smoothScroll(target, offset = 80) {
+            const element = document.querySelector(target);
+            if (!element) return;
+            
+            const targetPosition = element.getBoundingClientRect().top + window.pageYOffset - offset;
+            
+            window.scrollTo({
+                top: targetPosition,
+                behavior: 'smooth'
             });
-        })();
+        }
+
+        document.querySelectorAll('a[href^="#"]').forEach(link => {
+            link.addEventListener('click', function (e) {
+                const href = this.getAttribute('href');
+                if (href && href !== '#') {
+                    e.preventDefault();
+                    const header = document.querySelector('header');
+                    const offset = header ? header.offsetHeight + 20 : 80;
+                    smoothScroll(href, offset);
+                }
+            });
+        });
     </script>
 
     <!-- Mobile Menu Script -->
