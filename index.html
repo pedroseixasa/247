@@ -4295,7 +4295,7 @@
 
         function scrollToElement(element, offset = 80) {
             const targetPosition = element.getBoundingClientRect().top + window.pageYOffset - offset;
-            
+
             if (supportsScrollBehavior()) {
                 window.scrollTo({
                     top: targetPosition,
@@ -4322,14 +4322,14 @@
             }, 16);
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             document.querySelectorAll('a[href^="#"]').forEach(link => {
                 link.addEventListener('click', function (e) {
                     const href = this.getAttribute('href');
-                    
+
                     if (href && href !== '#') {
                         const target = document.querySelector(href);
-                        
+
                         if (target) {
                             e.preventDefault();
                             const header = document.querySelector('header');
