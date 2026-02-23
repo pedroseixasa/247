@@ -964,6 +964,7 @@ document.addEventListener("DOMContentLoaded", function () {
     bookingState.date = date;
     bookingState.time = null;
     renderCalendar();
+    renderTimeSlots();
     reloadTimeSlots(); // Carregar slots da API
   }
 
@@ -1296,8 +1297,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Carregar slots do backend
   async function reloadTimeSlots() {
-    if (!bookingState.barber || !bookingState.date) {
-      console.warn("⚠️ Falta barbeiro ou data");
+    if (!bookingState.date) {
+      console.warn("⚠️ Falta data");
+      renderTimeSlots();
+      return;
+    }
+
+    if (!bookingState.barber) {
+      console.warn("⚠️ Falta barbeiro");
+      renderTimeSlots();
       return;
     }
 
