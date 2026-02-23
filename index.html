@@ -41,7 +41,7 @@
         }
 
         html {
-            scroll-behavior: auto;
+            scroll-behavior: smooth;
         }
 
         body {
@@ -4289,39 +4289,6 @@
 
     <!-- Smooth Scroll Script -->
     <script>
-        function supportsScrollBehavior() {
-            return 'scrollBehavior' in document.documentElement.style;
-        }
-
-        function scrollToElement(element, offset = 80) {
-            const targetPosition = element.getBoundingClientRect().top + window.pageYOffset - offset;
-
-            if (supportsScrollBehavior()) {
-                window.scrollTo({
-                    top: targetPosition,
-                    behavior: 'smooth'
-                });
-            } else {
-                // Fallback para browsers que não suportam smooth scroll
-                animateScroll(window.pageYOffset, targetPosition, 500);
-            }
-        }
-
-        function animateScroll(start, end, duration) {
-            const range = end - start;
-            const increment = range / (duration / 16);
-            let current = start;
-            const timer = setInterval(() => {
-                current += increment;
-                if ((increment > 0 && current >= end) || (increment < 0 && current <= end)) {
-                    window.scrollTo(0, end);
-                    clearInterval(timer);
-                } else {
-                    window.scrollTo(0, current);
-                }
-            }, 16);
-        }
-
         document.addEventListener('DOMContentLoaded', function () {
             document.querySelectorAll('a[href^="#"]').forEach(link => {
                 link.addEventListener('click', function (e) {
@@ -4332,9 +4299,7 @@
 
                         if (target) {
                             e.preventDefault();
-                            const header = document.querySelector('header');
-                            const offset = header ? header.offsetHeight + 20 : 80;
-                            scrollToElement(target, offset);
+                            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
                         }
                     }
                 });
