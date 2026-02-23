@@ -55,6 +55,13 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
+  :root {
+    --spacing-sm: 0.5rem;
+    --spacing-md: 0.9rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2.5rem;
+  }
+
   /* Prevent content overflow */
   img,
   video,
@@ -87,7 +94,7 @@
 
   /* Global */
   .container {
-    padding: 0 1rem;
+    padding: 0 0.85rem;
   }
 
   /* Reduzir espaços entre seções */
@@ -96,29 +103,29 @@
   }
 
   h1 {
-    font-size: 1.85rem !important;
+    font-size: 1.7rem !important;
     line-height: 1.2;
   }
 
   h2 {
-    font-size: 1.5rem !important;
+    font-size: 1.35rem !important;
     line-height: 1.3;
   }
 
   h3 {
-    font-size: 1.1rem !important;
+    font-size: 1rem !important;
   }
 
   p {
-    font-size: 0.95rem !important;
+    font-size: 0.9rem !important;
     line-height: 1.6;
   }
 
   /* Consistent button sizing */
   .btn,
   button:not(.mobile-menu-toggle):not(.booking-close):not(.calendar-nav) {
-    font-size: 0.875rem !important;
-    padding: 0.7rem 1.25rem !important;
+    font-size: 0.82rem !important;
+    padding: 0.6rem 1.1rem !important;
     min-height: 44px;
   }
 
@@ -280,7 +287,7 @@
 
   /* Hero Section */
   .hero {
-    padding: 2rem 0;
+    padding: 1.5rem 0;
   }
 
   .hero-content {
@@ -293,17 +300,17 @@
   }
 
   .hero-text h1 {
-    font-size: 2rem !important;
+    font-size: 1.7rem !important;
     margin-bottom: 0.75rem;
   }
 
   .hero-subtitle {
-    font-size: 1rem !important;
+    font-size: 0.95rem !important;
     margin-bottom: 1rem;
   }
 
   .hero-description {
-    font-size: 0.9rem !important;
+    font-size: 0.85rem !important;
     margin-bottom: 1.25rem;
     max-width: 100%;
     line-height: 1.6 !important;
@@ -323,13 +330,13 @@
 
   .hero-image {
     max-width: 100%;
-    max-height: 400px;
+    max-height: 320px;
     margin: 0 auto;
     border-radius: 0.5rem;
   }
 
   .hero-image img {
-    height: 400px;
+    height: 320px;
     object-fit: cover;
   }
 
@@ -339,7 +346,7 @@
   .gallery,
   .cta,
   .reviews {
-    padding: 2rem 0 !important;
+    padding: 1.75rem 0 !important;
     overflow-x: hidden !important;
   }
 
@@ -347,7 +354,7 @@
   .about {
     overflow-x: hidden !important;
     overflow-y: visible !important;
-    padding: 4rem 0 !important;
+    padding: 2rem 0 !important;
   }
 
   .about .container {
@@ -359,9 +366,9 @@
     flex-direction: column !important;
     align-items: center !important;
     grid-template-columns: 1fr !important;
-    gap: 2rem !important;
+    gap: 1.5rem !important;
     overflow: visible !important;
-    padding: 2rem 0 !important;
+    padding: 1rem 0 !important;
   }
 
   .about-card-3d {
@@ -369,15 +376,15 @@
     justify-content: center !important;
     align-items: center !important;
     margin: 0 auto !important;
-    max-width: 280px !important;
+    max-width: 240px !important;
     overflow: visible !important;
-    padding: 25px !important;
+    padding: 16px !important;
     perspective: 2000px !important;
   }
 
   .about-card {
     width: 100% !important;
-    max-width: 280px !important;
+    max-width: 240px !important;
     aspect-ratio: 3 / 4 !important;
     padding: 0 !important;
     margin: 0 auto !important;
@@ -456,13 +463,13 @@
   }
 
   .about-content p {
-    font-size: 0.9rem !important;
+    font-size: 0.85rem !important;
     line-height: 1.6 !important;
     margin-bottom: 0.75rem !important;
   }
 
   .section-title {
-    margin-bottom: 1.25rem;
+    margin-bottom: 1rem;
   }
 
   .section-title h2 {
@@ -476,9 +483,9 @@
   /* Services Grid - 2 colunas compactas */
   .services-grid {
     grid-template-columns: repeat(2, 1fr) !important;
-    gap: 0.75rem;
+    gap: 0.6rem;
     padding: 0;
-    margin-top: 1.5rem;
+    margin-top: 1.25rem;
   }
 
   .service-card {
@@ -493,8 +500,8 @@
   /* Service cards new/compact */
   .service-card-new,
   .service-card-compact {
-    padding: 0.9rem 1rem !important;
-    min-height: 120px !important;
+    padding: 0.8rem 0.9rem !important;
+    min-height: 110px !important;
     border-radius: 0.875rem !important;
   }
 
@@ -503,17 +510,17 @@
   }
 
   .service-name {
-    font-size: 0.925rem !important;
+    font-size: 0.88rem !important;
     line-height: 1.3 !important;
   }
 
   .service-price {
-    font-size: 1.15rem !important;
+    font-size: 1.05rem !important;
   }
 
   .service-book-btn {
-    font-size: 0.825rem !important;
-    padding: 0.5rem 1rem !important;
+    font-size: 0.78rem !important;
+    padding: 0.5rem 0.9rem !important;
     margin-top: 0.6rem !important;
   }
 
@@ -529,7 +536,7 @@
   }
 
   .service-price {
-    font-size: 1.35rem !important;
+    font-size: 1.05rem !important;
   }
 
   .service-duration {
@@ -583,12 +590,12 @@
 
   #reviewsContainer {
     grid-template-columns: 1fr !important;
-    gap: 1.25rem !important;
-    padding: 1rem 0 !important;
+    gap: 1rem !important;
+    padding: 0.75rem 0 !important;
   }
 
   .review-card {
-    padding: 1.25rem !important;
+    padding: 1rem !important;
     border-radius: 0.75rem !important;
     margin-bottom: 0 !important;
   }
@@ -600,7 +607,7 @@
   }
 
   .review-card-text {
-    font-size: 0.875rem !important;
+    font-size: 0.82rem !important;
     line-height: 1.6 !important;
     margin-bottom: 1rem !important;
   }
@@ -610,11 +617,11 @@
   }
 
   .review-card-author {
-    font-size: 0.9rem !important;
+    font-size: 0.85rem !important;
   }
 
   .review-card-date {
-    font-size: 0.7rem !important;
+    font-size: 0.65rem !important;
   }
 
   .review-header {
@@ -746,32 +753,32 @@
 /* Small Mobile (< 480px) */
 @media (max-width: 480px) {
   .container {
-    padding: 0 0.875rem;
+    padding: 0 0.75rem;
   }
 
   h1 {
-    font-size: 1.65rem !important;
+    font-size: 1.5rem !important;
   }
 
   h2 {
-    font-size: 1.35rem !important;
+    font-size: 1.25rem !important;
   }
 
   h3 {
-    font-size: 1rem !important;
+    font-size: 0.95rem !important;
   }
 
   p {
-    font-size: 0.875rem !important;
-    line-height: 1.55 !important;
+    font-size: 0.82rem !important;
+    line-height: 1.5 !important;
   }
 
   .hero {
-    padding: 1.5rem 0 !important;
+    padding: 1.25rem 0 !important;
   }
 
   .hero-text h1 {
-    font-size: 1.75rem !important;
+    font-size: 1.55rem !important;
     line-height: 1.15 !important;
   }
 
@@ -780,22 +787,22 @@
   }
 
   .hero-description {
-    font-size: 0.85rem !important;
+    font-size: 0.8rem !important;
     line-height: 1.55 !important;
   }
 
   .hero-image {
-    max-height: 280px;
+    max-height: 240px;
     margin-top: 1rem;
   }
 
   .hero-image img {
-    height: 280px;
+    height: 240px;
   }
 
   .btn {
-    padding: 0.65rem 1.25rem;
-    font-size: 0.875rem;
+    padding: 0.6rem 1.1rem;
+    font-size: 0.82rem;
     width: 100%;
     justify-content: center;
   }
@@ -812,23 +819,23 @@
   /* Service cards new/compact em telas pequenas */
   .service-card-new,
   .service-card-compact {
-    padding: 0.75rem 0.85rem !important;
-    min-height: 110px !important;
+    padding: 0.7rem 0.8rem !important;
+    min-height: 100px !important;
     border-radius: 0.75rem !important;
   }
 
   .service-name {
-    font-size: 0.85rem !important;
+    font-size: 0.82rem !important;
     line-height: 1.25 !important;
   }
 
   .service-price {
-    font-size: 1.05rem !important;
+    font-size: 0.95rem !important;
   }
 
   .service-book-btn {
-    font-size: 0.775rem !important;
-    padding: 0.45rem 0.85rem !important;
+    font-size: 0.74rem !important;
+    padding: 0.4rem 0.75rem !important;
     margin-top: 0.5rem !important;
   }
 
@@ -837,7 +844,7 @@
   }
 
   .service-price {
-    font-size: 1.25rem !important;
+    font-size: 0.95rem !important;
   }
 
   .service-duration {
@@ -901,15 +908,15 @@
   .gallery,
   .reviews,
   .cta {
-    padding: 2.75rem 0 !important;
+    padding: 2rem 0 !important;
   }
 
   .about {
-    padding-top: 3rem !important;
+    padding-top: 2.25rem !important;
   }
 
   .about-layout {
-    gap: 2.5rem !important;
+    gap: 1.5rem !important;
   }
 
   .about {
@@ -930,12 +937,12 @@
   }
 
   .about-content p {
-    font-size: 0.85rem !important;
+    font-size: 0.8rem !important;
   }
 
   .about-text,
   .about-content {
-    margin-bottom: 1.5rem !important;
+    margin-bottom: 0.75rem !important;
   }
 
   .cta-content {
@@ -959,7 +966,7 @@
   }
 
   .review-card-text {
-    font-size: 0.825rem !important;
+    font-size: 0.78rem !important;
     margin-bottom: 0.85rem !important;
   }
 
