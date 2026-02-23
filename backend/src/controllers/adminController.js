@@ -4,6 +4,29 @@ const Service = require("../models/Service");
 const Reservation = require("../models/Reservation");
 const SiteSettings = require("../models/SiteSettings");
 const Review = require("../models/Review");
+
+function parsePriceNumber(value) {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  const normalized = trimmed.replace(",", ".");
+  if (!/^\d+(\.\d+)?$/.test(normalized)) return null;
+  const numberValue = Number(normalized);
+  return Number.isFinite(numberValue) ? numberValue : null;
+}
+
+function normalizeServicePrice(value) {
+  const numeric = parsePriceNumber(value);
+  if (numeric === null) return value;
+  return numeric;
+}
+
+function formatServicePrice(value) {
+  const numeric = parsePriceNumber(value);
+  if (numeric === null) return value || "";
+  return `${numeric} €`;
+}
 const MonthlyStats = require("../models/MonthlyStats");
 
 const defaultSiteSettings = {
@@ -150,11 +173,12 @@ exports.getAllServices = async (req, res) => {
 exports.createService = async (req, res) => {
   try {
     const { name, description, price, duration, image, order } = req.body;
+    const normalizedPrice = normalizeServicePrice(price);
 
     const service = new Service({
       name,
       description,
-      price,
+      price: normalizedPrice,
       duration: duration || 30,
       image,
       order: order || 0,
@@ -172,10 +196,19 @@ exports.updateService = async (req, res) => {
     const { serviceId } = req.params;
     const { name, description, price, duration, image, isActive, order } =
       req.body;
+    const normalizedPrice = normalizeServicePrice(price);
 
     const service = await Service.findByIdAndUpdate(
       serviceId,
-      { name, description, price, duration, image, isActive, order },
+      {
+        name,
+        description,
+        price: normalizedPrice,
+        duration,
+        image,
+        isActive,
+        order,
+      },
       { new: true },
     );
 
@@ -232,7 +265,7 @@ exports.syncServiceToIndexClean = async (req, res) => {
                     data-service-id="${service._id}">
                     <div class="service-main-line">
                         <span class="service-name">${service.name}</span>
-                        <span class="service-price">${service.price} €</span>
+                <span class="service-price">${formatServicePrice(service.price)}</span>
                     </div>
                     <button class="service-book-btn">Marcar</button>
                 </div>`;
@@ -263,10 +296,8 @@ exports.syncServiceToIndexClean = async (req, res) => {
         "g",
       );
 
-      html = html.replace(
-        servicePattern,
-        `$1${service.name}$2${service.price} €$3`,
-      );
+      const priceLabel = formatServicePrice(service.price);
+      html = html.replace(servicePattern, `$1${service.name}$2${priceLabel}$3`);
     } else if (action === "delete") {
       // Remove service card completely
       const servicePattern = new RegExp(
@@ -377,8 +408,11 @@ async function sumRevenue(filter) {
 
   let total = 0;
   reservations.forEach((reservation) => {
-    if (reservation.serviceId && reservation.serviceId.price) {
-      total += reservation.serviceId.price;
+    if (reservation.serviceId && reservation.serviceId.price !== undefined) {
+      const numeric = parsePriceNumber(reservation.serviceId.price);
+      if (numeric !== null) {
+        total += numeric;
+      }
     }
   });
 

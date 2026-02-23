@@ -1026,6 +1026,27 @@
             }).format(amount);
         }
 
+        function parsePriceNumber(value) {
+            if (typeof value === 'number' && Number.isFinite(value)) return value;
+            if (typeof value !== 'string') return null;
+            const trimmed = value.trim();
+            if (!trimmed) return null;
+            const normalized = trimmed.replace(',', '.');
+            if (!/^\d+(\.\d+)?$/.test(normalized)) return null;
+            const numberValue = Number(normalized);
+            return Number.isFinite(numberValue) ? numberValue : null;
+        }
+
+        function formatServicePrice(value) {
+            const numberValue = parsePriceNumber(value);
+            if (numberValue === null) return value || '-';
+            const formatted = new Intl.NumberFormat('pt-PT', {
+                minimumFractionDigits: numberValue % 1 === 0 ? 0 : 2,
+                maximumFractionDigits: 2
+            }).format(numberValue);
+            return `€${formatted}`;
+        }
+
         async function fetchJson(url, options = {}) {
             const response = await fetch(url, options);
             const text = await response.text();
@@ -1408,7 +1429,7 @@
                     html += `
                         <tr>
                             <td>${service.name}</td>
-                            <td>€${service.price}</td>
+                            <td>${formatServicePrice(service.price)}</td>
                             <td>${service.duration} min</td>
                             <td>
                                 <button onclick="editService('${service._id}')" style="background: #007bff; padding: 0.5rem 1rem; font-size: 0.9rem;">Editar</button>
@@ -2070,8 +2091,8 @@
                         <input type="text" id="serviceName" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
                     </div>
                     <div style="margin-bottom: 1rem;">
-                        <label style="display: block; margin-bottom: 0.5rem;">Preço (€):</label>
-                        <input type="number" id="servicePrice" step="0.01" min="0" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                        <label style="display: block; margin-bottom: 0.5rem;">Preço:</label>
+                        <input type="text" id="servicePrice" placeholder="Ex: 12 ou A definir no estabelecimento" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
                     </div>
                     <div style="margin-bottom: 1rem;">
                         <label style="display: block; margin-bottom: 0.5rem;">Duração (minutos):</label>
@@ -2108,8 +2129,8 @@
                         <input type="text" id="serviceName" value="${service.name}" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
                     </div>
                     <div style="margin-bottom: 1rem;">
-                        <label style="display: block; margin-bottom: 0.5rem;">Preço (€):</label>
-                        <input type="number" id="servicePrice" step="0.01" min="0" value="${service.price}" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                        <label style="display: block; margin-bottom: 0.5rem;">Preço:</label>
+                        <input type="text" id="servicePrice" value="${service.price}" placeholder="Ex: 12 ou A definir no estabelecimento" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
                     </div>
                     <div style="margin-bottom: 1rem;">
                         <label style="display: block; margin-bottom: 0.5rem;">Duração (minutos):</label>
@@ -2136,13 +2157,16 @@
 
         async function saveNewService() {
             const name = document.getElementById('serviceName').value.trim();
-            const price = parseFloat(document.getElementById('servicePrice').value);
+            const priceRaw = document.getElementById('servicePrice').value.trim();
             const duration = parseInt(document.getElementById('serviceDuration').value);
             const description = document.getElementById('serviceDescription').value.trim();
 
-            if (!name || !price || !duration) {
+            if (!name || !priceRaw || !duration) {
                 return alert('Por favor preencha todos os campos obrigatórios');
             }
+
+            const parsedPrice = parsePriceNumber(priceRaw);
+            const price = parsedPrice === null ? priceRaw : parsedPrice;
 
             try {
                 const response = await fetch(`${API_URL}/admin/services`, {
@@ -2168,13 +2192,16 @@
 
         async function saveEditedService(serviceId) {
             const name = document.getElementById('serviceName').value.trim();
-            const price = parseFloat(document.getElementById('servicePrice').value);
+            const priceRaw = document.getElementById('servicePrice').value.trim();
             const duration = parseInt(document.getElementById('serviceDuration').value);
             const description = document.getElementById('serviceDescription').value.trim();
 
-            if (!name || !price || !duration) {
+            if (!name || !priceRaw || !duration) {
                 return alert('Por favor preencha todos os campos obrigatórios');
             }
+
+            const parsedPrice = parsePriceNumber(priceRaw);
+            const price = parsedPrice === null ? priceRaw : parsedPrice;
 
             try {
                 const response = await fetch(`${API_URL}/admin/services/${serviceId}`, {

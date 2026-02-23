@@ -7,7 +7,7 @@ const serviceSchema = new mongoose.Schema({
   },
   description: String,
   price: {
-    type: Number,
+    type: mongoose.Schema.Types.Mixed,
     required: true,
   },
   duration: {
