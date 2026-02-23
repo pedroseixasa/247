@@ -4289,39 +4289,23 @@
 
     <!-- Mobile Scroll Script -->
     <script>
-        console.log('Mobile scroll script loading...');
-        
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOMContentLoaded - initializing mobile scroll');
-            console.log('Window width:', window.innerWidth);
-            
             const isMobile = window.innerWidth <= 768;
-            console.log('Is mobile:', isMobile);
             
-            if (!isMobile) {
-                console.log('Not mobile, skipping');
-                return;
-            }
+            if (!isMobile) return;
 
-            const allLinks = document.querySelectorAll('a[href^="#"]');
-            console.log('Found links:', allLinks.length);
-
-            allLinks.forEach((link, index) => {
-                const href = link.getAttribute('href');
-                console.log(`Link ${index}: ${href}`);
-                
+            document.querySelectorAll('a[href^="#"]').forEach(link => {
                 link.addEventListener('click', function(e) {
-                    console.log('Link clicked:', href);
+                    const href = this.getAttribute('href');
                     
                     if (!href || href === '#') return;
 
                     const target = document.querySelector(href);
-                    console.log('Target:', target);
-                    
                     if (!target) return;
 
                     e.preventDefault();
-                    console.log('Prevented default');
+                    
+                    console.log('Tentando scroll para:', href);
 
                     // Fecha menu
                     const nav = document.querySelector('nav');
@@ -4329,13 +4313,13 @@
                         nav.classList.remove('mobile-menu-open');
                     }
 
-                    // Scroll imediato
-                    const header = document.querySelector('header');
-                    const offset = header ? header.offsetHeight + 20 : 80;
-                    const scrollPos = target.offsetTop - offset;
-                    
-                    console.log('Scrolling to:', scrollPos);
-                    window.scrollTo(0, scrollPos);
+                    // Tenta element.scrollIntoView()
+                    try {
+                        target.scrollIntoView(true);
+                        console.log('ScrollIntoView chamado com sucesso');
+                    } catch (err) {
+                        console.log('ScrollIntoView erro:', err);
+                    }
                 });
             });
         });
