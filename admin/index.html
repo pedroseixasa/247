@@ -1177,6 +1177,11 @@
             return html;
         }
 
+        function getDefaultBarberId() {
+            if (!currentUser) return '';
+            return currentUser._id || currentUser.id || '';
+        }
+
         function buildDashboardUrl(barberId, year) {
             const params = new URLSearchParams();
             if (barberId) {
@@ -1193,7 +1198,7 @@
             try {
                 container.innerHTML = '<p>A carregar dashboard...</p>';
 
-                const selectedBarberId = currentUser && currentUser._id ? currentUser._id : '';
+                const selectedBarberId = getDefaultBarberId();
                 const selectedYear = new Date().getFullYear();
                 const statsUrl = buildDashboardUrl(selectedBarberId, selectedYear);
 
@@ -1292,6 +1297,11 @@
 
                 container.innerHTML = renderDashboard(stats, barberOptions, yearOptions);
 
+                const dashboardBarberFilter = document.getElementById('dashboardBarberFilter');
+                if (dashboardBarberFilter && selectedBarberId) {
+                    dashboardBarberFilter.value = selectedBarberId;
+                }
+
                 const applyDashboardFilters = async () => {
                     const barberId = document.getElementById('dashboardBarberFilter').value;
                     const year = document.getElementById('dashboardYearFilter').value;
@@ -1307,6 +1317,11 @@
 
                     container.innerHTML = renderDashboard(refreshStats, refreshedBarberOptions, refreshedYearOptions);
 
+                    const refreshedFilter = document.getElementById('dashboardBarberFilter');
+                    if (refreshedFilter && barberId) {
+                        refreshedFilter.value = barberId;
+                    }
+
                     document.getElementById('dashboardApply').addEventListener('click', applyDashboardFilters);
                 };
 
@@ -1321,11 +1336,16 @@
                 container.innerHTML = '<p>A carregar reservas...</p>';
 
                 const barbers = currentUser.role === 'admin' ? await fetchBarbers() : [];
+                const defaultBarberId = currentUser.role === 'admin' ? getDefaultBarberId() : '';
                 const barberOptions = currentUser.role === 'admin'
-                    ? buildBarberOptions(barbers, '')
+                    ? buildBarberOptions(barbers, defaultBarberId)
                     : '';
 
-                const reservations = await fetchJson(`${API_URL}/admin/reservations`, {
+                const reservationsUrl = defaultBarberId
+                    ? `${API_URL}/admin/reservations?barberId=${defaultBarberId}`
+                    : `${API_URL}/admin/reservations`;
+
+                const reservations = await fetchJson(reservationsUrl, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
@@ -1467,6 +1487,11 @@
                 };
 
                 container.innerHTML = buildReservationsHtml(reservations);
+
+                const reservationsFilter = document.getElementById('reservationsBarberFilter');
+                if (reservationsFilter && defaultBarberId) {
+                    reservationsFilter.value = defaultBarberId;
+                }
 
                 const attachReservationsFilter = () => {
                     if (currentUser.role !== 'admin') return;
