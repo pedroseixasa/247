@@ -1508,6 +1508,37 @@
     max-width: 600px !important;
     margin: 0 auto !important;
   }
+
+  /* Reduzir botões hero nos tablets */
+  .hero-button {
+    gap: 0.75rem;
+  }
+
+  .hero-button .btn {
+    padding: 0.75rem 1.4rem !important;
+    font-size: 0.85rem !important;
+  }
+
+  /* Reduzir botões "Marcar" nos tablets */
+  .service-book-btn {
+    font-size: 0.68rem !important;
+    padding: 0.35rem 0.65rem !important;
+    margin-top: 0.4rem !important;
+  }
+
+  /* Reduzir gallery nos tablets */
+  .gallery-grid {
+    gap: 0.8rem !important;
+  }
+
+  .gallery-item {
+    aspect-ratio: 4 / 5 !important;
+  }
+
+  /* Adicionar padding lateral ao about text tablets */
+  .about-content p {
+    padding: 0 1.5rem !important;
+  }
 }
 
 /* === DESKTOP (1024px+) === */
