@@ -4289,14 +4289,14 @@
 
     <!-- Anchor Scroll Script for Mobile -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Apenas fecha o menu, deixa o navegador fazer o scroll nativo
             document.querySelectorAll('nav a[href^="#"]').forEach(link => {
-                link.addEventListener('click', function() {
+                link.addEventListener('click', function () {
                     const nav = document.querySelector('nav');
                     const toggle = document.querySelector('.mobile-menu-toggle');
                     const header = document.querySelector('header');
-                    
+
                     if (nav && nav.classList.contains('mobile-menu-open')) {
                         nav.classList.remove('mobile-menu-open');
                         toggle && toggle.classList.remove('active');
