@@ -4314,21 +4314,27 @@
                     const target = document.querySelector(href);
                     if (!target) return;
 
-                    // Fecha menu
                     if (nav.classList.contains('mobile-menu-open')) {
                         nav.classList.remove('mobile-menu-open');
                         mobileToggle.classList.remove('active');
                         header.classList.remove('menu-is-open');
                     }
 
-                    // Faz scroll apenas em mobile
                     if (isMobile()) {
                         e.preventDefault();
-                        setTimeout(() => {
-                            const offset = header ? header.offsetHeight + 20 : 0;
-                            const position = target.offsetTop - offset;
-                            window.scrollTo({ top: position, behavior: 'smooth' });
-                        }, 100);
+                        const offset = header ? header.offsetHeight + 20 : 0;
+                        const position = target.getBoundingClientRect().top + window.pageYOffset - offset;
+
+                        // Force scroll for iOS Safari
+                        document.documentElement.scrollTop = position;
+                        document.body.scrollTop = position;
+                        window.scrollTo(0, position);
+
+                        try {
+                            history.replaceState(null, '', href);
+                        } catch (err) {
+                            window.location.hash = href;
+                        }
                     }
                 });
             });
