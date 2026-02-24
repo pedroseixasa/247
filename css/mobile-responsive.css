@@ -1365,6 +1365,11 @@
 
 /* Large Tablets (769px - 1024px) */
 @media (min-width: 769px) and (max-width: 1024px) {
+  html,
+  body {
+    overflow-x: hidden;
+  }
+
   .container,
   section {
     max-width: 100%;
@@ -1386,85 +1391,7 @@
     padding: 0 2rem;
   }
 
-  .services-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 1.5rem;
-  }
-
-  .hero-content {
-    gap: 3rem;
-  }
-
-  .hero-image {
-    max-width: 420px;
-    max-height: 520px;
-  }
-
-  .hero-text h1 {
-    font-size: 2.5rem !important;
-  }
-
-  .gallery-grid {
-    grid-template-columns: repeat(3, 1fr) !important;
-    gap: 1.25rem;
-  }
-
-  .gallery-item {
-    aspect-ratio: 1 / 1 !important;
-    height: auto !important;
-    width: 100% !important;
-    position: relative !important;
-    overflow: hidden !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-  }
-
-  .gallery-item img {
-    width: 100% !important;
-    height: 100% !important;
-    max-width: 100% !important;
-    max-height: 100% !important;
-    object-fit: cover !important;
-    object-position: center center !important;
-    display: block !important;
-    position: absolute !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-  }
-
-  .time-slots-grid {
-    grid-template-columns: repeat(4, 1fr) !important;
-  }
-
-  .barber-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-  }
-}
-
-/* Print Styles */
-@media print {
-  header,
-  footer,
-  .booking-modal,
-  .loader-overlay,
-  .mobile-menu-toggle {
-    display: none !important;
-  }
-
-  body {
-    background: white;
-    color: black;
-  }
-
-  .container {
-    max-width: 100%;
-  }
-}
-
-/* === TABLET (768px - 1024px) === */
-@media (min-width: 769px) and (max-width: 1024px) {
+  /* === About Section === */
   .about {
     padding-top: 9rem !important;
   }
@@ -1503,7 +1430,24 @@
     margin: 0 auto !important;
   }
 
-  /* Reduzir botões hero nos tablets */
+  .about-content p {
+    padding: 0 1.5rem !important;
+  }
+
+  /* === Hero Section === */
+  .hero-content {
+    gap: 3rem;
+  }
+
+  .hero-image {
+    max-width: 420px;
+    max-height: 520px;
+  }
+
+  .hero-text h1 {
+    font-size: 2.5rem !important;
+  }
+
   .hero-button {
     gap: 0.75rem;
   }
@@ -1513,27 +1457,80 @@
     font-size: 0.85rem !important;
   }
 
-  /* Reduzir botões "Marcar" nos tablets */
+  /* === Services Grid === */
+  .services-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 1.5rem;
+  }
+
   .service-book-btn {
     font-size: 0.68rem !important;
     padding: 0.35rem 0.65rem !important;
     margin-top: 0.4rem !important;
   }
 
-  /* Reduzir gallery nos tablets */
+  /* === Gallery Grid === */
   .gallery-grid {
-    gap: 0.8rem !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 0.8rem;
   }
 
   .gallery-item {
     aspect-ratio: 4 / 5 !important;
+    height: auto !important;
+    width: 100% !important;
+    position: relative !important;
+    overflow: hidden !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
   }
 
-  /* Adicionar padding lateral ao about text tablets */
-  .about-content p {
-    padding: 0 1.5rem !important;
+  .gallery-item img {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    object-fit: cover !important;
+    object-position: center center !important;
+    display: block !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+  }
+
+  /* === Other Elements === */
+  .time-slots-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+
+  .barber-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
   }
 }
+
+/* Print Styles */
+@media print {
+  header,
+  footer,
+  .booking-modal,
+  .loader-overlay,
+  .mobile-menu-toggle {
+    display: none !important;
+  }
+
+  body {
+    background: white;
+    color: black;
+  }
+
+  .container {
+    max-width: 100%;
+  }
+}
+
+/* === TABLET (768px - 1024px) === */
 
 /* === DESKTOP (1024px+) === */
 @media (min-width: 1025px) {
