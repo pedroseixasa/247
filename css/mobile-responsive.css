@@ -1380,18 +1380,65 @@
     display: none !important;
   }
 
+  /* === Header & Navigation === */
+  header {
+    padding: 0.75rem 0;
+  }
+
+  .header-content {
+    padding: 0.75rem 0;
+    gap: 2rem !important;
+  }
+
+  .header-content > .logo {
+    font-size: 1.1rem;
+    gap: 0.75rem;
+  }
+
+  .logo img {
+    width: 42px !important;
+    height: 42px !important;
+  }
+
   nav {
     position: static !important;
     opacity: 1 !important;
     visibility: visible !important;
     transform: none !important;
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
+  }
+
+  nav a {
+    font-size: 0.95rem;
+    padding: 0.5rem 0;
+  }
+
+  .header-content > .nav-info {
+    display: flex !important;
+    gap: 1.5rem;
+    order: 3;
+  }
+
+  .nav-info > div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
   }
 
   .container {
     padding: 0 2rem;
   }
 
-  /* === About Section === */
+  /* === Hero Section === */
+  .hero {
+    padding: 4rem 0 2rem !important;
+  }
+
+  .hero-content {
+    gap: 2rem;
+  }
   .about {
     padding-top: 9rem !important;
   }
@@ -1434,18 +1481,25 @@
     padding: 0 1.5rem !important;
   }
 
-  /* === Hero Section === */
-  .hero-content {
-    gap: 3rem;
-  }
-
   .hero-image {
     max-width: 420px;
     max-height: 520px;
   }
 
   .hero-text h1 {
-    font-size: 2.5rem !important;
+    font-size: 2rem !important;
+    line-height: 1.2 !important;
+    margin-bottom: 1rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1rem !important;
+    margin-bottom: 1rem;
+  }
+
+  .hero-description {
+    font-size: 0.9rem !important;
+    margin-bottom: 1.5rem;
   }
 
   .hero-button {
