@@ -337,6 +337,13 @@
             transition: all 0.3s ease;
         }
 
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .logo {
+                font-size: 1rem;
+                gap: 0.5rem;
+            }
+        }
+
         .logo:hover {
             opacity: 0.8;
         }
@@ -363,6 +370,13 @@
             border-radius: 0.25rem;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
+        }
+
+        @media (min-width: 768px) and (max-width: 1023px) {
+            nav a {
+                font-size: 0.85rem;
+                padding: 0.45rem 0.75rem;
+            }
         }
 
         nav a::after {
@@ -394,6 +408,43 @@
             font-size: 0.95rem;
             color: var(--text-muted);
             white-space: nowrap;
+        }
+
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .nav-info {
+                gap: 0.75rem;
+                padding-left: 1rem;
+                font-size: 0.88rem;
+            }
+
+            .nav-info .compact {
+                white-space: normal;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .nav-info {
+                display: flex !important;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .nav-info {
+                display: flex !important;
+            }
+        }
+
+        /* Force hide nav-info on tablets */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .nav-info {
+                display: none !important;
+                visibility: hidden !important;
+                width: 0 !important;
+                height: 0 !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                border: none !important;
+            }
         }
 
         .nav-info .compact {
@@ -448,6 +499,12 @@
             align-items: center;
         }
 
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .hero-content {
+                gap: 2rem;
+            }
+        }
+
         .hero-text {
             animation: slide-in-left 0.8s ease-out 0.2s both;
         }
@@ -463,6 +520,13 @@
             background-clip: text;
         }
 
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .hero-text h1 {
+                font-size: 2.2rem;
+                margin-bottom: 0.4rem;
+            }
+        }
+
         .hero-subtitle {
             font-size: 1.3rem;
             font-weight: 500;
@@ -471,12 +535,27 @@
             letter-spacing: 0.03em;
         }
 
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .hero-subtitle {
+                font-size: 1.1rem;
+                margin-bottom: 1.2rem;
+            }
+        }
+
         .hero-description {
             font-size: 1.05rem;
             line-height: 1.7;
             color: var(--text-light);
             margin-bottom: 2.5rem;
             max-width: 95%;
+        }
+
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .hero-description {
+                font-size: 0.95rem;
+                margin-bottom: 2rem;
+                line-height: 1.6;
+            }
         }
 
         .hero-button {
@@ -494,6 +573,13 @@
             max-height: 640px;
             margin-left: auto;
             /* encosta à direita */
+        }
+
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .hero-image {
+                max-width: 380px;
+                max-height: 500px;
+            }
         }
 
         .hero-image::before {
@@ -588,6 +674,12 @@
             transition: all 280ms cubic-bezier(0.34, 1.56, 0.64, 1);
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
             animation: scale-in 500ms ease-out backwards;
+        }
+
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .service-card {
+                padding: var(--spacing-md);
+            }
         }
 
         .service-card:hover {
@@ -1443,6 +1535,12 @@
             }
         }
 
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .contact-grid {
+                gap: var(--spacing-md);
+            }
+        }
+
         /* === Editorial Hours & Services (editorial card + minimal numbered cards) === */
         .editorial-hours-container {
             display: grid;
@@ -1452,12 +1550,25 @@
             margin-top: var(--spacing-lg);
         }
 
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .editorial-hours-container {
+                grid-template-columns: 1fr;
+                gap: var(--spacing-md);
+            }
+        }
+
         .editorial-hours-card {
             background: var(--secondary);
             border-radius: 1rem;
             border: none;
             padding: var(--spacing-lg);
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+        }
+
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .editorial-hours-card {
+                padding: var(--spacing-md);
+            }
         }
 
         .editorial-hours-header {
@@ -1473,6 +1584,12 @@
             letter-spacing: 0.12em;
             text-transform: uppercase;
             color: var(--primary);
+        }
+
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .editorial-hours-title {
+                font-size: 0.9rem;
+            }
         }
 
         .badge-open {
@@ -1494,6 +1611,16 @@
             font-size: 0.98rem;
             overflow: hidden;
             border-radius: 8px;
+        }
+
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .editorial-hours-table {
+                font-size: 0.92rem;
+            }
+
+            .editorial-hours-table td {
+                padding: 0.8rem 0.9rem;
+            }
         }
 
         .editorial-hours-table tr {
@@ -1533,6 +1660,14 @@
             grid-template-columns: repeat(2, 1fr);
             gap: var(--spacing-lg);
             margin-top: var(--spacing-lg);
+        }
+
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .services-editorial {
+                grid-template-columns: 1fr;
+                gap: var(--spacing-md);
+                margin-top: var(--spacing-md);
+            }
         }
 
         .services-editorial-wrapper {
@@ -1718,6 +1853,45 @@
             transform: translateX(6px);
         }
 
+        /* === TABLET SPECIFIC (768px - 1023px) === */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .header-content {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 1rem 0;
+                gap: 1.25rem;
+            }
+
+            header .container {
+                padding: 0 var(--spacing-sm);
+            }
+
+            nav {
+                gap: 0.6rem;
+                display: flex;
+                justify-content: flex-end;
+                align-items: center;
+            }
+
+            .logo {
+                margin-right: auto;
+            }
+
+            .nav-info {
+                display: none !important;
+            }
+
+            .hours-content {
+                padding: var(--spacing-md);
+            }
+
+            .services-grid {
+                gap: 1.2rem;
+                padding: 0 0.5rem;
+            }
+        }
+
         @media (max-width: 768px) {
             .hero-content {
                 grid-template-columns: 1fr;
@@ -1760,7 +1934,7 @@
 
             .nav-info {
                 order: 3;
-                display: flex;
+                display: flex !important;
                 justify-content: center;
                 gap: 0.5rem;
                 padding-left: 0;
@@ -3767,7 +3941,7 @@
                 </nav>
 
                 <div class="nav-info">
-                    <div class="compact" id="headerHours">📅 Ter–Sáb 09:00–19:00</div>
+                    <div class="compact" id="headerHours">📅 Ter–Dom* 09:00–19:00</div>
                     <div class="compact" id="headerAddress">📍 R. Cap. Leitão 84B</div>
                     <div class="compact">
                         📞 <a id="headerPhoneLink" href="tel:+351963988807" style="color:var(--accent);font-weight:600">
@@ -3958,6 +4132,8 @@
                                 <td style="text-align:right">Encerrado</td>
                             </tr>
                         </table>
+                        <div style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-light);">*Domingo encerra às
+                            13:00</div>
                     </div>
                 </div>
 
