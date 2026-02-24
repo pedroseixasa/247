@@ -4287,10 +4287,12 @@
         });
     </script>
 
-    <!-- Anchor Scroll Script for Mobile -->
+    <!-- Scroll and Menu Script -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Apenas fecha o menu, deixa o navegador fazer o scroll nativo
+            const isMobile = () => window.innerWidth <= 768;
+
+            // Fechar menu ao clicar em links
             document.querySelectorAll('nav a[href^="#"]').forEach(link => {
                 link.addEventListener('click', function () {
                     const nav = document.querySelector('nav');
@@ -4304,6 +4306,31 @@
                     }
                 });
             });
+
+            // Força o scroll para TODOS os anchor links no mobile
+            if (isMobile()) {
+                document.querySelectorAll('a[href^="#"]').forEach(link => {
+                    link.addEventListener('click', function (e) {
+                        const href = this.getAttribute('href');
+                        if (!href || href === '#') return;
+
+                        const target = document.querySelector(href);
+                        if (!target) return;
+
+                        // Aguarda um pouco para o menu fechar
+                        setTimeout(() => {
+                            const header = document.querySelector('header');
+                            const offset = header ? header.offsetHeight + 20 : 0;
+                            const position = target.offsetTop - offset;
+                            
+                            window.scrollTo({
+                                top: position,
+                                behavior: 'smooth'
+                            });
+                        }, 200);
+                    });
+                });
+            }
         });
     </script>
 
