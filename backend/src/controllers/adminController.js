@@ -518,8 +518,13 @@ exports.getSiteSettings = async (req, res) => {
         barberId: barberId || null,
       });
 
-      if (monthlyStats) {
-        // Usar dados agregados (receita toda é "realizada" porque já passou)
+      // Determinar se o mês é passado, atual ou futuro
+      const isMonthPast = monthEnd < now; // monthEnd antes de agora
+      const isMonthCurrent = monthStart <= now && now <= monthEnd; // Agora dentro do mês
+      const isMonthFuture = monthStart > now; // monthStart depois de agora
+
+      if (monthlyStats && isMonthPast) {
+        // Usar dados agregados apenas para meses já fechados
         monthlyBreakdown.push({
           label: monthStart.toLocaleDateString("pt-PT", {
             month: "long",
@@ -537,12 +542,6 @@ exports.getSiteSettings = async (req, res) => {
           ...confirmedFilter,
           reservationDate: { $gte: monthStart, $lte: monthEnd },
         });
-
-        // ===== LÓGICA CORRIGIDA =====
-        // Determinar se o mês é passado, atual ou futuro
-        const isMonthPast = monthEnd < now; // monthEnd antes de agora
-        const isMonthCurrent = monthStart <= now && now <= monthEnd; // Agora dentro do mês
-        const isMonthFuture = monthStart > now; // monthStart depois de agora
 
         let revenuePast = 0;
         let revenueFuture = 0;

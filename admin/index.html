@@ -1193,7 +1193,7 @@
             try {
                 container.innerHTML = '<p>A carregar dashboard...</p>';
 
-                const selectedBarberId = '';
+                const selectedBarberId = currentUser && currentUser._id ? currentUser._id : '';
                 const selectedYear = new Date().getFullYear();
                 const statsUrl = buildDashboardUrl(selectedBarberId, selectedYear);
 
