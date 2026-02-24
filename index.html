@@ -4287,74 +4287,15 @@
         });
     </script>
 
-    <!-- Scroll and Menu Script -->
+    <!-- Unified Scroll and Menu Script -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const isMobile = () => window.innerWidth <= 768;
-
-            // Fechar menu ao clicar em links
-            document.querySelectorAll('nav a[href^="#"]').forEach(link => {
-                link.addEventListener('click', function () {
-                    const nav = document.querySelector('nav');
-                    const toggle = document.querySelector('.mobile-menu-toggle');
-                    const header = document.querySelector('header');
-
-                    if (nav && nav.classList.contains('mobile-menu-open')) {
-                        nav.classList.remove('mobile-menu-open');
-                        toggle && toggle.classList.remove('active');
-                        header && header.classList.remove('menu-is-open');
-                    }
-                });
-            });
-
-            // Força o scroll para TODOS os anchor links no mobile
-            if (isMobile()) {
-                document.querySelectorAll('a[href^="#"]').forEach(link => {
-                    link.addEventListener('click', function (e) {
-                        const href = this.getAttribute('href');
-                        if (!href || href === '#') return;
-
-                        const target = document.querySelector(href);
-                        if (!target) return;
-
-                        // Aguarda um pouco para o menu fechar
-                        setTimeout(() => {
-                            const header = document.querySelector('header');
-                            const offset = header ? header.offsetHeight + 20 : 0;
-                            const position = target.offsetTop - offset;
-                            
-                            window.scrollTo({
-                                top: position,
-                                behavior: 'smooth'
-                            });
-                        }, 200);
-                    });
-                });
-            }
-        });
-    </script>
-
-    <!-- Mobile Menu Script -->
-    <script>
-        (function () {
             const mobileToggle = document.querySelector('.mobile-menu-toggle');
             const nav = document.querySelector('nav');
             const header = document.querySelector('header');
 
             if (!mobileToggle || !nav || !header) return;
-
-            // Show mobile toggle on mobile screens
-            function updateMenuDisplay() {
-                if (window.innerWidth <= 768) {
-                    mobileToggle.style.display = 'flex';
-                } else {
-                    mobileToggle.style.display = 'none';
-                    nav.classList.remove('mobile-menu-open');
-                    mobileToggle.classList.remove('active');
-                    header.classList.remove('menu-is-open');
-                    mobileToggle.setAttribute('aria-expanded', 'false');
-                }
-            }
 
             // Toggle menu
             mobileToggle.addEventListener('click', function () {
@@ -4364,33 +4305,51 @@
                 mobileToggle.setAttribute('aria-expanded', isOpen);
             });
 
-            // Close menu when clicking nav links
-            nav.querySelectorAll('a').forEach(link => {
-                link.addEventListener('click', function () {
-                    setTimeout(() => {
+            // Adiciona scroll e fecha menu para TODOS os anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(link => {
+                link.addEventListener('click', function (e) {
+                    const href = this.getAttribute('href');
+                    if (!href || href === '#') return;
+
+                    const target = document.querySelector(href);
+                    if (!target) return;
+
+                    // Fecha menu
+                    if (nav.classList.contains('mobile-menu-open')) {
                         nav.classList.remove('mobile-menu-open');
                         mobileToggle.classList.remove('active');
                         header.classList.remove('menu-is-open');
-                        mobileToggle.setAttribute('aria-expanded', 'false');
-                    }, 100);
+                    }
+
+                    // Faz scroll apenas em mobile
+                    if (isMobile()) {
+                        e.preventDefault();
+                        setTimeout(() => {
+                            const offset = header ? header.offsetHeight + 20 : 0;
+                            const position = target.offsetTop - offset;
+                            window.scrollTo({ top: position, behavior: 'smooth' });
+                        }, 100);
+                    }
                 });
             });
 
-            // Close menu when clicking outside
-            document.addEventListener('click', function (e) {
-                if (!nav.contains(e.target) && !mobileToggle.contains(e.target)) {
+            // Update menu display on resize
+            function updateMenuDisplay() {
+                if (window.innerWidth <= 768) {
+                    mobileToggle.style.display = 'flex';
+                } else {
+                    mobileToggle.style.display = 'none';
                     nav.classList.remove('mobile-menu-open');
                     mobileToggle.classList.remove('active');
                     header.classList.remove('menu-is-open');
-                    mobileToggle.setAttribute('aria-expanded', 'false');
                 }
-            });
+            }
 
-            // Update on resize
             window.addEventListener('resize', updateMenuDisplay);
             updateMenuDisplay();
-        })();
+        });
     </script>
+
 
 </body>
 
