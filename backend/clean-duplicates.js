@@ -60,9 +60,7 @@ async function cleanDuplicates() {
       console.log("\n🔐 CREDENCIAIS DO ADMIN:");
       console.log("Email:", manter.email);
       console.log("Password: (a que foi definida anteriormente)");
-      console.log(
-        "\n🌐 Painel Admin: https://pedroseixasa.github.io/247/admin/",
-      );
+      console.log("\n🌐 Painel Admin: https://247barbearia.pt/admin/");
     } else if (diogos.length === 1) {
       console.log("✅ Apenas 1 'Diogo Cunha' encontrado - Base de dados OK!");
       console.log(`   Email: ${diogos[0].email}`);
