@@ -4305,6 +4305,31 @@
                 mobileToggle.setAttribute('aria-expanded', isOpen);
             });
 
+            function smoothScrollTo(targetPosition, duration) {
+                const startPosition = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+                const distance = targetPosition - startPosition;
+                const startTime = performance.now();
+
+                function step(currentTime) {
+                    const elapsed = currentTime - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const ease = progress < 0.5
+                        ? 4 * progress * progress * progress
+                        : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+                    const position = startPosition + distance * ease;
+
+                    document.documentElement.scrollTop = position;
+                    document.body.scrollTop = position;
+                    window.scrollTo(0, position);
+
+                    if (progress < 1) {
+                        requestAnimationFrame(step);
+                    }
+                }
+
+                requestAnimationFrame(step);
+            }
+
             // Adiciona scroll e fecha menu para TODOS os anchor links
             document.querySelectorAll('a[href^="#"]').forEach(link => {
                 link.addEventListener('click', function (e) {
@@ -4325,10 +4350,7 @@
                         const offset = header ? header.offsetHeight + 20 : 0;
                         const position = target.getBoundingClientRect().top + window.pageYOffset - offset;
 
-                        // Force scroll for iOS Safari
-                        document.documentElement.scrollTop = position;
-                        document.body.scrollTop = position;
-                        window.scrollTo(0, position);
+                        smoothScrollTo(position, 450);
 
                         try {
                             history.replaceState(null, '', href);
