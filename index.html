@@ -4407,8 +4407,6 @@
 
                     servicesGrid.appendChild(serviceCard);
                 });
-
-                console.log(`✅ ${services.length} serviços carregados com sucesso`);
             } catch (error) {
                 console.error('Erro ao carregar serviços:', error);
                 servicesGrid.innerHTML = '<div style="text-align: center; padding: 2rem; grid-column: 1 / -1;"><p style="color: #dc3545;">Erro ao carregar serviços. Por favor, recarregue a página.</p></div>';

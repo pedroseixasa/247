@@ -243,11 +243,7 @@ exports.syncServiceToIndexClean = async (req, res) => {
     const path = require("path");
     const { service, action } = req.body;
 
-    console.log(`[SYNC] Action: ${action}, Service:`, service);
-
     const indexCleanPath = path.join(__dirname, "../../..", "index_clean.html");
-
-    console.log(`[SYNC] Index path: ${indexCleanPath}`);
 
     let html = await fs.readFile(indexCleanPath, "utf-8");
 
@@ -415,14 +411,6 @@ async function sumRevenue(filter) {
       }
     }
   });
-
-  console.log(
-    `[DEBUG sumRevenue] Filter:`,
-    filter,
-    `| Reservations found:`,
-    reservations.length,
-    `| Total: €${total}`,
-  );
 
   return total;
 }
