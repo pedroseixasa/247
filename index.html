@@ -641,6 +641,11 @@
             color: var(--text-light);
         }
 
+        .staff {
+            padding: var(--spacing-xl) 0;
+            background-color: var(--bg-light);
+        }
+
         .services {
             padding: var(--spacing-xl) 0;
             background-color: var(--bg-light);
@@ -747,7 +752,7 @@
 
         .contact {
             padding: var(--spacing-xl) 0;
-            background-color: var(--bg-light);
+            background-color: var(--secondary);
         }
 
         .map-container iframe {
@@ -2439,222 +2444,6 @@
             }
         }
 
-        /* ===== STAFF SECTION ===== */
-        .staff {
-            padding: var(--spacing-xl) 0;
-            background: linear-gradient(135deg, rgba(20, 21, 28, 0.4) 0%, rgba(30, 32, 45, 0.2) 100%);
-            border-top: 1px solid var(--border-light);
-        }
-
-        .staff-header {
-            text-align: center;
-            margin-bottom: 3rem;
-        }
-
-        .staff-subtitle {
-            color: var(--text-light);
-            font-size: 1.05rem;
-            margin-top: 0.5rem;
-            font-weight: 300;
-            letter-spacing: 0.5px;
-        }
-
-        .staff-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 2.5rem;
-            max-width: 900px;
-            margin: 0 auto;
-            align-items: start;
-        }
-
-        .staff-card-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            perspective: 1200px;
-        }
-
-        .staff-card-3d {
-            display: flex;
-            justify-content: center;
-            width: 100%;
-            margin-bottom: 1.5rem;
-        }
-
-        .staff-card {
-            width: 100%;
-            height: 320px;
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            perspective: 2000px;
-            transform-style: preserve-3d;
-            border-radius: 1rem;
-            overflow: hidden;
-        }
-
-        .staff-cover-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 1rem;
-            transition: filter 0.5s ease-out;
-        }
-
-        .staff-card.is-3d .staff-cover-image {
-            filter: brightness(0.35) contrast(1.15) saturate(1.1);
-        }
-
-        .staff-card-wrapper {
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            position: absolute;
-            width: 110%;
-            height: 110%;
-            z-index: 5;
-            border-radius: 1rem;
-            overflow: hidden;
-            transform-style: preserve-3d;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .staff-card.is-3d .staff-card-wrapper {
-            transform: perspective(900px) translateY(-3%) rotateX(20deg) translateZ(0);
-            box-shadow: 0px 20px 40px rgba(0, 0, 0, 0.5);
-        }
-
-        .staff-card-wrapper::before,
-        .staff-card-wrapper::after {
-            content: "";
-            opacity: 0;
-            width: 100%;
-            height: 100%;
-            transition: all 0.5s;
-            position: absolute;
-            left: 0;
-        }
-
-        .staff-card-wrapper::before {
-            top: 0;
-            background-image: linear-gradient(to top,
-                    transparent 40%,
-                    rgba(12, 13, 19, 0.4) 65%,
-                    rgba(12, 13, 19, 0.8) 95%);
-        }
-
-        .staff-card-wrapper::after {
-            bottom: 0;
-            opacity: 1;
-            background-image: linear-gradient(to bottom,
-                    transparent 40%,
-                    rgba(12, 13, 19, 0.4) 65%,
-                    rgba(12, 13, 19, 0.8) 95%);
-        }
-
-        .staff-character-image {
-            width: 120%;
-            object-fit: contain;
-            opacity: 0;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            position: absolute;
-            bottom: 0;
-            z-index: 10;
-            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
-        }
-
-        .staff-card.is-3d .staff-character-image {
-            opacity: 1;
-            transform: translate3d(0, 0%, 300px) scale(1.05);
-        }
-
-        .staff-info {
-            text-align: center;
-            width: 100%;
-        }
-
-        .staff-name {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 0.5rem;
-            letter-spacing: -0.5px;
-        }
-
-        .staff-role {
-            font-size: 0.9rem;
-            color: var(--accent);
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 1rem;
-            opacity: 0.9;
-        }
-
-        .staff-description {
-            font-size: 0.95rem;
-            color: var(--text-light);
-            line-height: 1.6;
-            font-weight: 300;
-            max-width: 280px;
-            margin: 0 auto;
-        }
-
-        /* Responsive */
-        @media (max-width: 900px) {
-            .staff {
-                padding: 3rem 0;
-            }
-
-            .staff-header {
-                margin-bottom: 2.5rem;
-            }
-
-            .staff-grid {
-                grid-template-columns: 1fr;
-                gap: 2rem;
-                max-width: 100%;
-            }
-
-            .staff-card {
-                height: 280px;
-            }
-
-            .staff-name {
-                font-size: 1.25rem;
-            }
-
-            .section-title {
-                font-size: 1.75rem;
-            }
-        }
-
-        @media (max-width: 600px) {
-            .staff-grid {
-                gap: 1.5rem;
-            }
-
-            .staff-card {
-                height: 240px;
-            }
-
-            .staff-name {
-                font-size: 1.1rem;
-            }
-
-            .staff-description {
-                font-size: 0.9rem;
-            }
-
-            .staff-header {
-                margin-bottom: 2rem;
-            }
-
-            .section-title {
-                font-size: 1.5rem;
-            }
-        }
-
         .instagram-feed {
             width: 100%;
             display: flex;
@@ -4316,21 +4105,24 @@
         </div>
     </section>
 
+    <!-- STAFF SECTION (Sobre wrappers) -->
+    <section class="staff scroll-observer section-anchor visible" id="staff">
+        <div class="container" bis_skin_checked="1">
+            <div style="text-align: center; max-width: 600px; margin: 0 auto 1rem;" bis_skin_checked="1">
+                <h2 class="section-title" id="staffTitle" style="margin-bottom:0.5rem">Staff</h2>
 
-    <!-- STAFF SECTION -->
-    <section class="staff scroll-observer section-anchor" id="staff">
-        <div class="container">
-            <div class="staff-header">
-                <h2 class="section-title" id="staffTitle">Conheça o Nosso Staff</h2>
-                <p class="staff-subtitle" id="staffSubtitle">Os melhores profissionais ao seu serviço</p>
+                <p id="staffSubtitle" style="color: var(--text-light); font-size: 1rem;" bis_skin_checked="1">Conheça a
+                    nossa equipa de barbeiros profissionais</p>
             </div>
 
-            <div class="staff-grid" id="staffGrid">
-                <!-- Staff members loaded dynamically from API -->
+            <div class="staff-grid" id="staffGrid" bis_skin_checked="1">
+                <!-- Staff loaded dynamically from API -->
+                <div style="text-align: center; padding: 2rem; grid-column: 1 / -1;" bis_skin_checked="1">
+                    <p style="color: var(--text-light);">A carregar equipa...</p>
+                </div>
             </div>
         </div>
     </section>
-
 
     <section class="contact scroll-observer section-anchor" id="contact">
         <div class="container">
