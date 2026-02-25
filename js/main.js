@@ -504,7 +504,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (!response.ok) return;
       applySiteSettings(data);
     } catch (error) {
-      console.warn("⚠️ Erro ao carregar configurações do site:", error);
+      // Erro ao carregar configurações
     }
   }
 
@@ -638,12 +638,6 @@ document.addEventListener("DOMContentLoaded", function () {
         bookingState.servicePrice =
           card.querySelector(".service-price").textContent;
         bookingState.serviceId = card.getAttribute("data-service-id");
-
-        console.log("✅ Serviço selecionado:", {
-          nome: bookingState.service,
-          preço: bookingState.servicePrice,
-          serviceId: bookingState.serviceId,
-        });
 
         const selectedServiceEl = document.getElementById("selectedService");
         if (selectedServiceEl) {
@@ -960,7 +954,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function selectDate(date) {
-    console.log("📅 Data selecionada:", date.toLocaleDateString("pt-PT"));
     bookingState.date = date;
     bookingState.time = null;
     renderCalendar();
@@ -971,21 +964,18 @@ document.addEventListener("DOMContentLoaded", function () {
   function renderTimeSlots() {
     const timeSlotsContainer = document.getElementById("timeSlots");
     if (!timeSlotsContainer) {
-      console.warn("⚠️ Container timeSlots não encontrado!");
       return;
     }
 
     timeSlotsContainer.innerHTML = "";
 
     if (!bookingState.date) {
-      console.warn("⚠️ Data não selecionada");
       timeSlotsContainer.innerHTML =
         '<p class="time-slots-empty">Selecione uma data primeiro</p>';
       return;
     }
 
     if (!bookingState.barber) {
-      console.warn("⚠️ Barbeiro não selecionado");
       timeSlotsContainer.innerHTML =
         '<p class="time-slots-empty">Selecione um barbeiro primeiro</p>';
       return;
@@ -1004,10 +994,6 @@ document.addEventListener("DOMContentLoaded", function () {
       "Sábado",
     ];
 
-    console.log("🕐 Renderizando slots para:", bookingState.barber, dateKey);
-    console.log("📅 Dia da semana:", dayNames[dayOfWeek]);
-    console.log("📋 Horários disponíveis da agenda:", barberHours);
-
     if (barberHours.length === 0) {
       timeSlotsContainer.innerHTML =
         '<p class="time-slots-empty">Sem horarios disponiveis neste dia</p>';
@@ -1024,17 +1010,6 @@ document.addEventListener("DOMContentLoaded", function () {
     );
     const isToday = today.getTime() === selectedDate.getTime();
 
-    console.log("📅 Data de hoje:", today.toLocaleDateString("pt-PT"));
-    console.log(
-      "📅 Data selecionada:",
-      selectedDate.toLocaleDateString("pt-PT"),
-    );
-    console.log("🔍 É hoje?", isToday);
-    console.log(
-      "⏰ Hora atual:",
-      `${now.getHours()}:${String(now.getMinutes()).padStart(2, "0")}`,
-    );
-
     // Se for hoje, obter hora e minuto atual
     const currentHour = now.getHours();
     const currentMinute = now.getMinutes();
@@ -1042,35 +1017,23 @@ document.addEventListener("DOMContentLoaded", function () {
     // Filtrar horários que já passaram se for hoje
     const availableHours = barberHours.filter((time) => {
       if (!isToday) {
-        console.log(`✅ ${time} - Não é hoje, liberado`);
         return true; // Se não for hoje, todos os horários estão disponíveis
       }
 
       const [slotHour, slotMinute] = time.split(":").map(Number);
 
-      console.log(
-        `🕐 Verificando ${time} (${slotHour}:${slotMinute}) vs agora ${currentHour}:${currentMinute}`,
-      );
-
       // Horário já passou se:
       // - A hora do slot é menor que a hora atual, OU
       // - A hora do slot é igual mas os minutos são menores ou iguais
       if (slotHour < currentHour) {
-        console.log(`❌ ${time} - Hora passou (${slotHour} < ${currentHour})`);
         return false;
       }
       if (slotHour === currentHour && slotMinute <= currentMinute) {
-        console.log(
-          `❌ ${time} - Minuto passou (${slotMinute} <= ${currentMinute})`,
-        );
         return false;
       }
 
-      console.log(`✅ ${time} - Liberado`);
       return true;
     });
-
-    console.log("✅ Horários após filtro:", availableHours);
 
     if (availableHours.length === 0) {
       timeSlotsContainer.innerHTML =
@@ -1092,15 +1055,12 @@ document.addEventListener("DOMContentLoaded", function () {
       if (!isBooked) {
         timeSlot.addEventListener("click", () => {
           bookingState.time = time;
-          console.log("✅ Hora selecionada:", time);
           renderTimeSlots();
         });
       }
 
       timeSlotsContainer.appendChild(timeSlot);
     });
-
-    console.log("✅ Total de slots renderizados:", availableHours.length);
   }
 
   window.refreshBookingSchedule = function () {
@@ -1238,11 +1198,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
           emailjs
             .send("service_z1igryn", "template_nhk7sz5", templateParams)
-            .then((response) => {
-              console.log("✉️ Email enviado com sucesso!", response.status);
-            })
-            .catch((err) => {
-              console.warn("⚠️ Erro ao enviar email:", err);
+            .catch(() => {
+              // Email send failed
             });
         }
 
@@ -1298,13 +1255,11 @@ document.addEventListener("DOMContentLoaded", function () {
   // Carregar slots do backend
   async function reloadTimeSlots() {
     if (!bookingState.date) {
-      console.warn("⚠️ Falta data");
       renderTimeSlots();
       return;
     }
 
     if (!bookingState.barber) {
-      console.warn("⚠️ Falta barbeiro");
       renderTimeSlots();
       return;
     }
@@ -1314,8 +1269,6 @@ document.addEventListener("DOMContentLoaded", function () {
       const barberId = barbers[bookingState.barber].id;
       const url = `${API_BASE_URL}/reservations/barber/${barberId}?date=${dateStr}`;
 
-      console.log("🔍 Carregando slots de:", url);
-
       const response = await fetch(url);
 
       if (!response.ok) {
@@ -1323,7 +1276,6 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       const reservations = await response.json();
-      console.log("📦 Reservas recebidas:", reservations);
 
       // Construir mapa de slots ocupados
       bookedSlots = {};
@@ -1336,8 +1288,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
       renderTimeSlots();
     } catch (error) {
-      console.warn("⚠️ Erro ao carregar slots da API:", error.message);
-      console.warn("✅ Renderizando slots localmente sem reservas...");
       // Fallback: renderizar slots mesmo sem dados da API
       renderTimeSlots();
     }
@@ -1439,11 +1389,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const aboutSection = document.querySelector(".about");
 
   if (!aboutCard || !aboutSection) {
-    console.log("❌ About elements não encontrados");
     return;
   }
-
-  console.log("✅ About image effect initialized");
 
   // Ajustar threshold conforme o tamanho da tela
   let threshold = 0.7;
@@ -1458,8 +1405,6 @@ document.addEventListener("DOMContentLoaded", function () {
     threshold = 0.6;
   }
 
-  console.log(`📱 Screen width: ${screenWidth}px, threshold: ${threshold}`);
-
   if (!("IntersectionObserver" in window)) {
     aboutCard.classList.add("is-3d");
     return;
@@ -1471,10 +1416,8 @@ document.addEventListener("DOMContentLoaded", function () {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           aboutCard.classList.add("is-3d");
-          console.log("✨ Efeito 3D ativado");
         } else {
           aboutCard.classList.remove("is-3d");
-          console.log("💤 Efeito 3D desativado");
         }
       });
     },

@@ -263,4 +263,4 @@ function setupBookingModalWithAPI(serviceId) {
   // Pode ser feito quando modal abre
 }
 
-console.log('✓ API Client carregado. Use global "api" para fazer requests.');
+// API Client loaded
