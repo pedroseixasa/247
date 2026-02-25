@@ -113,14 +113,12 @@ exports.createReservation = async (req, res) => {
     // Verificar se o barbeiro existe
     const barber = await Barber.findById(barberIdObj).select("-password");
     if (!barber) {
-      console.error(`Barbeiro não encontrado. ID: ${barberIdObj}`);
       return res.status(404).json({ error: "Barbeiro não encontrado" });
     }
 
     // Verificar se o serviço existe
     const service = await Service.findById(serviceIdObj);
     if (!service) {
-      console.error(`Serviço não encontrado. ID: ${serviceIdObj}`);
       return res.status(404).json({ error: "Serviço não encontrado" });
     }
 
@@ -171,7 +169,6 @@ exports.createReservation = async (req, res) => {
         // SMS not sent - Twilio not configured
       }
     } catch (smsError) {
-      console.error("Erro ao enviar SMS:", smsError);
       // Não falha se SMS não enviar
     }
 

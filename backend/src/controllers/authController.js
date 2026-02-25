@@ -54,7 +54,6 @@ exports.getCurrentBarber = async (req, res) => {
         barberId = req.barberId;
       }
     } catch (err) {
-      console.error("Erro ao validar barberId em getCurrentBarber:", err);
       return res.status(400).json({ error: "ID inválido: " + err.message });
     }
     const barber = await Barber.findById(barberId).select("-password");

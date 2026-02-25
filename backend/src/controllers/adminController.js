@@ -140,7 +140,6 @@ exports.updateBarber = async (req, res) => {
         barberIdObj = barberId;
       }
     } catch (err) {
-      console.error("Erro ao validar barberId em updateBarber:", err);
       return res.status(400).json({ error: "ID inválido: " + err.message });
     }
 
@@ -276,9 +275,6 @@ exports.syncServiceToIndexClean = async (req, res) => {
           `${serviceCardHTML}\n            </div>\n\n        </div>\n    </section>\n\n    <section class="gallery`,
         );
       } else {
-        console.warn(
-          "Padrão de services-grid não encontrado, tentando alternativa...",
-        );
         // Fallback: procurar apenas pelo fim do services-grid
         html = html.replace(
           /(<div class="service-card-new service-card-compact"[\s\S]*?<\/div>\s*<\/div>)([\s]*<\/div>)/,
@@ -310,7 +306,6 @@ exports.syncServiceToIndexClean = async (req, res) => {
 
     res.json({ message: "Sincronizado com sucesso" });
   } catch (error) {
-    console.error("Erro ao sincronizar:", error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -341,7 +336,6 @@ exports.getAllReservations = async (req, res) => {
         }
       }
     } catch (err) {
-      console.error("Erro ao validar barberId em getAllReservations:", err);
       return res.status(400).json({ error: "ID inválido: " + err.message });
     }
 
@@ -455,7 +449,6 @@ exports.getSiteSettings = async (req, res) => {
         }
       }
     } catch (err) {
-      console.error("Erro ao validar barberId em getSiteSettings:", err);
       return res.status(400).json({ error: "ID inválido: " + err.message });
     }
 
@@ -606,7 +599,6 @@ exports.getSiteSettings = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Erro em getSiteSettings:", error);
     res.status(500).json({ error: error.message });
   }
 };
