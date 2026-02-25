@@ -9,13 +9,13 @@ async function removeAdmin() {
       useUnifiedTopology: true,
     });
 
-    console.log("✓ Conectado ao MongoDB");
+    // Conectado
 
     // Remover o user "Cunha" (cunha@247barbearia.com)
     const result = await Barber.deleteOne({ email: "cunha@247barbearia.com" });
 
     if (result.deletedCount > 0) {
-      console.log("✅ Utilizador 'Cunha' removido com sucesso!");
+      // Utilizador removido
     } else {
       console.log(
         "⚠️  Utilizador 'Cunha' não encontrado (já foi removido ou nunca existiu)",
@@ -28,15 +28,7 @@ async function removeAdmin() {
     });
 
     if (diogoExists) {
-      console.log("\n✅ Admin 'Diogo Cunha' existe:");
-      console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-      console.log("Nome:", diogoExists.name);
-      console.log("Email:", diogoExists.email);
-      console.log("Role:", diogoExists.role);
-      console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-      console.log("\n🔐 Usa estas credenciais no painel admin:");
-      console.log("Email: diogo@247barbearia.com");
-      console.log("Password: (a que já estava definida)");
+      // Admin encontrado
     } else {
       console.log(
         "\n⚠️  AVISO: Utilizador 'Diogo Cunha' não existe na base de dados!",

@@ -67,7 +67,7 @@ async function seedDatabase() {
     );
 
     await Barber.insertMany(barbersWithHashedPasswords);
-    console.log("✓ Barbeiros criados");
+    // Barbeiros criados
 
     // Criar serviços com IDs fixos
     const services = [
@@ -129,13 +129,7 @@ async function seedDatabase() {
     ];
 
     await Service.insertMany(services);
-    console.log("✓ Serviços criados");
-
-    console.log("\n✅ Base de dados inicializada com sucesso!");
-    console.log("\n📝 Credenciais padrão:");
-    console.log("   Admin (Diogo): diogo@barbearia247.pt / admin123");
-    console.log("   Barber (Ricardo): ricardo@barbearia247.pt / barber123");
-    console.log("\n⚠️ IMPORTANTE: Mude estas passwords no painel admin!");
+    // Serviços criados
 
     process.exit(0);
   } catch (error) {

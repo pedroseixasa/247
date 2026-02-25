@@ -39,10 +39,10 @@ mongoose
     useUnifiedTopology: true,
   })
   .then(() => {
-    console.log("✓ Conectado ao MongoDB");
+    // MongoDB connected
   })
   .catch((err) => {
-    console.error("✗ Erro ao conectar ao MongoDB:", err);
+    console.error("Erro ao conectar ao MongoDB:", err);
     process.exit(1);
   });
 
@@ -62,8 +62,5 @@ app.use((err, req, res, next) => {
 
 // Iniciar servidor
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`🚀 Servidor rodando em:`);
-  console.log(`   Local:   http://localhost:${PORT}`);
-  console.log(`   Rede:    http://192.168.1.132:${PORT}`);
-  console.log(`\n📱 Acede pelo telemóvel usando o IP da rede`);
+  console.log(`Servidor online na porta ${PORT}`);
 });

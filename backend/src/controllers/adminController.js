@@ -310,7 +310,7 @@ exports.syncServiceToIndexClean = async (req, res) => {
 
     await fs.writeFile(indexCleanPath, html, "utf-8");
 
-    console.log(`[SYNC] ✅ Ficheiro sincronizado com sucesso!`);
+    // File synced
 
     res.json({ message: "Sincronizado com sucesso" });
   } catch (error) {

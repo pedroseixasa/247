@@ -42,9 +42,7 @@ async function seedReviews() {
     ];
 
     await Review.insertMany(reviews);
-    console.log("✓ 3 reviews criadas com sucesso");
-
-    console.log("\n✅ Reviews adicionadas à base de dados!");
+    // Reviews criadas
 
     process.exit(0);
   } catch (error) {

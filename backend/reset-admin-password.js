@@ -9,13 +9,13 @@ async function resetPassword() {
       useUnifiedTopology: true,
     });
 
-    console.log("✓ Conectado ao MongoDB\n");
+    // Conectado
 
     // Encontrar o Diogo Cunha
     const diogo = await Barber.findOne({ email: "diogo@barbearia247.pt" });
 
     if (!diogo) {
-      console.log("❌ Utilizador 'diogo@barbearia247.pt' não encontrado!");
+      console.error("Utilizador 'diogo@barbearia247.pt' não encontrado");
       process.exit(1);
     }
 

@@ -43,10 +43,7 @@ async function updateFrontendIds() {
 
     fs.writeFileSync(mainJsPath, mainJs, "utf-8");
 
-    console.log("✅ IDs atualizados no frontend (js/main.js)");
-    console.log("\n🎉 Tudo pronto! Agora podes:");
-    console.log("  1. Reiniciar o backend: npm run dev");
-    console.log("  2. Testar uma reserva no site");
+    // IDs atualizados
 
     await mongoose.connection.close();
   } catch (error) {

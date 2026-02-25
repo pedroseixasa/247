@@ -20,7 +20,7 @@ function getTwilioClient() {
         process.env.TWILIO_AUTH_TOKEN,
       );
     } catch (error) {
-      console.warn("⚠️  Twilio não configurado:", error.message);
+      // Twilio not configured
     }
   }
   return client;
@@ -168,7 +168,7 @@ exports.createReservation = async (req, res) => {
           to: clientPhone,
         });
       } else {
-        console.warn("⚠️  SMS não enviado - Twilio não configurado");
+        // SMS not sent - Twilio not configured
       }
     } catch (smsError) {
       console.error("Erro ao enviar SMS:", smsError);
