@@ -418,13 +418,13 @@ document.addEventListener("DOMContentLoaded", function () {
     setText("siteBrandName", settings.header?.brandName);
     setSrc("siteLogo", settings.header?.logoImage);
 
-    // Build dynamic hours - show "Seg - Dom*" for all day range
+    // Build dynamic hours - show "Ter - Dom*" for all day range
     if (settings.header?.hoursText) {
       const timeMatch = settings.header.hoursText.match(
         /\d{2}:\d{2}.*\d{2}:\d{2}/,
       );
       const timeRange = timeMatch ? timeMatch[0] : "09:00–19:00";
-      setText("headerHours", `📅 Seg - Dom* ${timeRange}`);
+      setText("headerHours", `📅 Ter - Dom* ${timeRange}`);
     }
 
     setText("headerAddress", settings.header?.addressText);
