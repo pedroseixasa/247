@@ -5,6 +5,9 @@ const MonthlyStats = require("./src/models/MonthlyStats");
 const Barber = require("./src/models/Barber");
 const Service = require("./src/models/Service");
 
+// Debug mode - set to true to see detailed logs
+const DEBUG = false;
+
 /**
  * Script para agregar reservas antigas em estatísticas mensais
  * Uso: node aggregate-monthly-stats.js [ano] [mes] [--delete]
@@ -16,9 +19,7 @@ const Service = require("./src/models/Service");
  */
 
 async function aggregateMonth(year, month, deleteAfter = false) {
-  console.log(
-    `\n📊 Agregando estatísticas de ${year}-${String(month + 1).padStart(2, "0")}...\n`,
-  );
+  if (DEBUG) console.log(`Agregando estatísticas de ${year}-${String(month + 1).padStart(2, "0")}`);
 
   const monthStart = new Date(year, month, 1);
   monthStart.setHours(0, 0, 0, 0);
@@ -34,11 +35,11 @@ async function aggregateMonth(year, month, deleteAfter = false) {
     .populate("serviceId", "name price");
 
   if (reservations.length === 0) {
-    console.log("⚠️  Nenhuma reserva encontrada para este mês.");
+    if (DEBUG) console.log("Nenhuma reserva encontrada para este mês.");
     return null;
   }
 
-  console.log(`✅ ${reservations.length} reservas encontradas`);
+  if (DEBUG) console.log(`${reservations.length} reservas encontradas`);
 
   // Calcular estatísticas globais
   let totalRevenue = 0;
@@ -130,11 +131,9 @@ async function aggregateMonth(year, month, deleteAfter = false) {
     { upsert: true, new: true },
   );
 
-  console.log(`\n✅ Estatísticas agregadas:`);
-  console.log(`   Total reservas: ${reservations.length}`);
-  console.log(`   Receita total: €${totalRevenue.toFixed(2)}`);
-  console.log(`   Barbeiros: ${barberStats.length}`);
-  console.log(`   Serviços únicos: ${topServices.length}`);
+  if (DEBUG) {
+    console.log(`Resumo - Reservas: ${reservations.length}, Receita: €${totalRevenue.toFixed(2)}`);
+  }
 
   // Apagar reservas se solicitado
   if (deleteAfter) {
@@ -144,12 +143,14 @@ async function aggregateMonth(year, month, deleteAfter = false) {
     });
     console.log(`\n🗑️  ${deleteResult.deletedCount} reservas apagadas`);
   }
-
+if (DEBUG) console.log(`
   return monthlyStats;
 }
 
 async function autoAggregate() {
   console.log("🤖 Modo automático: agregando meses com mais de 12 meses...\n");
+
+  if (DEBUG) console.log("Modo automático: agregando meses com mais de 12 meses");
 
   const now = new Date();
   const twelveMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 12, 1);
@@ -160,19 +161,15 @@ async function autoAggregate() {
   }).sort({ reservationDate: 1 });
 
   if (!oldestReservation) {
-    console.log("⚠️  Nenhuma reserva encontrada.");
+    if (DEBUG) console.log("Nenhuma reserva encontrada.");
     return;
   }
 
   const oldestDate = new Date(oldestReservation.reservationDate);
-  console.log(
-    `📅 Reserva mais antiga: ${oldestDate.toLocaleDateString("pt-PT")}`,
-  );
-  console.log(
-    `📅 Limite (12 meses atrás): ${twelveMonthsAgo.toLocaleDateString("pt-PT")}\n`,
-  );
-
-  // Agregar todos os meses desde a mais antiga até 12 meses atrás
+  if (DEBUG) {
+    console.log(`Reserva mais antiga: ${oldestDate.toLocaleDateString("pt-PT")}`);
+    console.log(`Limite (12 meses atrás): ${twelveMonthsAgo.toLocaleDateString("pt-PT")}`);
+  } Agregar todos os meses desde a mais antiga até 12 meses atrás
   let currentDate = new Date(
     oldestDate.getFullYear(),
     oldestDate.getMonth(),
@@ -193,9 +190,7 @@ async function autoAggregate() {
     } else {
       console.log(
         `⏭️  ${year}-${String(month + 1).padStart(2, "0")} já agregado, ignorando...`,
-      );
-    }
-
+      if (DEBUG) console.log(`${year}-${String(month + 1).padStart(2, "0")} já agregado`
     // Próximo mês
     currentDate.setMonth(currentDate.getMonth() + 1);
   }
@@ -204,9 +199,12 @@ async function autoAggregate() {
 }
 
 async function main() {
-  try {
+  if (DEBUG) console.log(`Concluído. ${aggregatedCount} meses agregad
     await mongoose.connect(process.env.MONGODB_URI);
     console.log("✅ Conectado ao MongoDB");
+
+    const args = process.argv.slice(2);
+
 
     const args = process.argv.slice(2);
 
@@ -218,28 +216,19 @@ async function main() {
       const deleteAfter = args.includes("--delete");
 
       if (isNaN(year) || isNaN(month) || month < 0 || month > 11) {
-        console.error(
-          "❌ Uso: node aggregate-monthly-stats.js [ano] [mes 0-11] [--delete]",
-        );
+        console.error("Uso: node aggregate-monthly-stats.js [ano] [mes 0-11] [--delete]");
         console.error("   ou: node aggregate-monthly-stats.js --auto");
         process.exit(1);
       }
 
       await aggregateMonth(year, month, deleteAfter);
     } else {
-      console.error(
-        "❌ Uso: node aggregate-monthly-stats.js [ano] [mes 0-11] [--delete]",
-      );
+      console.error("Uso: node aggregate-monthly-stats.js [ano] [mes 0-11] [--delete]");
       console.error("   ou: node aggregate-monthly-stats.js --auto");
       process.exit(1);
     }
 
     await mongoose.disconnect();
-    console.log("\n✅ Desconectado do MongoDB");
   } catch (error) {
-    console.error("❌ Erro:", error);
-    process.exit(1);
-  }
-}
-
+    console.error("Erro:", error.message
 main();
