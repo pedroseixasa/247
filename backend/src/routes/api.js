@@ -2,6 +2,7 @@ const express = require("express");
 const authController = require("../controllers/authController");
 const reservationController = require("../controllers/reservationController");
 const adminController = require("../controllers/adminController");
+const cronController = require("../controllers/cronController");
 const { authMiddleware, adminMiddleware } = require("../middleware/auth");
 const {
   upload,
@@ -136,5 +137,10 @@ router.get("/site-settings", adminController.getPublicSiteSettings);
 
 // ===== REVIEWS (PUBLIC) - 3 aleatórias =====
 router.get("/reviews/random", adminController.getRandomReviews);
+
+// ===== CRONJOBS (PUBLIC) - Minimal responses for cron-job.org 64KB limit =====
+router.get("/cron/aggregate", cronController.aggregateMonthlyStats);
+router.get("/cron/clean-duplicates", cronController.cleanDuplicates);
+router.get("/cron/clear-old", cronController.clearOldReservations);
 
 module.exports = router;
