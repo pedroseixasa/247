@@ -417,7 +417,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
     setText("siteBrandName", settings.header?.brandName);
     setSrc("siteLogo", settings.header?.logoImage);
-    setText("headerHours", settings.header?.hoursText);
+
+    // Build dynamic hours with brandName
+    if (settings.header?.hoursText) {
+      const timeMatch = settings.header.hoursText.match(
+        /\d{2}:\d{2}.*\d{2}:\d{2}/,
+      );
+      const timeRange = timeMatch ? timeMatch[0] : "09:00–19:00";
+      const brandName = settings.header?.brandName || "Dom";
+      setText("headerHours", `📅 ${brandName}* ${timeRange}`);
+    }
+
     setText("headerAddress", settings.header?.addressText);
     setText("headerPhoneText", settings.header?.phoneText);
     setHref("headerPhoneLink", settings.header?.phoneHref);
