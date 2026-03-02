@@ -1438,3 +1438,113 @@ document.addEventListener("DOMContentLoaded", function () {
 
   observer.observe(aboutSection);
 })();
+
+// ===== STAFF SECTION - Load and 3D Animation =====
+(function initStaff() {
+  const API_BASE_URL = "https://two4-7-barbearia.onrender.com/api";
+
+  // Load staff data from backend
+  async function loadStaffData() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/site-settings`);
+      if (!response.ok) return;
+
+      const data = await response.json();
+      const barberCards = data?.barberCards;
+
+      if (!barberCards) return;
+
+      // Update Barbeiro 1
+      if (barberCards.barber1Name) {
+        const name1 = document.getElementById("staffName1");
+        if (name1) name1.textContent = barberCards.barber1Name;
+      }
+      if (barberCards.barber1Description) {
+        const desc1 = document.getElementById("staffDescription1");
+        if (desc1) desc1.textContent = barberCards.barber1Description;
+      }
+      if (barberCards.barber1CoverImage) {
+        const img1 = document.getElementById("staffCoverImage1");
+        if (img1) img1.src = barberCards.barber1CoverImage;
+      }
+      if (barberCards.barber1Image) {
+        const char1 = document.getElementById("staffCharacterImage1");
+        if (char1) char1.src = barberCards.barber1Image;
+      }
+
+      // Update Barbeiro 2
+      if (barberCards.barber2Name) {
+        const name2 = document.getElementById("staffName2");
+        if (name2) name2.textContent = barberCards.barber2Name;
+      }
+      if (barberCards.barber2Description) {
+        const desc2 = document.getElementById("staffDescription2");
+        if (desc2) desc2.textContent = barberCards.barber2Description;
+      }
+      if (barberCards.barber2CoverImage) {
+        const img2 = document.getElementById("staffCoverImage2");
+        if (img2) img2.src = barberCards.barber2CoverImage;
+      }
+      if (barberCards.barber2Image) {
+        const char2 = document.getElementById("staffCharacterImage2");
+        if (char2) char2.src = barberCards.barber2Image;
+      }
+    } catch (error) {
+      // Error loading staff data
+    }
+  }
+
+  // Initialize 3D animation with IntersectionObserver
+  function init3DAnimation() {
+    const staffCards = document.querySelectorAll(".staff-card");
+    const staffSection = document.querySelector(".staff");
+
+    if (!staffCards.length || !staffSection) return;
+
+    // Adjust threshold based on screen size
+    let threshold = 0.7;
+    const screenWidth = window.innerWidth;
+    const isMobile = screenWidth < 768;
+
+    if (isMobile) {
+      threshold = 0.35;
+    } else if (screenWidth < 1024) {
+      threshold = 0.6;
+    }
+
+    if (!("IntersectionObserver" in window)) {
+      staffCards.forEach((card) => card.classList.add("is-3d"));
+      return;
+    }
+
+    // IntersectionObserver para ativar 3D ao entrar na viewport
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            staffCards.forEach((card) => card.classList.add("is-3d"));
+          } else {
+            staffCards.forEach((card) => card.classList.remove("is-3d"));
+          }
+        });
+      },
+      {
+        threshold: threshold,
+        rootMargin: isMobile ? "0px 0px -10% 0px" : "0px",
+      },
+    );
+
+    observer.observe(staffSection);
+  }
+
+  // Execute on DOM ready
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => {
+      loadStaffData();
+      init3DAnimation();
+    });
+  } else {
+    loadStaffData();
+    init3DAnimation();
+  }
+})();

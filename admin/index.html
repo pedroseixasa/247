@@ -1759,16 +1759,33 @@
                             <input type="text" id="barber1Name" value="${settings.barberCards?.barber1Name || ''}">
                         </div>
                         <div class="form-group">
-                            <label>Barbeiro 1: Cargo</label>
-                            <input type="text" id="barber1Role" value="${settings.barberCards?.barber1Role || ''}">
+                            <label>Barbeiro 1: Descrição</label>
+                            <textarea id="barber1Description" rows="3">${settings.barberCards?.barber1Description || ''}</textarea>
                         </div>
+                        <div class="form-group">
+                            <label>Barbeiro 1: Imagem 3D (URL)</label>
+                            <input type="url" id="barber1Image" value="${settings.barberCards?.barber1Image || ''}" placeholder="https://...">
+                        </div>
+                        <div class="form-group">
+                            <label>Barbeiro 1: Imagem de Fundo (URL)</label>
+                            <input type="url" id="barber1CoverImage" value="${settings.barberCards?.barber1CoverImage || ''}" placeholder="https://...">
+                        </div>
+                        
                         <div class="form-group">
                             <label>Barbeiro 2: Nome</label>
                             <input type="text" id="barber2Name" value="${settings.barberCards?.barber2Name || ''}">
                         </div>
                         <div class="form-group">
-                            <label>Barbeiro 2: Cargo</label>
-                            <input type="text" id="barber2Role" value="${settings.barberCards?.barber2Role || ''}">
+                            <label>Barbeiro 2: Descrição</label>
+                            <textarea id="barber2Description" rows="3">${settings.barberCards?.barber2Description || ''}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Barbeiro 2: Imagem 3D (URL)</label>
+                            <input type="url" id="barber2Image" value="${settings.barberCards?.barber2Image || ''}" placeholder="https://...">
+                        </div>
+                        <div class="form-group">
+                            <label>Barbeiro 2: Imagem de Fundo (URL)</label>
+                            <input type="url" id="barber2CoverImage" value="${settings.barberCards?.barber2CoverImage || ''}" placeholder="https://...">
                         </div>
 
                         <div class="form-group">
@@ -1917,9 +1934,13 @@
                         footerText: document.getElementById('footerText').value,
                         barberCards: {
                             barber1Name: document.getElementById('barber1Name').value,
-                            barber1Role: document.getElementById('barber1Role').value,
+                            barber1Description: document.getElementById('barber1Description').value,
+                            barber1Image: document.getElementById('barber1Image').value,
+                            barber1CoverImage: document.getElementById('barber1CoverImage').value,
                             barber2Name: document.getElementById('barber2Name').value,
-                            barber2Role: document.getElementById('barber2Role').value
+                            barber2Description: document.getElementById('barber2Description').value,
+                            barber2Image: document.getElementById('barber2Image').value,
+                            barber2CoverImage: document.getElementById('barber2CoverImage').value
                         }
                     };
 
@@ -2252,6 +2273,11 @@
                         <label style="display: block; margin-bottom: 0.5rem;">Descrição (opcional):</label>
                         <textarea id="serviceDescription" rows="3" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;"></textarea>
                     </div>
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; margin-bottom: 0.5rem;">URL da Imagem (opcional):</label>
+                        <input type="url" id="serviceImage" placeholder="https://exemplo.com/imagem-corte.jpg" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                        <small style="color: #666; font-size: 0.85rem;">Imagem que aparece no hover/tap do serviço</small>
+                    </div>
                     <div style="display: flex; gap: 1rem; justify-content: flex-end;">
                         <button onclick="closeServiceModal()" style="padding: 0.5rem 1.5rem; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">Cancelar</button>
                         <button onclick="saveNewService()" style="padding: 0.5rem 1.5rem; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">Adicionar</button>
@@ -2293,6 +2319,11 @@
                         <label style="display: block; margin-bottom: 0.5rem;">Descrição (opcional):</label>
                         <textarea id="serviceDescription" rows="3" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">${service.description || ''}</textarea>
                     </div>
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; margin-bottom: 0.5rem;">URL da Imagem (opcional):</label>
+                        <input type="url" id="serviceImage" value="${service.image || ''}" placeholder="https://exemplo.com/imagem-corte.jpg" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                        <small style="color: #666; font-size: 0.85rem;">Imagem que aparece no hover/tap do serviço</small>
+                    </div>
                     <div style="display: flex; gap: 1rem; justify-content: flex-end;">
                         <button onclick="closeServiceModal()" style="padding: 0.5rem 1.5rem; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">Cancelar</button>
                         <button onclick="saveEditedService('${serviceId}')" style="padding: 0.5rem 1.5rem; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Guardar</button>
@@ -2313,6 +2344,7 @@
             const priceRaw = document.getElementById('servicePrice').value.trim();
             const duration = parseInt(document.getElementById('serviceDuration').value);
             const description = document.getElementById('serviceDescription').value.trim();
+            const image = document.getElementById('serviceImage').value.trim();
 
             if (!name || !priceRaw || !duration) {
                 showStatusModal('Por favor preencha todos os campos obrigatórios', 'error');
@@ -2329,7 +2361,7 @@
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify({ name, price, duration, description })
+                    body: JSON.stringify({ name, price, duration, description, image })
                 });
 
                 if (!response.ok) throw new Error('Erro ao criar serviço');
@@ -2349,6 +2381,7 @@
             const priceRaw = document.getElementById('servicePrice').value.trim();
             const duration = parseInt(document.getElementById('serviceDuration').value);
             const description = document.getElementById('serviceDescription').value.trim();
+            const image = document.getElementById('serviceImage').value.trim();
 
             if (!name || !priceRaw || !duration) {
                 showStatusModal('Por favor preencha todos os campos obrigatórios', 'error');
@@ -2365,7 +2398,7 @@
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify({ name, price, duration, description })
+                    body: JSON.stringify({ name, price, duration, description, image })
                 });
 
                 if (!response.ok) throw new Error('Erro ao atualizar serviço');

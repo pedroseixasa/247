@@ -646,6 +646,138 @@
             background-color: var(--bg-light);
         }
 
+        .staff-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 4rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .staff-member {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .staff-info {
+            text-align: center;
+            margin-top: 2rem;
+            max-width: 400px;
+        }
+
+        .staff-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 0 0 1rem;
+            letter-spacing: -0.5px;
+        }
+
+        .staff-description {
+            font-size: 1rem;
+            color: var(--text-light);
+            line-height: 1.7;
+            margin: 0;
+        }
+
+        /* Tablet */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .staff {
+                padding: var(--spacing-xl) 0;
+            }
+
+            .staff .container>div:first-child {
+                margin-bottom: 7rem;
+            }
+
+            .staff-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 3.5rem;
+                padding: 2rem 2rem 0;
+                max-width: 900px;
+            }
+
+            .staff-member {
+                max-width: 340px;
+            }
+
+            .staff-info {
+                margin-top: 2rem;
+            }
+
+            .staff-name {
+                font-size: 1.35rem;
+                margin-bottom: 0.875rem;
+            }
+
+            .staff-description {
+                font-size: 0.95rem;
+                line-height: 1.65;
+            }
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            .staff-grid {
+                grid-template-columns: 1fr;
+                gap: 2.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .staff {
+                padding: 2rem 0;
+            }
+
+            .staff-grid {
+                gap: 2rem;
+                padding: 0 1rem;
+            }
+
+            .staff-member {
+                max-width: 320px;
+                margin: 0 auto;
+            }
+
+            .staff-info {
+                margin-top: 1.25rem;
+                padding: 0 0.5rem;
+            }
+
+            .staff-name {
+                font-size: 1.25rem;
+                margin-bottom: 0.75rem;
+            }
+
+            .staff-description {
+                font-size: 0.95rem;
+                line-height: 1.6;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .staff {
+                padding: 1.5rem 0;
+            }
+
+            .staff-grid {
+                gap: 1.5rem;
+            }
+
+            .staff-member {
+                max-width: 100%;
+            }
+
+            .staff-name {
+                font-size: 1.15rem;
+            }
+
+            .staff-description {
+                font-size: 0.9rem;
+            }
+        }
+
         .services {
             padding: var(--spacing-xl) 0;
             background-color: var(--bg-light);
@@ -1868,6 +2000,75 @@
             transform: translateX(6px);
         }
 
+        /* Service Image Overlay - Inovador! */
+        .service-image-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.92);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border-radius: 1.25rem;
+            z-index: 5;
+            transform: scale(0.9);
+        }
+
+        .service-image-overlay img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            transition: transform 0.4s ease;
+        }
+
+        /* Desktop/Tablet: Hover para mostrar imagem */
+        @media (hover: hover) and (pointer: fine) {
+            .service-card-new:hover .service-image-overlay {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            .service-card-new:hover .service-image-overlay img {
+                transform: scale(1.05);
+            }
+        }
+
+        /* Mobile: Tap para mostrar imagem */
+        .service-card-new.show-image .service-image-overlay {
+            opacity: 1;
+            pointer-events: auto;
+            transform: scale(1);
+        }
+
+        .service-card-new.show-image .service-image-overlay img {
+            transform: scale(1.05);
+        }
+
+        /* Indicador visual de que há imagem (mobile) */
+        @media (hover: none) {
+            .service-card-new[data-service-image]::after {
+                content: '🖼️';
+                position: absolute;
+                top: 0.75rem;
+                right: 0.75rem;
+                font-size: 1.2rem;
+                opacity: 0.6;
+                transition: opacity 0.3s ease;
+            }
+
+            .service-card-new[data-service-image].show-image::after {
+                opacity: 0;
+            }
+        }
+
+
         /* === TABLET SPECIFIC (768px - 1023px) === */
         @media (min-width: 768px) and (max-width: 1023px) {
             .header-content {
@@ -2965,8 +3166,6 @@
             opacity: 0.85;
             transform: translateX(75%) scale(0.92);
         }
-
-        #about {}
 
         #map {
             width: 100%;
@@ -4106,19 +4305,52 @@
     </section>
 
     <!-- STAFF SECTION (Sobre wrappers) -->
-    <section class="staff scroll-observer section-anchor visible" id="staff">
-        <div class="container" bis_skin_checked="1">
-            <div style="text-align: center; max-width: 600px; margin: 0 auto 1rem;" bis_skin_checked="1">
-                <h2 class="section-title" id="staffTitle" style="margin-bottom:0.5rem">Staff</h2>
-
-                <p id="staffSubtitle" style="color: var(--text-light); font-size: 1rem;" bis_skin_checked="1">Conheça a
-                    nossa equipa de barbeiros profissionais</p>
+    <!-- STAFF SECTION -->
+    <section class="staff scroll-observer section-anchor" id="staff">
+        <div class="container">
+            <div style="text-align: center; max-width: 600px; margin: 0 auto 3rem;">
+                <h2 class="section-title" id="staffTitle" style="margin-bottom:0.5rem">A Nossa Equipa</h2>
+                <p id="staffSubtitle" style="color: var(--text-light); font-size: 1rem;">Conheça os profissionais que
+                    tornam cada visita especial</p>
             </div>
 
-            <div class="staff-grid" id="staffGrid" bis_skin_checked="1">
-                <!-- Staff loaded dynamically from API -->
-                <div style="text-align: center; padding: 2rem; grid-column: 1 / -1;" bis_skin_checked="1">
-                    <p style="color: var(--text-light);">A carregar equipa...</p>
+            <div class="staff-grid" id="staffGrid">
+                <!-- Barbeiro 1 -->
+                <div class="staff-member">
+                    <div class="about-card-3d">
+                        <div class="about-card staff-card" data-staff="1">
+                            <div class="about-card-wrapper">
+                                <img id="staffCoverImage1" src="images/cunhacorte.png" class="about-cover-image"
+                                    alt="Barbeiro 1">
+                            </div>
+                            <img id="staffCharacterImage1" src="images/cunha.png" class="about-character-image"
+                                alt="Barbeiro 1">
+                        </div>
+                    </div>
+                    <div class="staff-info">
+                        <h3 class="staff-name" id="staffName1">Diogo Cunha</h3>
+                        <p class="staff-description" id="staffDescription1">Especialista em cortes clássicos e modernos,
+                            com mais de 5 anos de experiência. Dedicado a criar o estilo perfeito para cada cliente.</p>
+                    </div>
+                </div>
+
+                <!-- Barbeiro 2 -->
+                <div class="staff-member">
+                    <div class="about-card-3d">
+                        <div class="about-card staff-card" data-staff="2">
+                            <div class="about-card-wrapper">
+                                <img id="staffCoverImage2" src="images/cunhacorte.png" class="about-cover-image"
+                                    alt="Barbeiro 2">
+                            </div>
+                            <img id="staffCharacterImage2" src="images/cunha.png" class="about-character-image"
+                                alt="Barbeiro 2">
+                        </div>
+                    </div>
+                    <div class="staff-info">
+                        <h3 class="staff-name" id="staffName2">Ricardo Silva</h3>
+                        <p class="staff-description" id="staffDescription2">Mestre em fades e barbas, apaixonado por
+                            técnicas tradicionais. Atendimento personalizado e atenção aos detalhes.</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -4419,8 +4651,12 @@
                     serviceCard.className = 'service-card-new service-card-compact';
                     serviceCard.setAttribute('data-service', slug);
                     serviceCard.setAttribute('data-service-id', service._id);
+                    if (service.image) {
+                        serviceCard.setAttribute('data-service-image', service.image);
+                    }
 
                     serviceCard.innerHTML = `
+                        ${service.image ? `<div class="service-image-overlay"><img src="${service.image}" alt="${service.name}" /></div>` : ''}
                         <div class="service-main-line">
                             <span class="service-name">${service.name}</span>
                             <span class="service-price">${service.price} €</span>
@@ -4430,6 +4666,34 @@
 
                     servicesGrid.appendChild(serviceCard);
                 });
+
+                // Mobile tap para mostrar/esconder imagem
+                if ('ontouchstart' in window) {
+                    servicesGrid.addEventListener('click', (e) => {
+                        const card = e.target.closest('.service-card-new[data-service-image]');
+
+                        // Se clicou no botão "Marcar", não fazer nada (deixa o booking modal abrir)
+                        if (e.target.closest('.service-book-btn')) return;
+
+                        if (card) {
+                            // Toggle show-image class
+                            const isShowing = card.classList.contains('show-image');
+
+                            // Fechar todos os outros cards
+                            document.querySelectorAll('.service-card-new.show-image').forEach(c => {
+                                if (c !== card) c.classList.remove('show-image');
+                            });
+
+                            // Toggle este card
+                            card.classList.toggle('show-image', !isShowing);
+                        } else {
+                            // Clicou fora, fechar todos
+                            document.querySelectorAll('.service-card-new.show-image').forEach(c => {
+                                c.classList.remove('show-image');
+                            });
+                        }
+                    });
+                }
             } catch (error) {
                 console.error('Erro ao carregar serviços:', error);
                 servicesGrid.innerHTML = '<div style="text-align: center; padding: 2rem; grid-column: 1 / -1;"><p style="color: #dc3545;">Erro ao carregar serviços. Por favor, recarregue a página.</p></div>';

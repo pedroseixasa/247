@@ -1598,6 +1598,125 @@
 }
 
 /* === TABLET (768px - 1024px) === */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .staff {
+    padding: var(--spacing-xl) 0 !important;
+  }
+
+  .staff .container > div:first-child {
+    margin-bottom: 7rem !important;
+  }
+
+  .staff-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 3.5rem !important;
+    padding: 2rem 2rem 0 !important;
+    max-width: 900px !important;
+    margin: 0 auto !important;
+  }
+
+  .staff-member {
+    max-width: 340px !important;
+    margin: 0 auto !important;
+  }
+
+  .staff-info {
+    margin-top: 2rem !important;
+  }
+
+  .staff-name {
+    font-size: 1.35rem !important;
+    margin-bottom: 0.875rem !important;
+  }
+
+  .staff-description {
+    font-size: 0.95rem !important;
+    line-height: 1.65 !important;
+  }
+
+  /* Staff cards 3D em tablet - reduzida projeção */
+  .staff-card {
+    --about-card-height: 260px !important;
+  }
+
+  .about-card-3d {
+    padding-top: 1rem !important;
+  }
+
+  .staff-card.is-3d .about-card-wrapper {
+    transform: perspective(900px) translateY(-3%) rotateX(15deg) translateZ(0) !important;
+  }
+
+  .staff-card.is-3d .about-character-image {
+    transform: translate3d(0, 0%, 140px) !important;
+  }
+}
+
+/* === STAFF SECTION RESPONSIVE === */
+@media (max-width: 768px) {
+  .staff {
+    padding: 2rem 0 !important;
+  }
+
+  .staff-grid {
+    grid-template-columns: 1fr !important;
+    gap: 2rem !important;
+    padding: 0 1rem !important;
+  }
+
+  .staff-member {
+    max-width: 320px !important;
+    margin: 0 auto !important;
+  }
+
+  /* Staff cards usam same 3D as About */
+  .staff-card.is-3d .about-card-wrapper {
+    transform: perspective(900px) translateY(-5%) rotateX(22deg) translateZ(0) !important;
+    box-shadow: 2px 35px 32px -8px rgba(0, 0, 0, 0.75) !important;
+  }
+
+  .staff-card.is-3d .about-character-image {
+    opacity: 1 !important;
+    transform: translate3d(0, -1%, 160px) !important;
+  }
+
+  .staff-info {
+    margin-top: 1.25rem !important;
+    padding: 0 0.5rem !important;
+  }
+
+  .staff-name {
+    font-size: 1.25rem !important;
+    margin-bottom: 0.75rem !important;
+  }
+
+  .staff-description {
+    font-size: 0.95rem !important;
+    line-height: 1.6 !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .staff {
+    padding: 1.5rem 0 !important;
+  }
+
+  .staff-grid {
+    gap: 1.5rem !important;
+  }
+
+  .staff-member {
+    max-width: 100% !important;
+  }
+
+  .staff-name {
+    font-size: 1.15rem !important;
+  }
+
+  .staff-description {
+    font-size: 0.9rem !important;
+  }
+}
 
 /* === DESKTOP (1024px+) === */
 @media (min-width: 1025px) {
@@ -1608,6 +1727,16 @@
   }
 
   .about-card.is-3d .about-card-wrapper {
+    transform: perspective(900px) translateY(-5%) rotateX(22deg) translateZ(0) !important;
+  }
+
+  /* Staff cards também */
+  .staff-card.is-3d .about-character-image {
+    opacity: 1 !important;
+    transform: translate3d(0, -1%, 280px) !important;
+  }
+
+  .staff-card.is-3d .about-card-wrapper {
     transform: perspective(900px) translateY(-5%) rotateX(22deg) translateZ(0) !important;
   }
 }
