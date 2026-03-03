@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URLs das Imagens dos Serviços - 24.7 Barbearia</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: #f5f5f5;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #1a1a1a;
+            margin-bottom: 0.5rem;
+            font-size: 1.75rem;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 2rem;
+            font-size: 1rem;
+        }
+
+        .service-item {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .service-item:hover {
+            border-color: #c9a961;
+            box-shadow: 0 2px 10px rgba(201, 169, 97, 0.2);
+        }
+
+        .service-name {
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        .image-preview {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-bottom: 0.75rem;
+        }
+
+        .url-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            color: #666;
+            background: #f9f9f9;
+            font-family: 'Courier New', monospace;
+        }
+
+        .copy-btn {
+            margin-top: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: #c9a961;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #b39451;
+            transform: translateY(-2px);
+        }
+
+        .copy-btn.copied {
+            background: #28a745;
+        }
+
+        .instructions {
+            background: #fff8e1;
+            border-left: 4px solid #c9a961;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            border-radius: 6px;
+        }
+
+        .instructions h2 {
+            font-size: 1.1rem;
+            color: #1a1a1a;
+            margin-bottom: 0.5rem;
+        }
+
+        .instructions ol {
+            margin-left: 1.5rem;
+            color: #666;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🖼️ URLs das Imagens dos Serviços</h1>
+        <p class="subtitle">Copia estas URLs e adiciona no Admin Panel para ativar o hover nas imagens</p>
+
+        <div class="instructions">
+            <h2>📋 Como usar:</h2>
+            <ol>
+                <li>Clica em "Copiar URL" abaixo de cada imagem</li>
+                <li>Vai ao <strong>Admin Panel</strong> → <strong>Gestão de Serviços</strong></li>
+                <li>Edita o serviço correspondente</li>
+                <li>Cola a URL no campo <strong>"URL da Imagem"</strong></li>
+                <li>Guarda</li>
+                <li>Testa o hover no site! 🎉</li>
+            </ol>
+        </div>
+
+        <div id="servicesList"></div>
+    </div>
+
+    <script>
+        const servicesImages = [
+            {
+                name: "Corte + Pintura (preto)",
+                url: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=600&q=80"
+            },
+            {
+                name: "Corte degradé",
+                url: "https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=600&q=80"
+            },
+            {
+                name: "Corte Social + barba",
+                url: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=600&q=80"
+            },
+            {
+                name: "Corte Social",
+                url: "https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=600&q=80"
+            },
+            {
+                name: "Corte + Madeixas",
+                url: "https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=600&q=80"
+            },
+            {
+                name: "Corte + platinado",
+                url: "https://images.unsplash.com/photo-1617127365659-c47fa864d8bc?w=600&q=80"
+            },
+            {
+                name: "Barba completa",
+                url: "https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=600&q=80"
+            },
+            {
+                name: "Corte (Degradé) + Barba + sobrancelha",
+                url: "https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=600&q=80"
+            },
+            {
+                name: "Corte criança até 7 anos",
+                url: "https://images.unsplash.com/photo-1598880940371-c756e015faf1?w=600&q=80"
+            }
+        ];
+
+        const container = document.getElementById('servicesList');
+
+        servicesImages.forEach((service, index) => {
+            const div = document.createElement('div');
+            div.className = 'service-item';
+            div.innerHTML = `
+                <div class="service-name">${index + 1}. ${service.name}</div>
+                <img src="${service.url}" alt="${service.name}" class="image-preview">
+                <input type="text" value="${service.url}" readonly class="url-input" id="url-${index}">
+                <button class="copy-btn" onclick="copyUrl(${index})">📋 Copiar URL</button>
+            `;
+            container.appendChild(div);
+        });
+
+        function copyUrl(index) {
+            const input = document.getElementById(`url-${index}`);
+            input.select();
+            input.setSelectionRange(0, 99999); // Mobile
+
+            navigator.clipboard.writeText(input.value).then(() => {
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '✅ Copiado!';
+                btn.classList.add('copied');
+
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+
+</html>
