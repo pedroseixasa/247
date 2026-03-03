@@ -1402,24 +1402,29 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Ajustar threshold conforme o tamanho da tela
-  let threshold = 0.7;
+  let threshold = 0.8;
+  let rootMargin = "0px 0px -10% 0px";
   const screenWidth = window.innerWidth;
   const isMobile = screenWidth < 768;
+  const isTablet = screenWidth >= 768 && screenWidth < 1024;
 
   if (isMobile) {
-    // Mobile
-    threshold = 0.35;
-  } else if (screenWidth < 1024) {
-    // Tablet
-    threshold = 0.6;
+    // Mobile - ativa quando 50% visível com margem de -20%
+    threshold = 0.5;
+    rootMargin = "0px 0px -20% 0px";
+  } else if (isTablet) {
+    // Tablet - ativa quando 70% visível com margem de -15%
+    threshold = 0.7;
+    rootMargin = "0px 0px -15% 0px";
   }
+  // Desktop: threshold 0.8, rootMargin -10%
 
   if (!("IntersectionObserver" in window)) {
     aboutCard.classList.add("is-3d");
     return;
   }
 
-  // IntersectionObserver - ativa 3D para TODOS (mobile, tablet, desktop) com scroll
+  // IntersectionObserver - ativa 3D quando secção está bem visível (mais scroll)
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
@@ -1432,7 +1437,7 @@ document.addEventListener("DOMContentLoaded", function () {
     },
     {
       threshold: threshold,
-      rootMargin: isMobile ? "0px 0px -10% 0px" : "0px",
+      rootMargin: rootMargin,
     },
   );
 
@@ -1502,22 +1507,29 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!staffCards.length || !staffSection) return;
 
     // Adjust threshold based on screen size
-    let threshold = 0.7;
+    let threshold = 0.8;
+    let rootMargin = "0px 0px -10% 0px";
     const screenWidth = window.innerWidth;
     const isMobile = screenWidth < 768;
+    const isTablet = screenWidth >= 768 && screenWidth < 1024;
 
     if (isMobile) {
-      threshold = 0.35;
-    } else if (screenWidth < 1024) {
-      threshold = 0.6;
+      // Mobile - ativa quando 50% visível com margem de -20%
+      threshold = 0.5;
+      rootMargin = "0px 0px -20% 0px";
+    } else if (isTablet) {
+      // Tablet - ativa quando 70% visível com margem de -15%
+      threshold = 0.7;
+      rootMargin = "0px 0px -15% 0px";
     }
+    // Desktop: threshold 0.8, rootMargin -10%
 
     if (!("IntersectionObserver" in window)) {
       staffCards.forEach((card) => card.classList.add("is-3d"));
       return;
     }
 
-    // IntersectionObserver para ativar 3D ao entrar na viewport
+    // IntersectionObserver para ativar 3D quando secção está bem visível (mais scroll)
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -1530,7 +1542,7 @@ document.addEventListener("DOMContentLoaded", function () {
       },
       {
         threshold: threshold,
-        rootMargin: isMobile ? "0px 0px -10% 0px" : "0px",
+        rootMargin: rootMargin,
       },
     );
 
