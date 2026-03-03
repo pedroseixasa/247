@@ -1409,9 +1409,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const isTablet = screenWidth >= 768 && screenWidth < 1024;
 
   if (isMobile) {
-    // Mobile - ativa quando 50% visível com margem de -20%
-    threshold = 0.5;
-    rootMargin = "0px 0px -20% 0px";
+    // Mobile (iPhone/Android) - valores mais acessíveis
+    threshold = 0.3;
+    rootMargin = "0px 0px -10% 0px";
   } else if (isTablet) {
     // Tablet - ativa quando 70% visível com margem de -15%
     threshold = 0.7;
@@ -1514,9 +1514,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const isTablet = screenWidth >= 768 && screenWidth < 1024;
 
     if (isMobile) {
-      // Mobile - ativa quando 50% visível com margem de -20%
-      threshold = 0.5;
-      rootMargin = "0px 0px -20% 0px";
+      // Mobile (iPhone/Android) - valores mais acessíveis
+      threshold = 0.3;
+      rootMargin = "0px 0px -10% 0px";
     } else if (isTablet) {
       // Tablet - ativa quando 70% visível com margem de -15%
       threshold = 0.7;
