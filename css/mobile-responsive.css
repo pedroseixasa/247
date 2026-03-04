@@ -1676,7 +1676,7 @@
 
   .staff-card.is-3d .about-character-image {
     opacity: 1 !important;
-    transform: translate3d(0, -3%, 130px) !important;
+    transform: translate3d(0, -5%, 130px) !important;
   }
 
   .staff-info {
