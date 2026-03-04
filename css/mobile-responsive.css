@@ -525,7 +525,7 @@
 
   .about-card.is-3d .about-character-image {
     opacity: 1 !important;
-    transform: translate3d(0, -9%, 200px) !important;
+    transform: translate3d(0, -5%, 130px) !important;
   }
 
   .about-text {
@@ -1476,7 +1476,7 @@
 
   .about-card.is-3d .about-character-image {
     left: -5% !important;
-    transform: translateY(2%) translateZ(235px) !important;
+    transform: translate3d(0, -5%, 130px) !important;
   }
 
   .about-card.is-3d .about-card-wrapper {
@@ -1647,7 +1647,7 @@
   }
 
   .staff-card.is-3d .about-character-image {
-    transform: translate3d(0, 0%, 140px) !important;
+    transform: translate3d(0, -5%, 130px) !important;
   }
 }
 
@@ -1676,7 +1676,7 @@
 
   .staff-card.is-3d .about-character-image {
     opacity: 1 !important;
-    transform: translate3d(0, -9%, 130px) !important;
+    transform: translate3d(0, -5%, 130px) !important;
   }
 
   .staff-info {
@@ -1722,7 +1722,7 @@
   /* Desktop usa scroll (IntersectionObserver) como mobile e tablet */
   .about-card.is-3d .about-character-image {
     opacity: 1 !important;
-    transform: translate3d(0, -1%, 280px) !important;
+    transform: translate3d(0, -8%, 200px) !important;
   }
 
   .about-card.is-3d .about-card-wrapper {
@@ -1732,7 +1732,7 @@
   /* Staff cards também */
   .staff-card.is-3d .about-character-image {
     opacity: 1 !important;
-    transform: translate3d(0, -1%, 280px) !important;
+    transform: translate3d(0, -8%, 200px) !important;
   }
 
   .staff-card.is-3d .about-card-wrapper {
