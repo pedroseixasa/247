@@ -2000,58 +2000,95 @@
             transform: translateX(6px);
         }
 
-        /* Service Image Overlay - Inovador! */
+        /* Service Image Overlay - Inovador e visível! */
         .service-image-overlay {
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.92);
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(26, 26, 26, 0.92) 100%);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             display: flex;
             align-items: center;
             justify-content: center;
             opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            visibility: hidden;
+            transition: opacity 0.35s ease, visibility 0.35s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
             border-radius: 1.25rem;
-            z-index: 5;
-            transform: scale(0.9);
+            z-index: 10;
+            transform: scale(0.95);
+            cursor: pointer;
         }
 
         .service-image-overlay img {
-            max-width: 90%;
-            max-height: 90%;
-            object-fit: contain;
+            max-width: 85%;
+            max-height: 85%;
+            object-fit: cover;
             border-radius: 0.75rem;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-            transition: transform 0.4s ease;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
+            transition: transform 0.35s ease;
+            border: 2px solid rgba(201, 169, 97, 0.3);
         }
 
         /* Desktop/Tablet: Hover para mostrar imagem */
         @media (hover: hover) and (pointer: fine) {
             .service-card-new:hover .service-image-overlay {
                 opacity: 1;
+                visibility: visible;
                 transform: scale(1);
             }
 
             .service-card-new:hover .service-image-overlay img {
-                transform: scale(1.05);
+                transform: scale(1.02);
             }
         }
 
         /* Mobile: Tap para mostrar imagem */
         .service-card-new.show-image .service-image-overlay {
             opacity: 1;
-            pointer-events: auto;
+            visibility: visible;
             transform: scale(1);
         }
 
         .service-card-new.show-image .service-image-overlay img {
-            transform: scale(1.05);
+            transform: scale(1.02);
         }
 
-        /* Indicador visual de que há imagem (mobile) */
+        /* Indicador visual de que há imagem */
+        .service-card-new[data-service-image] {
+            cursor: pointer;
+        }
+
+        /* Badge "Ver foto" no canto para desktop */
+        @media (hover: hover) and (pointer: fine) {
+            .service-card-new[data-service-image]::after {
+                content: '📸 Ver foto';
+                position: absolute;
+                top: 0.75rem;
+                right: 0.75rem;
+                background: rgba(201, 169, 97, 0.95);
+                color: white;
+                padding: 0.35rem 0.75rem;
+                border-radius: 6px;
+                font-size: 0.75rem;
+                font-weight: 600;
+                opacity: 0;
+                transform: translateY(-5px);
+                transition: opacity 0.3s ease, transform 0.3s ease;
+                pointer-events: none;
+                z-index: 2;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            }
+
+            .service-card-new[data-service-image]:hover::after {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Emoji mobile */
         @media (hover: none) {
             .service-card-new[data-service-image]::after {
                 content: '🖼️';
@@ -2061,6 +2098,7 @@
                 font-size: 1.2rem;
                 opacity: 0.6;
                 transition: opacity 0.3s ease;
+                z-index: 2;
             }
 
             .service-card-new[data-service-image].show-image::after {
