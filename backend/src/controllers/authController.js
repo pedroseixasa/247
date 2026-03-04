@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
+const bcryptjs = require("bcryptjs");
 const Barber = require("../models/Barber");
 
 exports.login = async (req, res) => {
@@ -94,9 +95,14 @@ exports.changePassword = async (req, res) => {
       return res.status(401).json({ error: "Password atual incorreta" });
     }
 
-    // Atualizar password
-    barber.password = newPassword;
-    await barber.save();
+    // Atualizar password - hash manualmente para evitar validação de outros campos
+    const hashedPassword = await bcryptjs.hash(newPassword, 10);
+
+    await Barber.findByIdAndUpdate(
+      req.barberId,
+      { password: hashedPassword },
+      { runValidators: false }, // Não validar outros campos, só atualizar password
+    );
 
     res.json({
       success: true,
