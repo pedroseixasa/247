@@ -465,7 +465,6 @@
     display: block !important;
     border-radius: 0.75rem !important;
     /* Transform vem da classe .is-3d - NÃO definir aqui */
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15) !important;
     transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
     will-change: transform, box-shadow !important;
   }
@@ -1677,7 +1676,7 @@
 
   .staff-card.is-3d .about-character-image {
     opacity: 1 !important;
-    transform: translate3d(0, -1%, 160px) !important;
+    transform: translate3d(0, -9%, 130px) !important;
   }
 
   .staff-info {
