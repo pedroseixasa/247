@@ -1722,7 +1722,7 @@
   /* Desktop usa scroll (IntersectionObserver) como mobile e tablet */
   .about-card.is-3d .about-character-image {
     opacity: 1 !important;
-    transform: translate3d(0, -8%, 200px) !important;
+    transform: translate3d(0, -2%, 325px) !important;
   }
 
   .about-card.is-3d .about-card-wrapper {
@@ -1732,7 +1732,7 @@
   /* Staff cards também */
   .staff-card.is-3d .about-character-image {
     opacity: 1 !important;
-    transform: translate3d(0, -8%, 200px) !important;
+    transform: translate3d(0, -2%, 325px) !important;
   }
 
   .staff-card.is-3d .about-card-wrapper {
