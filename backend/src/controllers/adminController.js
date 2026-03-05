@@ -634,6 +634,7 @@ exports.updateSiteContent = async (req, res) => {
     data.hero = data.hero || {};
     data.about = data.about || {};
     data.gallery = data.gallery || {};
+    data.barberCards = data.barberCards || {};
     const settings = await getOrCreateSiteSettings();
 
     // Processar imagens otimizadas
