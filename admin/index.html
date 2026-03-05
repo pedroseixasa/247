@@ -1763,12 +1763,16 @@
                             <textarea id="barber1Description" rows="3">${settings.barberCards?.barber1Description || ''}</textarea>
                         </div>
                         <div class="form-group">
-                            <label>Barbeiro 1: Imagem 3D (URL)</label>
-                            <input type="url" id="barber1Image" value="${settings.barberCards?.barber1Image || ''}" placeholder="https://...">
+                            <label>Barbeiro 1: Imagem 3D</label>
+                            <input type="file" id="barber1Image" accept="image/*">
+                            <small style="color: var(--text-light);">Selecione uma imagem (será otimizada e guardada na BD)</small>
+                            ${settings.barberCards?.barber1Image ? `<p style="margin-top: 0.5rem; color: var(--text-light); font-size: 0.9rem;">Imagem atual: <strong>${settings.barberCards.barber1Image.split('/').pop()}</strong></p>` : ''}
                         </div>
                         <div class="form-group">
-                            <label>Barbeiro 1: Imagem de Fundo (URL)</label>
-                            <input type="url" id="barber1CoverImage" value="${settings.barberCards?.barber1CoverImage || ''}" placeholder="https://...">
+                            <label>Barbeiro 1: Imagem de Fundo</label>
+                            <input type="file" id="barber1CoverImage" accept="image/*">
+                            <small style="color: var(--text-light);">Selecione uma imagem (será otimizada e guardada na BD)</small>
+                            ${settings.barberCards?.barber1CoverImage ? `<p style="margin-top: 0.5rem; color: var(--text-light); font-size: 0.9rem;">Imagem atual: <strong>${settings.barberCards.barber1CoverImage.split('/').pop()}</strong></p>` : ''}
                         </div>
                         
                         <div class="form-group">
@@ -1780,12 +1784,16 @@
                             <textarea id="barber2Description" rows="3">${settings.barberCards?.barber2Description || ''}</textarea>
                         </div>
                         <div class="form-group">
-                            <label>Barbeiro 2: Imagem 3D (URL)</label>
-                            <input type="url" id="barber2Image" value="${settings.barberCards?.barber2Image || ''}" placeholder="https://...">
+                            <label>Barbeiro 2: Imagem 3D</label>
+                            <input type="file" id="barber2Image" accept="image/*">
+                            <small style="color: var(--text-light);">Selecione uma imagem (será otimizada e guardada na BD)</small>
+                            ${settings.barberCards?.barber2Image ? `<p style="margin-top: 0.5rem; color: var(--text-light); font-size: 0.9rem;">Imagem atual: <strong>${settings.barberCards.barber2Image.split('/').pop()}</strong></p>` : ''}
                         </div>
                         <div class="form-group">
-                            <label>Barbeiro 2: Imagem de Fundo (URL)</label>
-                            <input type="url" id="barber2CoverImage" value="${settings.barberCards?.barber2CoverImage || ''}" placeholder="https://...">
+                            <label>Barbeiro 2: Imagem de Fundo</label>
+                            <input type="file" id="barber2CoverImage" accept="image/*">
+                            <small style="color: var(--text-light);">Selecione uma imagem (será otimizada e guardada na BD)</small>
+                            ${settings.barberCards?.barber2CoverImage ? `<p style="margin-top: 0.5rem; color: var(--text-light); font-size: 0.9rem;">Imagem atual: <strong>${settings.barberCards.barber2CoverImage.split('/').pop()}</strong></p>` : ''}
                         </div>
 
                         <div class="form-group">
@@ -1886,6 +1894,35 @@
                         });
                     }
 
+                    // Adicionar imagens dos barbeiros
+                    const barber1ImageFile = document.getElementById('barber1Image').files[0];
+                    if (barber1ImageFile) {
+                        formData.append('barber1Image', barber1ImageFile);
+                    } else {
+                        formData.append('barber1ImageUrl', settings.barberCards?.barber1Image || '');
+                    }
+
+                    const barber1CoverFile = document.getElementById('barber1CoverImage').files[0];
+                    if (barber1CoverFile) {
+                        formData.append('barber1CoverImage', barber1CoverFile);
+                    } else {
+                        formData.append('barber1CoverImageUrl', settings.barberCards?.barber1CoverImage || '');
+                    }
+
+                    const barber2ImageFile = document.getElementById('barber2Image').files[0];
+                    if (barber2ImageFile) {
+                        formData.append('barber2Image', barber2ImageFile);
+                    } else {
+                        formData.append('barber2ImageUrl', settings.barberCards?.barber2Image || '');
+                    }
+
+                    const barber2CoverFile = document.getElementById('barber2CoverImage').files[0];
+                    if (barber2CoverFile) {
+                        formData.append('barber2CoverImage', barber2CoverFile);
+                    } else {
+                        formData.append('barber2CoverImageUrl', settings.barberCards?.barber2CoverImage || '');
+                    }
+
                     // Adicionar outros dados como JSON em um campo separado
                     const payload = {
                         loaderText: document.getElementById('loaderText').value,
@@ -1935,12 +1972,12 @@
                         barberCards: {
                             barber1Name: document.getElementById('barber1Name').value,
                             barber1Description: document.getElementById('barber1Description').value,
-                            barber1Image: document.getElementById('barber1Image').value,
-                            barber1CoverImage: document.getElementById('barber1CoverImage').value,
+                            barber1Image: settings.barberCards?.barber1Image || '',
+                            barber1CoverImage: settings.barberCards?.barber1CoverImage || '',
                             barber2Name: document.getElementById('barber2Name').value,
                             barber2Description: document.getElementById('barber2Description').value,
-                            barber2Image: document.getElementById('barber2Image').value,
-                            barber2CoverImage: document.getElementById('barber2CoverImage').value
+                            barber2Image: settings.barberCards?.barber2Image || '',
+                            barber2CoverImage: settings.barberCards?.barber2CoverImage || ''
                         }
                     };
 

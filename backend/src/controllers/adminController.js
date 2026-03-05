@@ -685,6 +685,31 @@ exports.updateSiteContent = async (req, res) => {
       data.loaderImage = req.loaderImageUrl;
     }
 
+    // Imagens dos barbeiros
+    if (req.barber1ImageBase64) {
+      data.barberCards.barber1Image = req.barber1ImageBase64;
+    } else if (req.barber1ImageUrl) {
+      data.barberCards.barber1Image = req.barber1ImageUrl;
+    }
+
+    if (req.barber1CoverImageBase64) {
+      data.barberCards.barber1CoverImage = req.barber1CoverImageBase64;
+    } else if (req.barber1CoverImageUrl) {
+      data.barberCards.barber1CoverImage = req.barber1CoverImageUrl;
+    }
+
+    if (req.barber2ImageBase64) {
+      data.barberCards.barber2Image = req.barber2ImageBase64;
+    } else if (req.barber2ImageUrl) {
+      data.barberCards.barber2Image = req.barber2ImageUrl;
+    }
+
+    if (req.barber2CoverImageBase64) {
+      data.barberCards.barber2CoverImage = req.barber2CoverImageBase64;
+    } else if (req.barber2CoverImageUrl) {
+      data.barberCards.barber2CoverImage = req.barber2CoverImageUrl;
+    }
+
     settings.set(data);
     await settings.save();
     res.json(settings);

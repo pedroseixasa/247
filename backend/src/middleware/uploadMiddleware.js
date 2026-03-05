@@ -53,6 +53,10 @@ const optimizeUploadedImages = async (req, res, next) => {
       "aboutCharacterImage",
       "galleryLogoImage",
       "loaderImage",
+      "barber1Image",
+      "barber1CoverImage",
+      "barber2Image",
+      "barber2CoverImage",
     ];
 
     for (const field of fileFields) {
@@ -133,6 +137,10 @@ module.exports = {
     { name: "galleryLogoImage", maxCount: 1 },
     { name: "galleryImages", maxCount: 10 },
     { name: "loaderImage", maxCount: 1 },
+    { name: "barber1Image", maxCount: 1 },
+    { name: "barber1CoverImage", maxCount: 1 },
+    { name: "barber2Image", maxCount: 1 },
+    { name: "barber2CoverImage", maxCount: 1 },
   ]),
   optimizeUploadedImages,
 };
