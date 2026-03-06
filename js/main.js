@@ -51,40 +51,53 @@
 })();
 
 // ===== SMOOTH SCROLL =====
-document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-  anchor.addEventListener("click", function (e) {
-    const href = this.getAttribute("href");
-    if (href !== "#" && document.querySelector(href)) {
-      e.preventDefault();
-      const target = document.querySelector(href);
+(function initSmoothScroll() {
+  const setupSmoothScroll = () => {
+    document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+      anchor.addEventListener("click", function (e) {
+        const href = this.getAttribute("href");
+        if (href !== "#" && document.querySelector(href)) {
+          e.preventDefault();
+          const target = document.querySelector(href);
 
-      // Calcula posição com offset para o header sticky
-      const headerHeight = 0; // sem offset
-      const targetPosition =
-        target.getBoundingClientRect().top + window.pageYOffset - headerHeight;
+          // Calcula posição com offset para o header sticky
+          const headerHeight = 0; // sem offset
+          const targetPosition =
+            target.getBoundingClientRect().top +
+            window.pageYOffset -
+            headerHeight;
 
-      window.scrollTo({
-        top: targetPosition,
-        behavior: "smooth",
-      });
-
-      // Destaque especial quando rolar para serviços
-      if (href === "#services") {
-        setTimeout(() => {
-          const serviceCards = document.querySelectorAll(".service-card-new");
-          serviceCards.forEach((card, index) => {
-            setTimeout(() => {
-              card.style.animation = "pulse 0.6s ease";
-              setTimeout(() => {
-                card.style.animation = "";
-              }, 600);
-            }, index * 50);
+          window.scrollTo({
+            top: targetPosition,
+            behavior: "smooth",
           });
-        }, 800);
-      }
-    }
-  });
-});
+
+          // Destaque especial quando rolar para serviços
+          if (href === "#services") {
+            setTimeout(() => {
+              const serviceCards =
+                document.querySelectorAll(".service-card-new");
+              serviceCards.forEach((card, index) => {
+                setTimeout(() => {
+                  card.style.animation = "pulse 0.6s ease";
+                  setTimeout(() => {
+                    card.style.animation = "";
+                  }, 600);
+                }, index * 50);
+              });
+            }, 800);
+          }
+        }
+      });
+    });
+  };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", setupSmoothScroll);
+  } else {
+    setupSmoothScroll();
+  }
+})();
 
 // ===== SCROLL OBSERVER =====
 const observerOptions = {
