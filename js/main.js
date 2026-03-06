@@ -1424,14 +1424,14 @@ document.addEventListener("DOMContentLoaded", function () {
     return;
   }
 
-  // IntersectionObserver - ativa 3D quando secção está bem visível (mais scroll)
+  // IntersectionObserver - ativa 3D quando card está visível
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          aboutCard.classList.add("is-3d");
+          entry.target.classList.add("is-3d");
         } else {
-          aboutCard.classList.remove("is-3d");
+          entry.target.classList.remove("is-3d");
         }
       });
     },
@@ -1441,7 +1441,7 @@ document.addEventListener("DOMContentLoaded", function () {
     },
   );
 
-  observer.observe(aboutSection);
+  observer.observe(aboutCard);
 })();
 
 // ===== STAFF SECTION - Load and 3D Animation =====
