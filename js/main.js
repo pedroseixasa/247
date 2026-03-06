@@ -1529,14 +1529,14 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    // IntersectionObserver para ativar 3D quando secção está bem visível (mais scroll)
+    // IntersectionObserver para ativar 3D individualmente em cada card
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            staffCards.forEach((card) => card.classList.add("is-3d"));
+            entry.target.classList.add("is-3d");
           } else {
-            staffCards.forEach((card) => card.classList.remove("is-3d"));
+            entry.target.classList.remove("is-3d");
           }
         });
       },
@@ -1546,7 +1546,8 @@ document.addEventListener("DOMContentLoaded", function () {
       },
     );
 
-    observer.observe(staffSection);
+    // Observar cada card individualmente
+    staffCards.forEach((card) => observer.observe(card));
   }
 
   // Execute on DOM ready
