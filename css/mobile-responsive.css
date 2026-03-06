@@ -1476,7 +1476,7 @@
 
   .about-card.is-3d .about-character-image {
     left: -5% !important;
-    transform: translate3d(0, 1%, 130px) !important;
+    transform: translate3d(0, 5%, 130px) !important;
   }
 
   .about-card.is-3d .about-card-wrapper {
@@ -1647,7 +1647,7 @@
   }
 
   .staff-card.is-3d .about-character-image {
-    transform: translate3d(0, 1%, 130px) !important;
+    transform: translate3d(0, 3%, 130px) !important;
   }
 }
 

@@ -4856,7 +4856,10 @@
                     const offset = header ? header.offsetHeight + 20 : 80;
                     const position = target.getBoundingClientRect().top + window.pageYOffset - offset;
 
-                    smoothScrollTo(position, 450);
+                    window.scrollTo({
+                        top: position,
+                        behavior: 'smooth'
+                    });
 
                     try {
                         history.replaceState(null, '', href);
