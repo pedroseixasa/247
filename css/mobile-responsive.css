@@ -525,7 +525,7 @@
 
   .about-card.is-3d .about-character-image {
     opacity: 1 !important;
-    transform: translate3d(0, -7%, 200px) !important;
+    transform: translate3d(0, -9%, 200px) !important;
   }
 
   .about-text {
