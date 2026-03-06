@@ -51,6 +51,8 @@
 })();
 
 // ===== SMOOTH SCROLL =====
+// Smooth scroll implementado no index.html para evitar conflitos com mobile menu
+/*
 (function initSmoothScroll() {
   const setupSmoothScroll = () => {
     document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
@@ -60,8 +62,7 @@
           e.preventDefault();
           const target = document.querySelector(href);
 
-          // Calcula posição com offset para o header sticky
-          const headerHeight = 0; // sem offset
+          const headerHeight = 0;
           const targetPosition =
             target.getBoundingClientRect().top +
             window.pageYOffset -
@@ -72,7 +73,6 @@
             behavior: "smooth",
           });
 
-          // Destaque especial quando rolar para serviços
           if (href === "#services") {
             setTimeout(() => {
               const serviceCards =
@@ -98,6 +98,7 @@
     setupSmoothScroll();
   }
 })();
+*/
 
 // ===== SCROLL OBSERVER =====
 const observerOptions = {

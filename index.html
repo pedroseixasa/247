@@ -4845,42 +4845,42 @@
                     const target = document.querySelector(href);
                     if (!target) return;
 
+                    e.preventDefault();
+
                     if (nav.classList.contains('mobile-menu-open')) {
                         nav.classList.remove('mobile-menu-open');
                         mobileToggle.classList.remove('active');
                         header.classList.remove('menu-is-open');
                     }
 
-                    if (isMobile()) {
-                        e.preventDefault();
-                        const offset = header ? header.offsetHeight + 20 : 0;
-                        const position = target.getBoundingClientRect().top + window.pageYOffset - offset;
+                    const offset = header ? header.offsetHeight + 20 : 80;
+                    const position = target.getBoundingClientRect().top + window.pageYOffset - offset;
 
-                        smoothScrollTo(position, 450);
+                    smoothScrollTo(position, 450);
 
-                        try {
-                            history.replaceState(null, '', href);
-                        } catch (err) {
-                            window.location.hash = href;
-                        }
+                    try {
+                        history.replaceState(null, '', href);
+                    } catch (err) {
+                        window.location.hash = href;
                     }
                 });
             });
+        });
 
-            // Update menu display on resize
-            function updateMenuDisplay() {
-                if (window.innerWidth <= 768) {
-                    mobileToggle.style.display = 'flex';
-                } else {
-                    mobileToggle.style.display = 'none';
-                    nav.classList.remove('mobile-menu-open');
-                    mobileToggle.classList.remove('active');
-                    header.classList.remove('menu-is-open');
-                }
+        // Update menu display on resize
+        function updateMenuDisplay() {
+            if (window.innerWidth <= 768) {
+                mobileToggle.style.display = 'flex';
+            } else {
+                mobileToggle.style.display = 'none';
+                nav.classList.remove('mobile-menu-open');
+                mobileToggle.classList.remove('active');
+                header.classList.remove('menu-is-open');
             }
+        }
 
-            window.addEventListener('resize', updateMenuDisplay);
-            updateMenuDisplay();
+        window.addEventListener('resize', updateMenuDisplay);
+        updateMenuDisplay();
         });
     </script>
 
