@@ -4872,6 +4872,12 @@
 
         // Update menu display on resize
         function updateMenuDisplay() {
+            const mobileToggle = document.querySelector('.mobile-menu-toggle');
+            const nav = document.querySelector('nav');
+            const header = document.querySelector('header');
+            
+            if (!mobileToggle || !nav || !header) return;
+            
             if (window.innerWidth <= 768) {
                 mobileToggle.style.display = 'flex';
             } else {
