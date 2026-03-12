@@ -42,6 +42,16 @@
     <!-- Canonical URL -->
     <link rel="canonical" href="https://247barbearia.pt/">
 
+    <!-- Performance: Preload critical assets -->
+    <link rel="preload" href="images/logo.jpg" as="image">
+    <link rel="preload" href="css/mobile-responsive.css" as="style">
+    
+    <!-- Performance: DNS Prefetch for external resources -->
+    <link rel="dns-prefetch" href="https://two4-7-barbearia.onrender.com">
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com">
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://two4-7-barbearia.onrender.com" crossorigin>
+
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
     <script>
@@ -123,6 +133,26 @@
 
         html {
             scroll-behavior: smooth;
+        }
+
+        /* Skip link para acessibilidade */
+        .skip-link {
+            position: absolute;
+            top: -50px;
+            left: 10px;
+            background: var(--primary);
+            color: var(--secondary);
+            padding: 12px 20px;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 600;
+            z-index: 100;
+            transition: top 0.3s;
+        }
+
+        .skip-link:focus {
+            top: 10px;
+            outline: 2px solid var(--accent);
         }
 
         body {
@@ -4131,8 +4161,8 @@
     <link rel="stylesheet" href="css/mobile-responsive.css">
 
     <!-- EmailJS para notificações por email -->
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-    <script type="text/javascript">
+    <script defer type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script defer type="text/javascript">
         (function () {
 
             function removeElfsightBranding() {
@@ -4153,6 +4183,9 @@
 </head>
 
 <body>
+    <!-- Skip link para acessibilidade -->
+    <a href="#main-content" class="skip-link">Saltar para conteúdo principal</a>
+
     <div class="loader-overlay" id="loaderOverlay" aria-label="A carregar 24.7 Barbearia">
         <div class="loader-content">
             <div class="loader-container">
@@ -4198,6 +4231,10 @@
         </div>
     </header>
 
+    <!-- Skip link para acessibilidade -->
+    <a href="#main-content" class="skip-link">Saltar para conteúdo principal</a>
+
+    <main id="main-content">
     <section class="hero">
         <div class="container">
             <div class="hero-content">
@@ -4229,10 +4266,10 @@
                 <div class="about-card">
                     <div class="about-card-wrapper">
                         <img id="aboutCoverImage" src="images/cunhacorte.png" class="about-cover-image"
-                            alt="24.7 Barbearia">
+                            alt="24.7 Barbearia" loading="lazy">
                     </div>
                     <img id="aboutCharacterImage" src="images/cunha.png" class="about-character-image"
-                        alt="Barbeiro 24.7 Barbearia">
+                        alt="Barbeiro 24.7 Barbearia" loading="lazy">
                 </div>
             </div>
 
@@ -4279,7 +4316,7 @@
                     <div class="instagram__header">
                         <figure>
                             <img id="galleryLogoImage" src="images/logo.jpg" alt="24.7 Barbearia" width="42"
-                                height="42" />
+                                height="42" loading="lazy" />
                             <figcaption>
                                 <h4>24.7 Barbearia</h4>
                             </figcaption>
@@ -4291,23 +4328,23 @@
                             <div class="carousel__wrapper">
                                 <div class="item"><img class="gallery-image"
                                         src="https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=500&h=600&fit=crop"
-                                        alt="Corte Fade" /></div>
+                                        alt="Corte Fade" loading="lazy" /></div>
                                 <div class="item"><img class="gallery-image"
                                         src="https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=500&h=600&fit=crop"
-                                        alt="Barba Clássica" /></div>
+                                        alt="Barba Clássica" loading="lazy" /></div>
                                 <div class="item"><img class="gallery-image"
                                         src="https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=500&h=600&fit=crop"
-                                        alt="Corte Moderno" /></div>
+                                        alt="Corte Moderno" loading="lazy" /></div>
                                 <div class="item"><img class="gallery-image"
                                         src="https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=500&h=600&fit=crop"
-                                        alt="Styling" /></div>
-                                <div class="item"><img class="gallery-image" src="images/1.jpg" alt="Corte Premium" />
+                                        alt="Styling" loading="lazy" /></div>
+                                <div class="item"><img class="gallery-image" src="images/1.jpg" alt="Corte Premium" loading="lazy" />
                                 </div>
                                 <div class="item"><img class="gallery-image"
                                         src="https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=500&h=600&fit=crop"
-                                        alt="Barba Completa" /></div>
+                                        alt="Barba Completa" loading="lazy" /></div>
                                 <div class="item"><img class="gallery-image" src="images/cunhacorte.png"
-                                        alt="Fade Profissional" /></div>
+                                        alt="Fade Profissional" loading="lazy" /></div>
                             </div>
                         </div>
                     </section>
@@ -4482,6 +4519,7 @@
             <a id="ctaButton" href="#services" class="btn btn--primary">Fazer Reserva</a>
         </div>
     </section>
+    </main>
 
     <footer>
         <div class="container">
