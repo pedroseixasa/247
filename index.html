@@ -4847,7 +4847,9 @@
 
                     e.preventDefault();
 
-                    if (nav.classList.contains('mobile-menu-open')) {
+                    // Fecha menu se estiver aberto
+                    const wasMenuOpen = nav.classList.contains('mobile-menu-open');
+                    if (wasMenuOpen) {
                         nav.classList.remove('mobile-menu-open');
                         mobileToggle.classList.remove('active');
                         header.classList.remove('menu-is-open');
@@ -4856,10 +4858,12 @@
                     const offset = header ? header.offsetHeight + 20 : 80;
                     const position = target.getBoundingClientRect().top + window.pageYOffset - offset;
 
-                    window.scrollTo({
-                        top: position,
-                        behavior: 'smooth'
-                    });
+                    // Delay pequeno se o menu estava aberto para a animação de fecho
+                    const scrollDelay = wasMenuOpen ? 100 : 0;
+                    
+                    setTimeout(() => {
+                        smoothScrollTo(position, 600);
+                    }, scrollDelay);
 
                     try {
                         history.replaceState(null, '', href);
