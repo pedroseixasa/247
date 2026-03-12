@@ -6,12 +6,26 @@ const storage = multer.memoryStorage();
 
 // Filtro para aceitar apenas imagens
 const fileFilter = (req, file, cb) => {
-  const allowedMimes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+  const allowedMimes = [
+    "image/jpeg",
+    "image/jpg",
+    "image/png",
+    "image/webp",
+    "image/gif",
+    "image/avif",
+    "image/heic",
+    "image/heif",
+  ];
 
   if (allowedMimes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new Error("Apenas imagens são permitidas"), false);
+    cb(
+      new Error(
+        `Formato não suportado: ${file.mimetype}. Use JPG, PNG, WebP, GIF, AVIF ou HEIC.`,
+      ),
+      false,
+    );
   }
 };
 
@@ -44,6 +58,8 @@ const optimizeUploadedImages = async (req, res, next) => {
     if (!req.files) {
       req.files = {};
     }
+
+    console.log("Ficheiros recebidos:", Object.keys(req.files));
 
     // Processar cada arquivo enviado
     const fileFields = [
@@ -91,33 +107,53 @@ const optimizeUploadedImages = async (req, res, next) => {
 
     // Processar imagens da galeria (múltiplas)
     if (req.files.galleryImages && req.files.galleryImages.length > 0) {
+      console.log(
+        `Processando ${req.files.galleryImages.length} imagens da galeria...`,
+      );
       const galleryBase64 = [];
       let totalBytes = 0;
 
-      for (const file of req.files.galleryImages) {
+      for (let i = 0; i < req.files.galleryImages.length; i++) {
+        const file = req.files.galleryImages[i];
+        console.log(
+          `Otimizando imagem ${i + 1}/${req.files.galleryImages.length}: ${file.originalname} (${file.mimetype})`,
+        );
+
         let optimizedImage;
         try {
-          optimizedImage = await optimizeToWebp(file.buffer, 1200, 1200, 75);
+          // Reduzir mais para galeria: 800px e qualidade 55% (AVIF costuma ser grande)
+          optimizedImage = await optimizeToWebp(file.buffer, 800, 800, 55);
         } catch (err) {
+          console.error(`Erro ao otimizar imagem ${file.originalname}:`, err);
           return res.status(400).json({
-            error: `Erro ao otimizar imagem (galeria): ${err.message}`,
+            error: `Erro ao otimizar imagem "${file.originalname}": ${err.message}`,
           });
         }
 
         totalBytes += optimizedImage.length;
-        if (totalBytes > 12 * 1024 * 1024) {
+        const sizeMB = (totalBytes / (1024 * 1024)).toFixed(2);
+        console.log(
+          `Imagem ${i + 1} otimizada: ${(optimizedImage.length / 1024).toFixed(1)} KB (total: ${sizeMB} MB)`,
+        );
+
+        // Reduzir limite para 8MB para deixar margem no documento MongoDB
+        if (totalBytes > 8 * 1024 * 1024) {
           return res.status(400).json({
             error:
-              "Imagens demasiado grandes. Reduza o tamanho ou a quantidade.",
+              `Imagens muito grandes (${sizeMB} MB). Selecione menos imagens ou de menor resolução.`,
           });
         }
 
         galleryBase64.push(
           `data:image/webp;base64,${optimizedImage.toString("base64")}`,
         );
+        console.error("Erro no middleware de upload:", error);
       }
 
       req.galleryImagesBase64 = galleryBase64;
+      console.log(
+        `✓ ${galleryBase64.length} imagens processadas com sucesso (${(totalBytes / (1024 * 1024)).toFixed(2)} MB total)`,
+      );
     }
 
     next();

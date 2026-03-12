@@ -640,32 +640,35 @@ exports.updateSiteContent = async (req, res) => {
     // Processar imagens otimizadas
     if (req.logoImageBase64) {
       data.header.logoImage = req.logoImageBase64;
-    } else if (req.logoImageUrl) {
-      data.header.logoImage = req.logoImageUrl;
+    } else if (req.logoImageUrl || req.body.logoImageUrl) {
+      data.header.logoImage = req.logoImageUrl || req.body.logoImageUrl;
     }
 
     if (req.heroImageBase64) {
       data.hero.image = req.heroImageBase64;
-    } else if (req.heroImageUrl) {
-      data.hero.image = req.heroImageUrl;
+    } else if (req.heroImageUrl || req.body.heroImageUrl) {
+      data.hero.image = req.heroImageUrl || req.body.heroImageUrl;
     }
 
     if (req.aboutCoverImageBase64) {
       data.about.coverImage = req.aboutCoverImageBase64;
-    } else if (req.aboutCoverImageUrl) {
-      data.about.coverImage = req.aboutCoverImageUrl;
+    } else if (req.aboutCoverImageUrl || req.body.aboutCoverImageUrl) {
+      data.about.coverImage =
+        req.aboutCoverImageUrl || req.body.aboutCoverImageUrl;
     }
 
     if (req.aboutCharacterImageBase64) {
       data.about.characterImage = req.aboutCharacterImageBase64;
-    } else if (req.aboutCharacterImageUrl) {
-      data.about.characterImage = req.aboutCharacterImageUrl;
+    } else if (req.aboutCharacterImageUrl || req.body.aboutCharacterImageUrl) {
+      data.about.characterImage =
+        req.aboutCharacterImageUrl || req.body.aboutCharacterImageUrl;
     }
 
     if (req.galleryLogoImageBase64) {
       data.gallery.logoImage = req.galleryLogoImageBase64;
-    } else if (req.galleryLogoImageUrl) {
-      data.gallery.logoImage = req.galleryLogoImageUrl;
+    } else if (req.galleryLogoImageUrl || req.body.galleryLogoImageUrl) {
+      data.gallery.logoImage =
+        req.galleryLogoImageUrl || req.body.galleryLogoImageUrl;
     }
 
     if (req.galleryImagesBase64 && req.galleryImagesBase64.length > 0) {
@@ -682,40 +685,76 @@ exports.updateSiteContent = async (req, res) => {
 
     if (req.loaderImageBase64) {
       data.loaderImage = req.loaderImageBase64;
-    } else if (req.loaderImageUrl) {
-      data.loaderImage = req.loaderImageUrl;
+    } else if (req.loaderImageUrl || req.body.loaderImageUrl) {
+      data.loaderImage = req.loaderImageUrl || req.body.loaderImageUrl;
     }
 
     // Imagens dos barbeiros
     if (req.barber1ImageBase64) {
       data.barberCards.barber1Image = req.barber1ImageBase64;
-    } else if (req.barber1ImageUrl) {
-      data.barberCards.barber1Image = req.barber1ImageUrl;
+    } else if (req.barber1ImageUrl || req.body.barber1ImageUrl) {
+      data.barberCards.barber1Image =
+        req.barber1ImageUrl || req.body.barber1ImageUrl;
     }
 
     if (req.barber1CoverImageBase64) {
       data.barberCards.barber1CoverImage = req.barber1CoverImageBase64;
-    } else if (req.barber1CoverImageUrl) {
-      data.barberCards.barber1CoverImage = req.barber1CoverImageUrl;
+    } else if (req.barber1CoverImageUrl || req.body.barber1CoverImageUrl) {
+      data.barberCards.barber1CoverImage =
+        req.barber1CoverImageUrl || req.body.barber1CoverImageUrl;
     }
 
     if (req.barber2ImageBase64) {
       data.barberCards.barber2Image = req.barber2ImageBase64;
-    } else if (req.barber2ImageUrl) {
-      data.barberCards.barber2Image = req.barber2ImageUrl;
+    } else if (req.barber2ImageUrl || req.body.barber2ImageUrl) {
+      data.barberCards.barber2Image =
+        req.barber2ImageUrl || req.body.barber2ImageUrl;
     }
 
     if (req.barber2CoverImageBase64) {
       data.barberCards.barber2CoverImage = req.barber2CoverImageBase64;
-    } else if (req.barber2CoverImageUrl) {
-      data.barberCards.barber2CoverImage = req.barber2CoverImageUrl;
+    } else if (req.barber2CoverImageUrl || req.body.barber2CoverImageUrl) {
+      data.barberCards.barber2CoverImage =
+        req.barber2CoverImageUrl || req.body.barber2CoverImageUrl;
+    }
+
+    // Verificar tamanho total antes de salvar (MongoDB tem limite de 16MB por documento)
+    const dataSize = JSON.stringify(data).length;
+    const dataSizeMB = (dataSize / (1024 * 1024)).toFixed(2);
+
+    console.log(`Tamanho dos dados a guardar: ${dataSizeMB} MB`);
+
+    if (dataSize > 14 * 1024 * 1024) {
+      // 14MB para deixar margem
+      return res.status(400).json({
+        error: `Dados demasiado grandes (${dataSizeMB} MB). Reduza o número ou qualidade das imagens.`,
+      });
     }
 
     settings.set(data);
     await settings.save();
     res.json(settings);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Erro ao atualizar site settings:", error);
+    console.error("Stack trace:", error.stack);
+    
+    // Tratar erros específicos do MongoDB
+    if (error.name === 'DocumentNotFoundError') {
+      return res.status(404).json({ error: "Configurações não encontradas" });
+    }
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ error: `Erro de validação: ${error.message}` });
+    }
+    if (error.message && error.message.includes('exceeded')) {
+      return res.status(400).json({ 
+        error: "Documento muito grande. Reduza o número de imagens da galeria." 
+      });
+    }
+    
+    res.status(500).json({ 
+      error: error.message || "Erro interno do servidor",
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
 };
 
