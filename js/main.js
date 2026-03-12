@@ -538,17 +538,17 @@ document.addEventListener("DOMContentLoaded", function () {
         console.error("Erro ao carregar serviços");
         return;
       }
-      
+
       const services = await response.json();
       const servicesGrid = document.getElementById("servicesGrid");
-      
+
       if (!servicesGrid) return;
-      
+
       // Filtrar apenas serviços ativos e ordenar
       const activeServices = services
-        .filter(s => s.isActive !== false)
+        .filter((s) => s.isActive !== false)
         .sort((a, b) => (a.order || 0) - (b.order || 0));
-      
+
       if (activeServices.length === 0) {
         servicesGrid.innerHTML = `
           <div style="text-align: center; padding: 2rem; grid-column: 1 / -1;">
@@ -557,23 +557,26 @@ document.addEventListener("DOMContentLoaded", function () {
         `;
         return;
       }
-      
+
       // Gerar HTML dos cards
-      servicesGrid.innerHTML = activeServices.map(service => {
-        const price = typeof service.price === 'number' 
-          ? `${service.price.toFixed(2)} €` 
-          : service.price || 'Sob consulta';
-        
-        const duration = service.duration || '60 min';
-        const hasImage = service.image && service.image.trim() !== '';
-        
-        return `
-          <div class="service-card-new" data-service-id="${service._id || ''}" data-service="${service.name?.toLowerCase().replace(/\s+/g, '-') || ''}">
+      servicesGrid.innerHTML = activeServices
+        .map((service) => {
+          const price =
+            typeof service.price === "number"
+              ? `${service.price.toFixed(2)} €`
+              : service.price || "Sob consulta";
+
+          const duration = service.duration || "60 min";
+          const hasImage = service.image && service.image.trim() !== "";
+
+          return `
+          <div class="service-card-new" data-service-id="${service._id || ""}" data-service="${service.name?.toLowerCase().replace(/\s+/g, "-") || ""}">
             <div class="service-card-content">
-              <div class="service-photo ${!hasImage ? 'service-photo--placeholder' : ''}">
-                ${hasImage 
-                  ? `<img src="${service.image}" alt="${service.name}" loading="lazy">` 
-                  : `<span>24.7</span>`
+              <div class="service-photo ${!hasImage ? "service-photo--placeholder" : ""}">
+                ${
+                  hasImage
+                    ? `<img src="${service.image}" alt="${service.name}" loading="lazy">`
+                    : `<span>24.7</span>`
                 }
               </div>
               <div class="service-info">
@@ -581,7 +584,7 @@ document.addEventListener("DOMContentLoaded", function () {
                   <span class="service-name">${service.name}</span>
                   <span class="service-price">${price}</span>
                 </div>
-                ${service.description ? `<p class="service-description">${service.description}</p>` : ''}
+                ${service.description ? `<p class="service-description">${service.description}</p>` : ""}
                 <div class="service-meta-line">
                   <span class="service-duration-pill">${duration}</span>
                   <button class="service-book-btn">Marcar</button>
@@ -590,8 +593,8 @@ document.addEventListener("DOMContentLoaded", function () {
             </div>
           </div>
         `;
-      }).join('');
-      
+        })
+        .join("");
     } catch (error) {
       console.error("Erro ao carregar serviços:", error);
       const servicesGrid = document.getElementById("servicesGrid");

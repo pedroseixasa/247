@@ -1,0 +1,13 @@
+# robots.txt para 24.7 Barbearia
+User-agent: *
+Allow: /
+
+# Bloquear admin panel
+Disallow: /admin/
+Disallow: /backend/
+
+# Sitemap
+Sitemap: https://247barbearia.pt/sitemap.xml
+
+# Crawl-delay (opcional, ajuda servidores pequenos)
+Crawl-delay: 1
