@@ -1278,33 +1278,11 @@ document.addEventListener("DOMContentLoaded", function () {
           return;
         }
 
-        // Enviar email de confirmação via EmailJS
-        if (typeof emailjs !== "undefined" && data.reservation) {
-          const cancelToken = data.reservation.cancelToken;
-          // Criar URL absoluto para a página de cancelamento
-          const baseUrl =
-            window.location.origin +
-            window.location.pathname.replace("index_clean.html", "");
-          const cancelUrl = `${baseUrl}cancel.html?token=${cancelToken}`;
-
-          const templateParams = {
-            email: email,
-            title: "Confirmação de Reserva",
-            client_name: name,
-            service: bookingState.service,
-            barber: barbers[bookingState.barber].name,
-            date: bookingState.date.toLocaleDateString("pt-PT"),
-            time: bookingState.time,
-            phone: phone,
-            cancel_link: cancelUrl,
-          };
-
-          emailjs
-            .send("service_z1igryn", "template_nhk7sz5", templateParams)
-            .catch(() => {
-              // Email send failed
-            });
-        }
+        // EmailJS removido - emails agora são enviados pelo backend via Resend
+        // Isso economiza recursos e permite até 3000 emails/mês grátis
+        // O backend envia automaticamente:
+        // 1. Email de confirmação ao cliente
+        // 2. Email de notificação à administração
 
         // Mostrar modal de sucesso
         showSuccessModal({

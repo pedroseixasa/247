@@ -134,6 +134,7 @@ Os templates HTML estão em: `backend/src/services/emailService.js`
 ### Email ao Cliente (função `sendBookingConfirmation`)
 
 **Elementos personalizáveis:**
+
 - Logo/Marca (linha 70: `.logo`)
 - Cores (buscar `#c9a961`, `#1a1a1a`)
 - Morada (linha 176)
@@ -142,10 +143,12 @@ Os templates HTML estão em: `backend/src/services/emailService.js`
 ### Email Admin (função `sendAdminNotification`)
 
 **Elementos personalizáveis:**
+
 - Alerta visual (linha 235: `.alert`)
 - Estrutura de dados (linhas 240-268)
 
 **Para editar:**
+
 ```bash
 cd backend/src/services
 code emailService.js
@@ -177,27 +180,29 @@ code emailService.js
 
 ## 📈 Comparação: EmailJS vs Resend
 
-| Feature              | EmailJS (antigo) | Resend (novo)     |
-|---------------------|------------------|-------------------|
-| Emails/mês grátis   | 200              | **3,000** 🚀      |
-| Emails/dia          | ~7               | **100**           |
-| Envio               | Frontend         | **Backend** ✅    |
-| Segurança           | API Key exposta  | **Protegida** 🔒  |
-| Domínio custom      | ❌ Não           | **✅ Sim**        |
-| Templates HTML      | Interface web    | **Código** (flex) |
-| Analytics           | Básico           | **Detalhado** 📊  |
-| Deliverability      | Médio            | **Alto** (AWS SES)|
+| Feature           | EmailJS (antigo) | Resend (novo)      |
+| ----------------- | ---------------- | ------------------ |
+| Emails/mês grátis | 200              | **3,000** 🚀       |
+| Emails/dia        | ~7               | **100**            |
+| Envio             | Frontend         | **Backend** ✅     |
+| Segurança         | API Key exposta  | **Protegida** 🔒   |
+| Domínio custom    | ❌ Não           | **✅ Sim**         |
+| Templates HTML    | Interface web    | **Código** (flex)  |
+| Analytics         | Básico           | **Detalhado** 📊   |
+| Deliverability    | Médio            | **Alto** (AWS SES) |
 
 ---
 
 ## 🆘 Suporte
 
 **Resend:**
+
 - Docs: [resend.com/docs](https://resend.com/docs)
 - Email: support@resend.com
 - Discord: [discord.gg/resend](https://discord.gg/resend)
 
 **24.7 Barbearia (este projeto):**
+
 - Ver logs: `backend/src/services/emailService.js`
 - Código reservas: `backend/src/controllers/reservationController.js`
 

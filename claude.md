@@ -1,6 +1,6 @@
 # 🎯 24.7 Barbearia - Contexto do Projeto
 
-**Última atualização:** 28 Fev 2026  
+**Última atualização:** 12 Mar 2026  
 **Status:** Em desenvolvimento ativo
 
 ---
@@ -34,7 +34,7 @@ Projeto de website moderno para barbearia em Almada, Portugal. Stack: HTML/CSS/J
 - MongoDB Atlas com modelos:
   - **SiteSettings** : Conteúdo dinâmico (hero, about, staff, contact, hours)
   - **Services** : Nome, preço, descrição
-  - **Bookings** : Reservas (com EmailJS notifications)
+  - **Bookings** : Reservas (com Resend email notifications)
   - **Reviews** : Avaliações Google
 
 ---
@@ -227,7 +227,55 @@ Razão: O'Reilly extended thinking para edge cases
 
 ---
 
-## 📌 Notas de Desenvolvimento
+## � Sistema de Email (Resend)
+
+**Migração:** EmailJS → Resend (12 Mar 2026)
+
+### EmailJS (Antigo - REMOVIDO)
+
+- ❌ 200 emails/mês → insuficiente para 9 reservas/dia (270 emails necessários)
+- ❌ API key exposta no frontend (segurança fraca)
+- ❌ Envio direto do browser (menos confiável)
+
+### Resend (Atual)
+
+- ✅ **3000 emails/mês grátis** → suficiente até 45 reservas/dia
+- ✅ **100 emails/dia** sem custo
+- ✅ Envio via backend (seguro)
+- ✅ Domínio custom: `noreply@247barbearia.pt`
+- ✅ Templates HTML modernos com CSS inline
+- ✅ Notificações duplas: cliente + admin
+
+### Arquivos Relacionados
+
+- `backend/src/services/emailService.js` - Serviço de email (2 funções)
+- `backend/src/controllers/reservationController.js` - Integração (linhas 8-9, 182-205)
+- `backend/RESEND_SETUP.md` - Guia completo de configuração
+- `.env.example` - Variáveis necessárias (RESEND_API_KEY, ADMIN_EMAIL)
+
+### Funcionamento
+
+1. Cliente faz reserva no site
+2. Backend cria reserva no MongoDB
+3. Backend chama `sendBookingConfirmation()` → email ao cliente
+4. Backend chama `sendAdminNotification()` → email ao admin
+5. Ambos executam em paralelo (Promise.all) sem bloquear resposta
+
+### Templates
+
+- **Cliente:** Confirmação com detalhes + link de cancelamento
+- **Admin:** Notificação com dados completos do cliente
+
+### Variáveis de Ambiente
+
+```env
+RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxx  # Obter em resend.com/api-keys
+ADMIN_EMAIL=admin@247barbearia.pt        # Email que recebe notificações
+```
+
+---
+
+## �📌 Notas de Desenvolvimento
 
 - **Cores custom properties** guardadas em `:root` → facilita manutenção
 - **Mobile-responsive.css** override inline styles para pequenos ecrãs (com !important)
