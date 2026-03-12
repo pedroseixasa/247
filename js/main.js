@@ -1201,7 +1201,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (summaryTime) summaryTime.textContent = bookingState.time;
   }
 
-  function submitBooking() {
+  async function submitBooking() {
     const name = document.getElementById("clientName").value;
     const phone = document.getElementById("clientPhone").value;
     const email = document.getElementById("clientEmail").value;
@@ -1263,74 +1263,60 @@ document.addEventListener("DOMContentLoaded", function () {
       notes: "",
     };
 
-    // Enviar para backend via API
-    fetch(`${API_BASE_URL}/reservations`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(reservationData),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.error) {
-          showBookingError("Erro: " + data.error);
-          return;
-        }
-
-        // EmailJS removido - emails agora são enviados pelo backend via Resend
-        // Isso economiza recursos e permite até 3000 emails/mês grátis
-        // O backend envia automaticamente:
-        // 1. Email de confirmação ao cliente
-        // 2. Email de notificação à administração
-
-        // Mostrar modal de sucesso
-        showSuccessModal({
-          service: bookingState.service,
-          barber: barbers[bookingState.barber].name,
-          date: bookingState.date.toLocaleDateString("pt-PT"),
-          time: bookingState.time,
-          email: email,
-          name: name,
-        });
-
-        const modal = document.getElementById("bookingModal");
-        if (modal) {
-          modal.classList.remove("active");
-        }
-        document.body.style.overflow = "";
-        resetBooking();
-
-        // Recarregar slots após reserva
-        reloadTimeSlots();
-      })
-      .catch((error) => {
-        console.error("Erro ao criar reserva:", error);
-        showBookingError("Erro ao processar reserva: " + error.message);
-
-        // Fallback: guardar em localStorage se API falhar
-        const dateKey = bookingState.date.toISOString().split("T")[0];
-        const slotKey = `${bookingState.barber}-${dateKey}-${bookingState.time}`;
-
-        bookedSlots[slotKey] = {
-          service: bookingState.service,
-          price: bookingState.servicePrice,
-          barber: barbers[bookingState.barber].name,
-          date: bookingState.date.toISOString(),
-          time: bookingState.time,
-          client: { name, phone, email },
-          createdAt: new Date().toISOString(),
-        };
-
-        localStorage.setItem("bookedSlots", JSON.stringify(bookedSlots));
-
-        const modal = document.getElementById("bookingModal");
-        if (modal) {
-          modal.classList.remove("active");
-        }
-        document.body.style.overflow = "";
-        resetBooking();
+    try {
+      const response = await fetch(`${API_BASE_URL}/reservations`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(reservationData),
       });
+
+      const rawText = await response.text();
+      let data = null;
+      if (rawText) {
+        try {
+          data = JSON.parse(rawText);
+        } catch (parseError) {
+          console.error("Erro ao converter resposta em JSON:", parseError);
+        }
+      }
+
+      if (!response.ok || (data && data.error)) {
+        const errorMessage =
+          data?.error || `Erro ${response.status}: ${response.statusText}`;
+        showBookingError(errorMessage);
+        return;
+      }
+
+      const barberName = barbers[bookingState.barber]?.name || "Barbeiro";
+      const dateLabel = bookingState.date
+        ? bookingState.date.toLocaleDateString("pt-PT")
+        : new Date(reservationData.reservationDate).toLocaleDateString("pt-PT");
+      const timeLabel = bookingState.time || reservationData.timeSlot;
+
+      showSuccessModal({
+        service: bookingState.service || "Serviço confirmado",
+        barber: barberName,
+        date: dateLabel,
+        time: timeLabel,
+        email: email,
+        name: name,
+      });
+
+      const modal = document.getElementById("bookingModal");
+      if (modal) {
+        modal.classList.remove("active");
+      }
+      document.body.style.overflow = "";
+      resetBooking();
+      reloadTimeSlots();
+    } catch (error) {
+      console.error("Erro ao criar reserva:", error);
+      showBookingError(
+        "Erro ao processar reserva. Verifique a ligação ou tente novamente em instantes.",
+      );
+    }
   }
 
   // Carregar slots do backend
