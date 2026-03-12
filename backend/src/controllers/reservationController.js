@@ -4,6 +4,10 @@ const Barber = require("../models/Barber");
 const Service = require("../models/Service");
 const twilio = require("twilio");
 const crypto = require("crypto");
+const {
+  sendBookingConfirmation,
+  sendAdminNotification,
+} = require("../services/emailService");
 
 // Inicializar Twilio sob demanda (lazy loading)
 let client = null;
@@ -174,6 +178,33 @@ exports.createReservation = async (req, res) => {
 
     // Popular referências
     await reservation.populate("barberId serviceId");
+
+    // Enviar emails de confirmação (não bloqueia resposta)
+    Promise.all([
+      // Email ao cliente
+      sendBookingConfirmation({
+        clientName,
+        clientEmail,
+        barberName: barber.name,
+        serviceName: service.name,
+        reservationDate,
+        timeSlot,
+        cancelToken,
+      }),
+      // Email à administração
+      sendAdminNotification({
+        clientName,
+        clientEmail,
+        clientPhone,
+        barberName: barber.name,
+        serviceName: service.name,
+        reservationDate,
+        timeSlot,
+      }),
+    ]).catch((emailError) => {
+      console.error("Erro ao enviar emails:", emailError);
+      // Não falha a requisição se emails não enviar
+    });
 
     res.status(201).json({
       message: "Reserva criada com sucesso!",
