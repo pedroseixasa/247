@@ -139,8 +139,7 @@ const optimizeUploadedImages = async (req, res, next) => {
         // Reduzir limite para 8MB para deixar margem no documento MongoDB
         if (totalBytes > 8 * 1024 * 1024) {
           return res.status(400).json({
-            error:
-              `Imagens muito grandes (${sizeMB} MB). Selecione menos imagens ou de menor resolução.`,
+            error: `Imagens muito grandes (${sizeMB} MB). Selecione menos imagens ou de menor resolução.`,
           });
         }
 

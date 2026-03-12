@@ -737,23 +737,25 @@ exports.updateSiteContent = async (req, res) => {
   } catch (error) {
     console.error("Erro ao atualizar site settings:", error);
     console.error("Stack trace:", error.stack);
-    
+
     // Tratar erros específicos do MongoDB
-    if (error.name === 'DocumentNotFoundError') {
+    if (error.name === "DocumentNotFoundError") {
       return res.status(404).json({ error: "Configurações não encontradas" });
     }
-    if (error.name === 'ValidationError') {
-      return res.status(400).json({ error: `Erro de validação: ${error.message}` });
+    if (error.name === "ValidationError") {
+      return res
+        .status(400)
+        .json({ error: `Erro de validação: ${error.message}` });
     }
-    if (error.message && error.message.includes('exceeded')) {
-      return res.status(400).json({ 
-        error: "Documento muito grande. Reduza o número de imagens da galeria." 
+    if (error.message && error.message.includes("exceeded")) {
+      return res.status(400).json({
+        error: "Documento muito grande. Reduza o número de imagens da galeria.",
       });
     }
-    
-    res.status(500).json({ 
+
+    res.status(500).json({
       error: error.message || "Erro interno do servidor",
-      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      details: process.env.NODE_ENV === "development" ? error.stack : undefined,
     });
   }
 };
