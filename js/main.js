@@ -566,7 +566,6 @@ document.addEventListener("DOMContentLoaded", function () {
               ? `${service.price.toFixed(2)} €`
               : service.price || "Sob consulta";
 
-          const duration = service.duration || "60 min";
           const hasImage = service.image && service.image.trim() !== "";
 
           return `
@@ -586,7 +585,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 </div>
                 ${service.description ? `<p class="service-description">${service.description}</p>` : ""}
                 <div class="service-meta-line">
-                  <span class="service-duration-pill">${duration}</span>
                   <button class="service-book-btn" type="button">Marcar</button>
                 </div>
               </div>
