@@ -208,8 +208,8 @@ const FILMING_MODE_OVERRIDES = {
     barber2Description:
       "Detail-oriented Barber Specialist in modern cuts and beard styling, with a strong focus on client experience.",
     barber2CoverImage:
-      "https://images.pexels.com/photos/3998414/pexels-photo-3998414.jpeg?auto=compress&cs=tinysrgb&w=900",
-    barber2Image: "https://pngimg.com/d/man_PNG6512.png",
+      "https://images.pexels.com/photos/1453005/pexels-photo-1453005.jpeg?auto=compress&cs=tinysrgb&w=900",
+    barber2Image: "https://pngimg.com/d/man_PNG6511.png",
   },
   galleryImages: [
     "https://images.pexels.com/photos/1453005/pexels-photo-1453005.jpeg?auto=compress&cs=tinysrgb&w=900",
