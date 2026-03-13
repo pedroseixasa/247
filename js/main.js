@@ -587,7 +587,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 ${service.description ? `<p class="service-description">${service.description}</p>` : ""}
                 <div class="service-meta-line">
                   <span class="service-duration-pill">${duration}</span>
-                  <button class="service-book-btn">Marcar</button>
+                  <button class="service-book-btn" type="button">Marcar</button>
                 </div>
               </div>
             </div>
@@ -595,6 +595,14 @@ document.addEventListener("DOMContentLoaded", function () {
         `;
         })
         .join("");
+
+      document.dispatchEvent(
+        new CustomEvent("services:rendered", {
+          detail: {
+            services: activeServices,
+          },
+        }),
+      );
     } catch (error) {
       console.error("Erro ao carregar serviços:", error);
       const servicesGrid = document.getElementById("servicesGrid");
@@ -724,34 +732,43 @@ document.addEventListener("DOMContentLoaded", function () {
     const modal = document.getElementById("bookingModal");
     const closeBtn = document.getElementById("closeBookingModal");
     const overlay = document.querySelector(".booking-modal-overlay");
-    const servicesGrid = document.getElementById("servicesGrid");
 
     if (!modal) return;
 
-    // Abrir modal - usando event delegation para botões criados dinamicamente
-    if (servicesGrid) {
-      servicesGrid.addEventListener("click", function (e) {
-        const button = e.target.closest(".service-book-btn");
-        if (!button) return;
+    function openBookingModalFromCard(card) {
+      if (!card) return;
 
-        const card = button.closest(".service-card-new");
-        if (!card) return;
+      const nameEl = card.querySelector(".service-name");
+      const priceEl = card.querySelector(".service-price");
 
-        bookingState.service = card.querySelector(".service-name").textContent;
-        bookingState.servicePrice =
-          card.querySelector(".service-price").textContent;
-        bookingState.serviceId = card.getAttribute("data-service-id");
+      bookingState.service = nameEl ? nameEl.textContent : "Serviço";
+      bookingState.servicePrice = priceEl ? priceEl.textContent : "";
+      bookingState.serviceId = card.getAttribute("data-service-id");
 
-        const selectedServiceEl = document.getElementById("selectedService");
-        if (selectedServiceEl) {
-          selectedServiceEl.textContent = `${bookingState.service} - ${bookingState.servicePrice}`;
-        }
+      const selectedServiceEl = document.getElementById("selectedService");
+      if (selectedServiceEl) {
+        selectedServiceEl.textContent = `${bookingState.service} - ${bookingState.servicePrice}`;
+      }
 
-        modal.classList.add("active");
-        document.body.style.overflow = "hidden";
-        resetBooking();
+      modal.classList.add("active");
+      document.body.style.overflow = "hidden";
+      resetBooking();
+    }
+
+    function bindServiceButtons() {
+      const buttons = document.querySelectorAll(".service-book-btn");
+      buttons.forEach((button) => {
+        if (button.dataset.bookingBound === "true") return;
+        button.dataset.bookingBound = "true";
+        button.addEventListener("click", (event) => {
+          event.preventDefault();
+          openBookingModalFromCard(button.closest(".service-card-new"));
+        });
       });
     }
+
+    bindServiceButtons();
+    document.addEventListener("services:rendered", bindServiceButtons);
 
     // Fechar modal
     if (closeBtn) {
@@ -880,6 +897,32 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     if (nextMonthBtn) {
       nextMonthBtn.addEventListener("click", () => changeMonth(1));
+    }
+
+    // Close success modal
+    const closeSuccessBtn = document.getElementById("closeSuccessModal");
+    if (closeSuccessBtn) {
+      closeSuccessBtn.addEventListener("click", function () {
+        const modal = document.getElementById("successModal");
+        if (modal) {
+          modal.classList.remove("active");
+          document.body.style.overflow = "";
+        }
+      });
+    }
+
+    // Close success modal on overlay click
+    const successModalOverlay = document.querySelector(
+      ".success-modal-overlay",
+    );
+    if (successModalOverlay) {
+      successModalOverlay.addEventListener("click", function () {
+        const modal = document.getElementById("successModal");
+        if (modal) {
+          modal.classList.remove("active");
+          document.body.style.overflow = "";
+        }
+      });
     }
 
     renderCalendar();
@@ -1418,30 +1461,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     modal.classList.add("active");
     document.body.style.overflow = "hidden";
-  }
-
-  // Close success modal
-  const closeSuccessBtn = document.getElementById("closeSuccessModal");
-  if (closeSuccessBtn) {
-    closeSuccessBtn.addEventListener("click", function () {
-      const modal = document.getElementById("successModal");
-      if (modal) {
-        modal.classList.remove("active");
-        document.body.style.overflow = "";
-      }
-    });
-  }
-
-  // Close on overlay click
-  const successModalOverlay = document.querySelector(".success-modal-overlay");
-  if (successModalOverlay) {
-    successModalOverlay.addEventListener("click", function () {
-      const modal = document.getElementById("successModal");
-      if (modal) {
-        modal.classList.remove("active");
-        document.body.style.overflow = "";
-      }
-    });
   }
 })();
 

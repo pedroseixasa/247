@@ -4696,7 +4696,7 @@
             </div>
             <h2 class="success-title">Reserva Confirmada!</h2>
             <div class="success-details" id="successDetails"></div>
-            <button class="success-btn" id="closeSuccessModal">Entendido</button>
+            <button class="success-btn" id="closeSuccessModal">Perfeito</button>
         </div>
     </div>
 
@@ -4810,14 +4810,15 @@
                         header.classList.remove('menu-is-open');
                     }
 
-                    const offset = header ? header.offsetHeight - 10 : 50;
+                    // Menor offset para a secção assentar um pouco mais abaixo.
+                    const offset = header ? Math.max(header.offsetHeight - 24, 0) : 36;
                     const position = target.getBoundingClientRect().top + window.pageYOffset - offset;
 
-                    // Delay pequeno se o menu estava aberto para a animação de fecho
-                    const scrollDelay = wasMenuOpen ? 100 : 0;
+                    // Delay curto apenas para permitir o fecho visual do menu mobile.
+                    const scrollDelay = wasMenuOpen ? 40 : 0;
 
                     setTimeout(() => {
-                        smoothScrollTo(position, 600);
+                        smoothScrollTo(position, 360);
                     }, scrollDelay);
 
                     try {
