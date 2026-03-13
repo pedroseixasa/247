@@ -201,14 +201,15 @@ const FILMING_MODE_OVERRIDES = {
     barber1Name: "Diogo Cunha",
     barber1Description:
       "Senior Barber focused on clean fades and executive grooming, delivering a consistent premium finish.",
-    barber1CoverImage: "images/cunhacorte.png",
-    barber1Image: "images/cunha.png",
+    barber1CoverImage:
+      "https://images.pexels.com/photos/1453005/pexels-photo-1453005.jpeg?auto=compress&cs=tinysrgb&w=900",
+    barber1Image: "https://pngimg.com/d/man_PNG6511.png",
     barber2Name: "Miguel Ferreira",
     barber2Description:
       "Detail-oriented Barber Specialist in modern cuts and beard styling, with a strong focus on client experience.",
     barber2CoverImage:
       "https://images.pexels.com/photos/3998414/pexels-photo-3998414.jpeg?auto=compress&cs=tinysrgb&w=900",
-    barber2Image: "https://pngimg.com/d/man_PNG6517.png",
+    barber2Image: "https://pngimg.com/d/man_PNG6512.png",
   },
   galleryImages: [
     "https://images.pexels.com/photos/1453005/pexels-photo-1453005.jpeg?auto=compress&cs=tinysrgb&w=900",
@@ -257,6 +258,19 @@ function normalizeServiceName(value) {
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
     .trim();
+}
+
+function setImageWithFallback(element, primarySrc, fallbackSrc) {
+  if (!element) return;
+
+  if (fallbackSrc) {
+    element.onerror = () => {
+      element.onerror = null;
+      element.src = fallbackSrc;
+    };
+  }
+
+  element.src = primarySrc || fallbackSrc || element.src;
 }
 
 function getServiceFilmingImage(serviceName) {
@@ -349,25 +363,31 @@ function applyFilmingStaffOverrides() {
   if (name1) name1.textContent = staff.barber1Name;
   const desc1 = document.getElementById("staffDescription1");
   if (desc1) desc1.textContent = staff.barber1Description;
-  const aboutCover = document.getElementById("aboutCoverImage");
-  const aboutCharacter = document.getElementById("aboutCharacterImage");
-  const syncedCover1 =
-    aboutCover?.getAttribute("src") || staff.barber1CoverImage;
-  const syncedCharacter1 =
-    aboutCharacter?.getAttribute("src") || staff.barber1Image;
   const cover1 = document.getElementById("staffCoverImage1");
-  if (cover1) cover1.src = syncedCover1;
+  setImageWithFallback(
+    cover1,
+    staff.barber1CoverImage,
+    "images/cunhacorte.png",
+  );
   const char1 = document.getElementById("staffCharacterImage1");
-  if (char1) char1.src = syncedCharacter1;
+  setImageWithFallback(char1, staff.barber1Image, "images/cunha.png");
 
   const name2 = document.getElementById("staffName2");
   if (name2) name2.textContent = staff.barber2Name;
   const desc2 = document.getElementById("staffDescription2");
   if (desc2) desc2.textContent = staff.barber2Description;
   const cover2 = document.getElementById("staffCoverImage2");
-  if (cover2) cover2.src = staff.barber2CoverImage;
+  setImageWithFallback(
+    cover2,
+    staff.barber2CoverImage,
+    "images/cunhacorte.png",
+  );
   const char2 = document.getElementById("staffCharacterImage2");
-  if (char2) char2.src = staff.barber2Image;
+  setImageWithFallback(
+    char2,
+    staff.barber2Image,
+    "images/staff-character-2.svg",
+  );
 
   const bookingBarberName = document.querySelector(
     '.barber-card[data-barber="ricardo-silva"] .barber-name',
