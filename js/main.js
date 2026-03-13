@@ -194,7 +194,7 @@ document.querySelectorAll(".service-card").forEach((card) => {
 });
 
 let siteSchedule = null;
-const FILMING_MODE_ACTIVE = true;
+const FILMING_MODE_ACTIVE = false;
 
 const FILMING_MODE_OVERRIDES = {
   staff: {
