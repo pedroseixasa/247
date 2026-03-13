@@ -363,31 +363,27 @@ function applyFilmingStaffOverrides() {
   if (name1) name1.textContent = staff.barber1Name;
   const desc1 = document.getElementById("staffDescription1");
   if (desc1) desc1.textContent = staff.barber1Description;
+
+  const aboutCover = document.getElementById("aboutCoverImage");
+  const aboutCharacter = document.getElementById("aboutCharacterImage");
+  const sharedCoverSrc =
+    aboutCover?.getAttribute("src") || "images/cunhacorte.png";
+  const sharedCharacterSrc =
+    aboutCharacter?.getAttribute("src") || "images/cunha.png";
+
   const cover1 = document.getElementById("staffCoverImage1");
-  setImageWithFallback(
-    cover1,
-    staff.barber1CoverImage,
-    "images/cunhacorte.png",
-  );
+  setImageWithFallback(cover1, sharedCoverSrc, "images/cunhacorte.png");
   const char1 = document.getElementById("staffCharacterImage1");
-  setImageWithFallback(char1, staff.barber1Image, "images/cunha.png");
+  setImageWithFallback(char1, sharedCharacterSrc, "images/cunha.png");
 
   const name2 = document.getElementById("staffName2");
   if (name2) name2.textContent = staff.barber2Name;
   const desc2 = document.getElementById("staffDescription2");
   if (desc2) desc2.textContent = staff.barber2Description;
   const cover2 = document.getElementById("staffCoverImage2");
-  setImageWithFallback(
-    cover2,
-    staff.barber2CoverImage,
-    "images/cunhacorte.png",
-  );
+  setImageWithFallback(cover2, sharedCoverSrc, "images/cunhacorte.png");
   const char2 = document.getElementById("staffCharacterImage2");
-  setImageWithFallback(
-    char2,
-    staff.barber2Image,
-    "images/staff-character-2.svg",
-  );
+  setImageWithFallback(char2, sharedCharacterSrc, "images/cunha.png");
 
   const bookingBarberName = document.querySelector(
     '.barber-card[data-barber="ricardo-silva"] .barber-name',
