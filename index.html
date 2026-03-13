@@ -4837,15 +4837,11 @@
                     }
 
                     // Menor offset para a secção assentar um pouco mais abaixo.
-                    const offset = header ? Math.max(header.offsetHeight - 24, 0) : 36;
+                    const offset = header ? Math.max(header.offsetHeight - 10, 0) : 36;
                     const position = target.getBoundingClientRect().top + window.pageYOffset - offset;
 
-                    // Delay curto apenas para permitir o fecho visual do menu mobile.
-                    const scrollDelay = wasMenuOpen ? 40 : 0;
-
-                    setTimeout(() => {
-                        smoothScrollTo(position, 100);
-                    }, scrollDelay);
+                    // Scroll imediato, sem delay
+                    smoothScrollTo(position, 150);
 
                     try {
                         history.replaceState(null, '', href);
