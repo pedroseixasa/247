@@ -1478,7 +1478,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Ajustar threshold conforme o tamanho da tela
   let threshold = 0.8;
-  let rootMargin = "0px 0px -10% 0px";
+  let rootMargin = "0px 0px -22% 0px";
   const screenWidth = window.innerWidth;
   const isMobile = screenWidth < 768;
   const isTablet = screenWidth >= 768 && screenWidth < 1024;
@@ -1488,11 +1488,11 @@ document.addEventListener("DOMContentLoaded", function () {
     threshold = 0.3;
     rootMargin = "0px 0px -10% 0px";
   } else if (isTablet) {
-    // Tablet - ativa quando 70% visível com margem de -15%
+    // Tablet - ativa quando 70% visível com margem de -18%
     threshold = 0.7;
-    rootMargin = "0px 0px -15% 0px";
+    rootMargin = "0px 0px -18% 0px";
   }
-  // Desktop: threshold 0.8, rootMargin -10%
+  // Desktop: threshold 0.8, rootMargin -22% (ativa mais tarde, ao fazer mais scroll)
 
   if (!("IntersectionObserver" in window)) {
     aboutCard.classList.add("is-3d");
