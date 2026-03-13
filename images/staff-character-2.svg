@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 760" role="img" aria-labelledby="title desc">
+  <title id="title">Barber character 2</title>
+  <desc id="desc">Transparent barber silhouette for 3D staff card.</desc>
+  <defs>
+    <linearGradient id="skin2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f0cfb8" />
+      <stop offset="100%" stop-color="#cba48c" />
+    </linearGradient>
+    <linearGradient id="shirt2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#232323" />
+      <stop offset="100%" stop-color="#101010" />
+    </linearGradient>
+    <linearGradient id="jacket2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2f2218" />
+      <stop offset="100%" stop-color="#8b7355" />
+    </linearGradient>
+  </defs>
+  <g>
+    <ellipse cx="260" cy="122" rx="70" ry="78" fill="url(#skin2)" />
+    <path d="M188 125c2-55 138-56 144 1-7 0-11-1-18-3-20-8-37-10-53-9-21 2-38 8-59 20-8-1-14-4-14-9z" fill="#111" />
+    <path d="M212 199c10 23 82 23 95 0-7 42-23 60-48 60s-42-18-47-60z" fill="url(#skin2)" />
+    <path d="M106 714c16-144 34-268 82-340 20-30 44-45 71-45s51 15 71 45c48 72 66 196 84 340H106z" fill="url(#shirt2)" />
+    <path d="M168 422c19 31 44 47 92 47s73-16 92-47c4 88-30 150-92 150s-96-62-92-150z" fill="url(#jacket2)" opacity="0.92" />
+    <path d="M164 558c31 18 63 28 96 28s65-10 96-28" stroke="#d4b06a" stroke-width="8" fill="none" stroke-linecap="round" />
+    <path d="M106 714h308" stroke="#0a0a0a" stroke-width="14" stroke-linecap="round" />
+    <circle cx="229" cy="129" r="6" fill="#161616" />
+    <circle cx="289" cy="129" r="6" fill="#161616" />
+    <path d="M236 165c8 6 40 6 48 0" stroke="#754736" stroke-width="4" fill="none" stroke-linecap="round" />
+    <path d="M214 176c10 20 82 20 92 0" stroke="#4e2f23" stroke-width="5" fill="none" stroke-linecap="round" />
+  </g>
+</svg>

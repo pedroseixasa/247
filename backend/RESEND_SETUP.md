@@ -1,4 +1,4 @@
-# 📧 Configuração Resend - Sistema de Email
+erm# 📧 Configuração Resend - Sistema de Email
 
 ## 🎯 Por que Resend?
 

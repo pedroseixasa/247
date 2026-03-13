@@ -194,6 +194,80 @@ document.querySelectorAll(".service-card").forEach((card) => {
 });
 
 let siteSchedule = null;
+const FILMING_MODE_ACTIVE = true;
+
+const FILMING_MODE_OVERRIDES = {
+  staff: {
+    barber1Name: "Diogo Cunha",
+    barber1Description:
+      "Senior Barber focused on clean fades and executive grooming, delivering a consistent premium finish.",
+    barber1CoverImage:
+      "https://images.pexels.com/photos/1813272/pexels-photo-1813272.jpeg?auto=compress&cs=tinysrgb&w=900",
+    barber1Image: "images/staff-character-1.svg",
+    barber2Name: "Miguel Ferreira",
+    barber2Description:
+      "Detail-oriented Barber Specialist in modern cuts and beard styling, with a strong focus on client experience.",
+    barber2CoverImage:
+      "https://images.pexels.com/photos/3998414/pexels-photo-3998414.jpeg?auto=compress&cs=tinysrgb&w=900",
+    barber2Image: "images/staff-character-2.svg",
+  },
+  galleryImages: [
+    "https://images.pexels.com/photos/1453005/pexels-photo-1453005.jpeg?auto=compress&cs=tinysrgb&w=900",
+    "https://images.pexels.com/photos/3993299/pexels-photo-3993299.jpeg?auto=compress&cs=tinysrgb&w=900",
+    "https://images.pexels.com/photos/1570807/pexels-photo-1570807.jpeg?auto=compress&cs=tinysrgb&w=900",
+    "https://images.pexels.com/photos/3993464/pexels-photo-3993464.jpeg?auto=compress&cs=tinysrgb&w=900",
+    "https://images.pexels.com/photos/1805600/pexels-photo-1805600.jpeg?auto=compress&cs=tinysrgb&w=900",
+    "https://images.pexels.com/photos/2521978/pexels-photo-2521978.jpeg?auto=compress&cs=tinysrgb&w=900",
+    "https://images.pexels.com/photos/3998429/pexels-photo-3998429.jpeg?auto=compress&cs=tinysrgb&w=900",
+  ],
+  serviceImages: [
+    "https://images.pexels.com/photos/1319461/pexels-photo-1319461.jpeg?auto=compress&cs=tinysrgb&w=900",
+    "https://images.pexels.com/photos/3993133/pexels-photo-3993133.jpeg?auto=compress&cs=tinysrgb&w=900",
+    "https://images.pexels.com/photos/1813272/pexels-photo-1813272.jpeg?auto=compress&cs=tinysrgb&w=900",
+    "https://images.pexels.com/photos/3993449/pexels-photo-3993449.jpeg?auto=compress&cs=tinysrgb&w=900",
+    "https://images.pexels.com/photos/1453005/pexels-photo-1453005.jpeg?auto=compress&cs=tinysrgb&w=900",
+    "https://images.pexels.com/photos/3998414/pexels-photo-3998414.jpeg?auto=compress&cs=tinysrgb&w=900",
+  ],
+};
+
+function applyFilmingStaffOverrides() {
+  if (!FILMING_MODE_ACTIVE) return;
+
+  const staff = FILMING_MODE_OVERRIDES.staff;
+
+  const name1 = document.getElementById("staffName1");
+  if (name1) name1.textContent = staff.barber1Name;
+  const desc1 = document.getElementById("staffDescription1");
+  if (desc1) desc1.textContent = staff.barber1Description;
+  const cover1 = document.getElementById("staffCoverImage1");
+  if (cover1) cover1.src = staff.barber1CoverImage;
+  const char1 = document.getElementById("staffCharacterImage1");
+  if (char1) char1.src = staff.barber1Image;
+
+  const name2 = document.getElementById("staffName2");
+  if (name2) name2.textContent = staff.barber2Name;
+  const desc2 = document.getElementById("staffDescription2");
+  if (desc2) desc2.textContent = staff.barber2Description;
+  const cover2 = document.getElementById("staffCoverImage2");
+  if (cover2) cover2.src = staff.barber2CoverImage;
+  const char2 = document.getElementById("staffCharacterImage2");
+  if (char2) char2.src = staff.barber2Image;
+
+  const bookingBarberName = document.querySelector(
+    '.barber-card[data-barber="ricardo-silva"] .barber-name',
+  );
+  if (bookingBarberName) bookingBarberName.textContent = staff.barber2Name;
+}
+
+function applyFilmingGalleryOverrides() {
+  if (!FILMING_MODE_ACTIVE) return;
+
+  const items = document.querySelectorAll(".carousel .item img");
+  items.forEach((img, index) => {
+    const src = FILMING_MODE_OVERRIDES.galleryImages[index];
+    if (src) img.setAttribute("src", src);
+  });
+}
 
 function normalizeText(value) {
   return (value || "")
@@ -478,6 +552,9 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     }
 
+    applyFilmingGalleryOverrides();
+    applyFilmingStaffOverrides();
+
     setText("contactTitle", settings.contact?.title);
     setText("contactAddress", settings.contact?.addressText);
     setText("contactPhoneText", settings.contact?.phoneText);
@@ -560,13 +637,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Gerar HTML dos cards
       servicesGrid.innerHTML = activeServices
-        .map((service) => {
+        .map((service, index) => {
           const price =
             typeof service.price === "number"
               ? `${service.price.toFixed(2)} €`
               : service.price || "Sob consulta";
 
-          const hasImage = service.image && service.image.trim() !== "";
+          const overrideImage = FILMING_MODE_ACTIVE
+            ? FILMING_MODE_OVERRIDES.serviceImages[
+                index % FILMING_MODE_OVERRIDES.serviceImages.length
+              ]
+            : "";
+          const hasImage = Boolean(overrideImage || service.image);
+          const imageSrc = overrideImage || service.image;
 
           return `
           <div class="service-card-new" data-service-id="${service._id || ""}" data-service="${service.name?.toLowerCase().replace(/\s+/g, "-") || ""}">
@@ -574,7 +657,7 @@ document.addEventListener("DOMContentLoaded", function () {
               <div class="service-photo ${!hasImage ? "service-photo--placeholder" : ""}">
                 ${
                   hasImage
-                    ? `<img src="${service.image}" alt="${service.name}" loading="lazy">`
+                    ? `<img src="${imageSrc}" alt="${service.name}" loading="lazy">`
                     : `<span>24.7</span>`
                 }
               </div>
@@ -583,7 +666,6 @@ document.addEventListener("DOMContentLoaded", function () {
                   <span class="service-name">${service.name}</span>
                   <span class="service-price">${price}</span>
                 </div>
-                ${service.description ? `<p class="service-description">${service.description}</p>` : ""}
                 <div class="service-meta-line">
                   <button class="service-book-btn" type="button">Marcar</button>
                 </div>
@@ -645,7 +727,7 @@ document.addEventListener("DOMContentLoaded", function () {
     },
     "ricardo-silva": {
       id: "6998aaf59119a721cdc1e137",
-      name: "Ricardo Silva",
+      name: FILMING_MODE_ACTIVE ? "Miguel Ferreira" : "Ricardo Silva",
     },
   };
 
@@ -722,6 +804,9 @@ document.addEventListener("DOMContentLoaded", function () {
       const roleEl = barber2Card.querySelector(".barber-role");
       if (roleEl) roleEl.textContent = barberSettings.barber2Role;
     }
+
+    // Keep booking card name synced with filming override
+    applyFilmingStaffOverrides();
   };
 
   let bookedSlots = {}; // Será carregado da API
@@ -1569,8 +1654,11 @@ document.addEventListener("DOMContentLoaded", function () {
         const char2 = document.getElementById("staffCharacterImage2");
         if (char2) char2.src = barberCards.barber2Image;
       }
+
+      applyFilmingStaffOverrides();
     } catch (error) {
       // Error loading staff data
+      applyFilmingStaffOverrides();
     }
   }
 
