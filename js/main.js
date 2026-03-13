@@ -208,7 +208,7 @@ const FILMING_MODE_OVERRIDES = {
       "Detail-oriented Barber Specialist in modern cuts and beard styling, with a strong focus on client experience.",
     barber2CoverImage:
       "https://images.pexels.com/photos/3998414/pexels-photo-3998414.jpeg?auto=compress&cs=tinysrgb&w=900",
-    barber2Image: "https://pngimg.com/d/man_PNG6533.png",
+    barber2Image: "https://pngimg.com/d/man_PNG6517.png",
   },
   galleryImages: [
     "https://images.pexels.com/photos/1453005/pexels-photo-1453005.jpeg?auto=compress&cs=tinysrgb&w=900",
@@ -221,7 +221,17 @@ const FILMING_MODE_OVERRIDES = {
   ],
   serviceImagesByKeyword: {
     combo:
-      "https://images.pexels.com/photos/3992874/pexels-photo-3992874.jpeg?auto=compress&cs=tinysrgb&w=900",
+      "https://images.pexels.com/photos/3993133/pexels-photo-3993133.jpeg?auto=compress&cs=tinysrgb&w=900",
+    social:
+      "https://images.pexels.com/photos/3993449/pexels-photo-3993449.jpeg?auto=compress&cs=tinysrgb&w=900",
+    socialBeard:
+      "https://images.pexels.com/photos/1319461/pexels-photo-1319461.jpeg?auto=compress&cs=tinysrgb&w=900",
+    color:
+      "https://images.pexels.com/photos/3993299/pexels-photo-3993299.jpeg?auto=compress&cs=tinysrgb&w=900",
+    highlights:
+      "https://images.pexels.com/photos/2521978/pexels-photo-2521978.jpeg?auto=compress&cs=tinysrgb&w=900",
+    platinum:
+      "https://images.pexels.com/photos/3998429/pexels-photo-3998429.jpeg?auto=compress&cs=tinysrgb&w=900",
     beard:
       "https://images.pexels.com/photos/1319461/pexels-photo-1319461.jpeg?auto=compress&cs=tinysrgb&w=900",
     fade: "https://images.pexels.com/photos/1570807/pexels-photo-1570807.jpeg?auto=compress&cs=tinysrgb&w=900",
@@ -240,9 +250,46 @@ const FILMING_MODE_OVERRIDES = {
   },
 };
 
+function normalizeServiceName(value) {
+  return (value || "")
+    .toString()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
 function getServiceFilmingImage(serviceName) {
-  const name = (serviceName || "").toLowerCase();
+  const name = normalizeServiceName(serviceName);
   const imageMap = FILMING_MODE_OVERRIDES.serviceImagesByKeyword;
+
+  if (name.includes("social") && name.includes("barba")) {
+    return imageMap.socialBeard;
+  }
+  if (
+    name.includes("pintura") ||
+    name.includes("color") ||
+    name.includes("preto")
+  ) {
+    return imageMap.color;
+  }
+  if (
+    name.includes("madeixa") ||
+    name.includes("luzes") ||
+    name.includes("highlight")
+  ) {
+    return imageMap.highlights;
+  }
+  if (
+    name.includes("platin") ||
+    name.includes("platina") ||
+    name.includes("blond")
+  ) {
+    return imageMap.platinum;
+  }
+  if (name.includes("social")) {
+    return imageMap.social;
+  }
 
   if (
     name.includes("combo") ||
