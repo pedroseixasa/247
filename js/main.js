@@ -201,15 +201,14 @@ const FILMING_MODE_OVERRIDES = {
     barber1Name: "Diogo Cunha",
     barber1Description:
       "Senior Barber focused on clean fades and executive grooming, delivering a consistent premium finish.",
-    barber1CoverImage:
-      "https://images.pexels.com/photos/1813272/pexels-photo-1813272.jpeg?auto=compress&cs=tinysrgb&w=900",
-    barber1Image: "images/staff-character-1.svg",
+    barber1CoverImage: "images/cunhacorte.png",
+    barber1Image: "images/cunha.png",
     barber2Name: "Miguel Ferreira",
     barber2Description:
       "Detail-oriented Barber Specialist in modern cuts and beard styling, with a strong focus on client experience.",
     barber2CoverImage:
       "https://images.pexels.com/photos/3998414/pexels-photo-3998414.jpeg?auto=compress&cs=tinysrgb&w=900",
-    barber2Image: "images/staff-character-2.svg",
+    barber2Image: "https://pngimg.com/d/man_PNG6533.png",
   },
   galleryImages: [
     "https://images.pexels.com/photos/1453005/pexels-photo-1453005.jpeg?auto=compress&cs=tinysrgb&w=900",
@@ -220,15 +219,79 @@ const FILMING_MODE_OVERRIDES = {
     "https://images.pexels.com/photos/2521978/pexels-photo-2521978.jpeg?auto=compress&cs=tinysrgb&w=900",
     "https://images.pexels.com/photos/3998429/pexels-photo-3998429.jpeg?auto=compress&cs=tinysrgb&w=900",
   ],
-  serviceImages: [
-    "https://images.pexels.com/photos/1319461/pexels-photo-1319461.jpeg?auto=compress&cs=tinysrgb&w=900",
-    "https://images.pexels.com/photos/3993133/pexels-photo-3993133.jpeg?auto=compress&cs=tinysrgb&w=900",
-    "https://images.pexels.com/photos/1813272/pexels-photo-1813272.jpeg?auto=compress&cs=tinysrgb&w=900",
-    "https://images.pexels.com/photos/3993449/pexels-photo-3993449.jpeg?auto=compress&cs=tinysrgb&w=900",
-    "https://images.pexels.com/photos/1453005/pexels-photo-1453005.jpeg?auto=compress&cs=tinysrgb&w=900",
-    "https://images.pexels.com/photos/3998414/pexels-photo-3998414.jpeg?auto=compress&cs=tinysrgb&w=900",
-  ],
+  serviceImagesByKeyword: {
+    combo:
+      "https://images.pexels.com/photos/3992874/pexels-photo-3992874.jpeg?auto=compress&cs=tinysrgb&w=900",
+    beard:
+      "https://images.pexels.com/photos/1319461/pexels-photo-1319461.jpeg?auto=compress&cs=tinysrgb&w=900",
+    fade: "https://images.pexels.com/photos/1570807/pexels-photo-1570807.jpeg?auto=compress&cs=tinysrgb&w=900",
+    haircut:
+      "https://images.pexels.com/photos/3993449/pexels-photo-3993449.jpeg?auto=compress&cs=tinysrgb&w=900",
+    machine:
+      "https://images.pexels.com/photos/1813272/pexels-photo-1813272.jpeg?auto=compress&cs=tinysrgb&w=900",
+    child:
+      "https://images.pexels.com/photos/769739/pexels-photo-769739.jpeg?auto=compress&cs=tinysrgb&w=900",
+    eyebrow:
+      "https://images.pexels.com/photos/3993464/pexels-photo-3993464.jpeg?auto=compress&cs=tinysrgb&w=900",
+    treatment:
+      "https://images.pexels.com/photos/1805600/pexels-photo-1805600.jpeg?auto=compress&cs=tinysrgb&w=900",
+    default:
+      "https://images.pexels.com/photos/3993133/pexels-photo-3993133.jpeg?auto=compress&cs=tinysrgb&w=900",
+  },
 };
+
+function getServiceFilmingImage(serviceName) {
+  const name = (serviceName || "").toLowerCase();
+  const imageMap = FILMING_MODE_OVERRIDES.serviceImagesByKeyword;
+
+  if (
+    name.includes("combo") ||
+    name.includes("pack") ||
+    name.includes("completo")
+  ) {
+    return imageMap.combo;
+  }
+  if (name.includes("barba") || name.includes("beard")) {
+    return imageMap.beard;
+  }
+  if (name.includes("fade") || name.includes("degrade")) {
+    return imageMap.fade;
+  }
+  if (
+    name.includes("maquina") ||
+    name.includes("máquina") ||
+    name.includes("machine")
+  ) {
+    return imageMap.machine;
+  }
+  if (
+    name.includes("crianca") ||
+    name.includes("criança") ||
+    name.includes("kids") ||
+    name.includes("junior")
+  ) {
+    return imageMap.child;
+  }
+  if (name.includes("sobrancelha") || name.includes("eyebrow")) {
+    return imageMap.eyebrow;
+  }
+  if (
+    name.includes("tratamento") ||
+    name.includes("treatment") ||
+    name.includes("spa")
+  ) {
+    return imageMap.treatment;
+  }
+  if (
+    name.includes("corte") ||
+    name.includes("haircut") ||
+    name.includes("tesoura")
+  ) {
+    return imageMap.haircut;
+  }
+
+  return imageMap.default;
+}
 
 function applyFilmingStaffOverrides() {
   if (!FILMING_MODE_ACTIVE) return;
@@ -239,10 +302,16 @@ function applyFilmingStaffOverrides() {
   if (name1) name1.textContent = staff.barber1Name;
   const desc1 = document.getElementById("staffDescription1");
   if (desc1) desc1.textContent = staff.barber1Description;
+  const aboutCover = document.getElementById("aboutCoverImage");
+  const aboutCharacter = document.getElementById("aboutCharacterImage");
+  const syncedCover1 =
+    aboutCover?.getAttribute("src") || staff.barber1CoverImage;
+  const syncedCharacter1 =
+    aboutCharacter?.getAttribute("src") || staff.barber1Image;
   const cover1 = document.getElementById("staffCoverImage1");
-  if (cover1) cover1.src = staff.barber1CoverImage;
+  if (cover1) cover1.src = syncedCover1;
   const char1 = document.getElementById("staffCharacterImage1");
-  if (char1) char1.src = staff.barber1Image;
+  if (char1) char1.src = syncedCharacter1;
 
   const name2 = document.getElementById("staffName2");
   if (name2) name2.textContent = staff.barber2Name;
@@ -637,16 +706,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Gerar HTML dos cards
       servicesGrid.innerHTML = activeServices
-        .map((service, index) => {
+        .map((service) => {
           const price =
             typeof service.price === "number"
               ? `${service.price.toFixed(2)} €`
               : service.price || "Sob consulta";
 
           const overrideImage = FILMING_MODE_ACTIVE
-            ? FILMING_MODE_OVERRIDES.serviceImages[
-                index % FILMING_MODE_OVERRIDES.serviceImages.length
-              ]
+            ? getServiceFilmingImage(service.name)
             : "";
           const hasImage = Boolean(overrideImage || service.image);
           const imageSrc = overrideImage || service.image;
