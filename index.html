@@ -1987,16 +1987,13 @@
         /* Serviços - cards editoriais com foto sempre visível */
         .service-card-new {
             position: relative;
-            background: linear-gradient(135deg, #fafbfc 0%, #f3f1ef 100%);
-            border-radius: 1.5rem;
-            border: 1px solid rgba(201, 169, 97, 0.15);
-            padding: 1.25rem;
+            background: #fff;
+            border-radius: 0.8rem;
+            border: 1px solid #e5e3e0;
+            padding: 0;
             overflow: hidden;
-            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 
-                0 2px 8px rgba(0, 0, 0, 0.06),
-                0 10px 32px rgba(201, 169, 97, 0.08),
-                inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            transition: all 0.35s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
             display: flex;
             flex-direction: column;
             min-height: 100%;
@@ -2009,45 +2006,35 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, 
-                transparent, 
-                rgba(201, 169, 97, 0.6), 
-                transparent);
+            height: 0;
+            background: none;
             opacity: 0;
-            transition: opacity 0.5s ease;
+            transition: none;
         }
 
         .service-card-new:hover::before {
-            opacity: 1;
+            opacity: 0;
         }
 
         .service-card-new::after {
             content: '';
             position: absolute;
             inset: 0;
-            border-radius: 1.5rem;
-            background: radial-gradient(
-                600px at var(--mouse-x, 50%) var(--mouse-y, 50%),
-                rgba(201, 169, 97, 0.15),
-                transparent 80%
-            );
+            border-radius: 0.8rem;
+            background: none;
             opacity: 0;
-            transition: opacity 0.4s ease;
+            transition: none;
             pointer-events: none;
         }
 
         .service-card-new:hover::after {
-            opacity: 1;
+            opacity: 0;
         }
 
         .service-card-new:hover {
-            transform: translateY(-12px);
-            border-color: rgba(201, 169, 97, 0.35);
-            box-shadow: 
-                0 2px 8px rgba(0, 0, 0, 0.08),
-                0 24px 48px rgba(201, 169, 97, 0.18),
-                inset 0 1px 0 rgba(255, 255, 255, 0.95);
+            transform: translateY(-4px);
+            border-color: #d4c4b0;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
         }
 
         .service-card-content {
@@ -2055,7 +2042,7 @@
             display: flex;
             flex-direction: column;
             align-items: stretch;
-            gap: 1.15rem;
+            gap: 0;
             z-index: 1;
             height: 100%;
         }
@@ -2063,15 +2050,13 @@
         .service-photo {
             width: 100%;
             aspect-ratio: 16 / 10;
-            border-radius: 1.2rem;
+            border-radius: 0.8rem 0.8rem 0 0;
             overflow: hidden;
-            background: linear-gradient(135deg, #1a1a1a 0%, #2a2420 100%);
+            background: #f0f0f0;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 
-                inset 0 0 0 1px rgba(255, 255, 255, 0.1),
-                0 4px 12px rgba(0, 0, 0, 0.2);
+            box-shadow: none;
             position: relative;
         }
 
@@ -2079,12 +2064,8 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(
-                180deg,
-                rgba(0, 0, 0, 0) 0%,
-                rgba(0, 0, 0, 0.15) 100%
-            );
-            mix-blend-mode: multiply;
+            background: none;
+            mix-blend-mode: normal;
         }
 
         .service-photo img {
@@ -2092,31 +2073,31 @@
             height: 100%;
             object-fit: cover;
             display: block;
-            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: transform 0.4s ease;
         }
 
         .service-card-new:hover .service-photo img {
-            transform: scale(1.08) translateY(-2px);
+            transform: scale(1.06);
         }
 
         .service-photo--placeholder {
-            background: linear-gradient(135deg, #1f1910 0%, #3a2b1d 100%);
+            background: linear-gradient(135deg, #2a2a2a, #1f1f1f);
             color: #c9a961;
-            font-size: 1.4rem;
-            letter-spacing: 0.15em;
+            font-size: 1.5rem;
+            letter-spacing: 0.2em;
             font-weight: 800;
         }
 
         .service-photo--placeholder span {
             color: inherit;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .service-info {
             flex: 1;
             display: flex;
             flex-direction: column;
-            gap: 0.85rem;
+            padding: 1.25rem 1.5rem;
+            gap: 0.8rem;
         }
 
         .service-card-new .service-main-line {
@@ -2127,25 +2108,20 @@
         }
 
         .service-card-new .service-name {
-            font-size: 1.18rem;
-            font-weight: 800;
+            font-size: 1rem;
+            font-weight: 700;
             color: #1a1a1a;
-            letter-spacing: -0.015em;
-            line-height: 1.35;
+            letter-spacing: -0.01em;
+            line-height: 1.4;
             flex: 1;
         }
 
         .service-card-new .service-price {
-            font-size: 1.45rem;
-            font-weight: 900;
+            font-size: 1.2rem;
+            font-weight: 800;
             color: #c9a961;
-            letter-spacing: -0.03em;
+            letter-spacing: -0.02em;
             white-space: nowrap;
-            background: linear-gradient(135deg, rgba(201, 169, 97, 0.12) 0%, rgba(201, 169, 97, 0.08) 100%);
-            border: 1.5px solid rgba(201, 169, 97, 0.45);
-            padding: 0.35rem 0.85rem;
-            border-radius: 999px;
-            box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.5), 0 2px 4px rgba(0, 0, 0, 0.08);
         }
 
         .service-card-new .service-description {
@@ -2165,33 +2141,24 @@
         }
 
         .service-card-new .service-duration-pill {
-            background: linear-gradient(135deg, rgba(26, 26, 26, 0.08), rgba(201, 169, 97, 0.06));
-            color: #1a1a1a;
-            padding: 0.42rem 1.1rem;
-            border-radius: 999px;
-            font-size: 0.85rem;
-            font-weight: 700;
-            letter-spacing: 0.02em;
-            border: 1px solid rgba(26, 26, 26, 0.08);
+            display: none;
         }
 
         .service-card-new .service-book-btn {
             width: 100%;
             margin-left: 0;
-            padding: 0.88rem 1.2rem;
-            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            padding: 0.75rem 1rem;
+            background: #1a1a1a;
             color: #fff;
-            border: 1px solid rgba(201, 169, 97, 0.3);
-            border-radius: 0.95rem;
-            font-size: 0.95rem;
-            font-weight: 800;
+            border: none;
+            border-radius: 0.6rem;
+            font-size: 0.85rem;
+            font-weight: 700;
             cursor: pointer;
-            letter-spacing: 0.04em;
+            letter-spacing: 0.05em;
             text-transform: uppercase;
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 
-                0 4px 12px rgba(0, 0, 0, 0.15),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            box-shadow: none;
             position: relative;
             overflow: hidden;
         }
@@ -2200,27 +2167,25 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(90deg, transparent, rgba(201, 169, 97, 0.2), transparent);
-            transform: translateX(-100%);
-            transition: transform 0.6s ease;
+            background: none;
+            transform: none;
+            transition: none;
         }
 
         .service-card-new .service-book-btn:hover::before {
-            transform: translateX(100%);
+            transform: none;
         }
 
         .service-card-new .service-book-btn:hover {
-            background: linear-gradient(135deg, #c9a961 0%, #d4b884 100%);
-            border-color: rgba(201, 169, 97, 0.6);
+            background: #c9a961;
+            border-color: transparent;
             color: #1a1a1a;
-            transform: translateY(-3px);
-            box-shadow: 
-                0 8px 24px rgba(201, 169, 97, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            transform: none;
+            box-shadow: none;
         }
 
         .service-card-new .service-book-btn:active {
-            transform: translateY(-1px);
+            transform: none;
         }
 
         @media (max-width: 640px) {
