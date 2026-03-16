@@ -171,15 +171,29 @@ exports.getAllServices = async (req, res) => {
 
 exports.createService = async (req, res) => {
   try {
-    const { name, description, price, duration, image, order } = req.body;
+    // Aceitar tanto JSON normal quanto FormData
+    let data = req.body || {};
+    if (req.body && req.body.data) {
+      data = JSON.parse(req.body.data || "{}");
+    }
+
+    const { name, description, price, duration, order } = data;
     const normalizedPrice = normalizeServicePrice(price);
+
+    // Processar imagem se foi feito upload
+    let imageUrl = data.image || req.body.image || "";
+    if (req.serviceImageBase64) {
+      imageUrl = req.serviceImageBase64;
+    } else if (req.body.imageUrl) {
+      imageUrl = req.body.imageUrl;
+    }
 
     const service = new Service({
       name,
       description,
       price: normalizedPrice,
       duration: duration || 30,
-      image,
+      image: imageUrl,
       order: order || 0,
     });
 
@@ -193,9 +207,31 @@ exports.createService = async (req, res) => {
 exports.updateService = async (req, res) => {
   try {
     const { serviceId } = req.params;
-    const { name, description, price, duration, image, isActive, order } =
-      req.body;
+    
+    // Aceitar tanto JSON normal quanto FormData
+    let data = req.body || {};
+    if (req.body && req.body.data) {
+      data = JSON.parse(req.body.data || "{}");
+    }
+
+    const { name, description, price, duration, isActive, order } = data;
     const normalizedPrice = normalizeServicePrice(price);
+
+    // Obter serviço atual para preservar imagem se não for atualizada
+    const currentService = await Service.findById(serviceId);
+    if (!currentService) {
+      return res.status(404).json({ error: "Serviço não encontrado" });
+    }
+
+    // Processar imagem se foi feito upload
+    let imageUrl = currentService.image; // Manter imagem atual por padrão
+    if (req.serviceImageBase64) {
+      imageUrl = req.serviceImageBase64;
+    } else if (data.image) {
+      imageUrl = data.image;
+    } else if (req.body.imageUrl) {
+      imageUrl = req.body.imageUrl;
+    }
 
     const service = await Service.findByIdAndUpdate(
       serviceId,
@@ -204,16 +240,12 @@ exports.updateService = async (req, res) => {
         description,
         price: normalizedPrice,
         duration,
-        image,
+        image: imageUrl,
         isActive,
         order,
       },
       { new: true },
     );
-
-    if (!service) {
-      return res.status(404).json({ error: "Serviço não encontrado" });
-    }
 
     res.json(service);
   } catch (error) {

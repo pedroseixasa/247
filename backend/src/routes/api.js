@@ -68,12 +68,16 @@ router.post(
   "/admin/services",
   authMiddleware,
   adminMiddleware,
+  upload,
+  optimizeUploadedImages,
   adminController.createService,
 );
 router.put(
   "/admin/services/:serviceId",
   authMiddleware,
   adminMiddleware,
+  upload,
+  optimizeUploadedImages,
   adminController.updateService,
 );
 router.delete(

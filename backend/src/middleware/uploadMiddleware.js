@@ -73,6 +73,7 @@ const optimizeUploadedImages = async (req, res, next) => {
       "barber1CoverImage",
       "barber2Image",
       "barber2CoverImage",
+      "serviceImage",
     ];
 
     for (const field of fileFields) {
