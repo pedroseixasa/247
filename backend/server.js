@@ -77,7 +77,9 @@ app.use((err, req, res, next) => {
 
   // Multer file filter errors or other multer errors
   if (err.name === "MulterError" || err.message?.includes("Formato")) {
-    return res.status(400).json({ error: err.message || "Erro ao carregar ficheiro" });
+    return res
+      .status(400)
+      .json({ error: err.message || "Erro ao carregar ficheiro" });
   }
 
   // Validation errors

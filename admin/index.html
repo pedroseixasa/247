@@ -2333,7 +2333,7 @@
             `;
 
             document.body.appendChild(modal);
-            
+
             // Adicionar event listener para preview de imagem
             const fileInput = document.getElementById('serviceImageFile');
             fileInput.addEventListener('change', function (e) {
@@ -2386,7 +2386,7 @@
             modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; overflow-y: auto;';
 
             const hasImage = service.image ? true : false;
-            
+
             modal.innerHTML = `
                 <div style="background: white; padding: 2rem; border-radius: 8px; max-width: 500px; width: 90%; margin: 2rem auto;">
                     <h2 style="margin-top: 0;">Editar Serviço</h2>

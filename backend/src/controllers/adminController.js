@@ -183,11 +183,11 @@ exports.createService = async (req, res) => {
     }
 
     const { name, description, price, duration, order } = data;
-    
+
     if (!name || !price) {
       return res.status(400).json({ error: "Nome e preço são obrigatórios" });
     }
-    
+
     const normalizedPrice = normalizeServicePrice(price);
 
     // Processar imagem se foi feito upload
@@ -232,11 +232,11 @@ exports.updateService = async (req, res) => {
     }
 
     const { name, description, price, duration, isActive, order } = data;
-    
+
     if (!name || !price) {
       return res.status(400).json({ error: "Nome e preço são obrigatórios" });
     }
-    
+
     const normalizedPrice = normalizeServicePrice(price);
 
     // Obter serviço atual para preservar imagem se não for atualizada
