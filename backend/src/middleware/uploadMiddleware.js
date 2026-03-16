@@ -147,7 +147,6 @@ const optimizeUploadedImages = async (req, res, next) => {
         galleryBase64.push(
           `data:image/webp;base64,${optimizedImage.toString("base64")}`,
         );
-        console.error("Erro no middleware de upload:", error);
       }
 
       req.galleryImagesBase64 = galleryBase64;
@@ -177,6 +176,7 @@ module.exports = {
     { name: "barber1CoverImage", maxCount: 1 },
     { name: "barber2Image", maxCount: 1 },
     { name: "barber2CoverImage", maxCount: 1 },
+    { name: "serviceImage", maxCount: 1 },
   ]),
   optimizeUploadedImages,
 };

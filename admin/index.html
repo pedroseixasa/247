@@ -2336,18 +2336,37 @@
             
             // Adicionar event listener para preview de imagem
             const fileInput = document.getElementById('serviceImageFile');
-            fileInput.addEventListener('change', function(e) {
+            fileInput.addEventListener('change', function (e) {
                 const file = e.target.files[0];
                 if (file) {
-                    const preview = document.getElementById('serviceImagePreview');
-                    const previewImg = document.getElementById('previewImg');
-                    const fileName = document.getElementById('fileName');
-                    
+                    let preview = document.getElementById('serviceImagePreview');
+                    let previewImg = document.getElementById('previewImg');
+                    let fileName = document.getElementById('fileName');
+
+                    // Se não existir o preview, criar
+                    if (!previewImg) {
+                        if (!preview) {
+                            preview = document.createElement('div');
+                            preview.id = 'serviceImagePreview';
+                            preview.style.cssText = 'margin-top: 0.75rem;'
+                            preview.innerHTML = '<img id="previewImg" src="" style="max-width: 100%; max-height: 150px; border-radius: 4px;"><div style="margin-top: 0.5rem; font-size: 0.85rem; color: #666;" id="fileName"></div>';
+                            fileInput.parentElement.parentElement.appendChild(preview);
+                        }
+                        previewImg = document.getElementById('previewImg');
+                        fileName = document.getElementById('fileName');
+                    }
+
                     const reader = new FileReader();
-                    reader.onload = function(event) {
-                        previewImg.src = event.target.result;
-                        fileName.textContent = '📎 ' + file.name;
-                        preview.style.display = 'block';
+                    reader.onload = function (event) {
+                        if (previewImg) {
+                            previewImg.src = event.target.result;
+                        }
+                        if (fileName) {
+                            fileName.textContent = '📎 ' + file.name;
+                        }
+                        if (preview) {
+                            preview.style.display = 'block';
+                        }
                     };
                     reader.readAsDataURL(file);
                 }
@@ -2407,21 +2426,40 @@
             `;
 
             document.body.appendChild(modal);
-            
+
             // Adicionar event listener para preview de imagem
             const fileInput = document.getElementById('serviceImageFile');
-            fileInput.addEventListener('change', function(e) {
+            fileInput.addEventListener('change', function (e) {
                 const file = e.target.files[0];
                 if (file) {
-                    const preview = document.getElementById('serviceImagePreview');
-                    const previewImg = document.getElementById('previewImg');
-                    const fileName = document.getElementById('fileName');
-                    
+                    let preview = document.getElementById('serviceImagePreview');
+                    let previewImg = document.getElementById('previewImg');
+                    let fileName = document.getElementById('fileName');
+
+                    // Se não existir o preview, criar
+                    if (!previewImg) {
+                        if (!preview) {
+                            preview = document.createElement('div');
+                            preview.id = 'serviceImagePreview';
+                            preview.style.cssText = 'margin-top: 0.75rem;'
+                            preview.innerHTML = '<img id="previewImg" src="" style="max-width: 100%; max-height: 150px; border-radius: 4px;"><div style="margin-top: 0.5rem; font-size: 0.85rem; color: #666;" id="fileName"></div>';
+                            fileInput.parentElement.parentElement.appendChild(preview);
+                        }
+                        previewImg = document.getElementById('previewImg');
+                        fileName = document.getElementById('fileName');
+                    }
+
                     const reader = new FileReader();
-                    reader.onload = function(event) {
-                        previewImg.src = event.target.result;
-                        fileName.textContent = '📎 ' + file.name;
-                        preview.style.display = 'block';
+                    reader.onload = function (event) {
+                        if (previewImg) {
+                            previewImg.src = event.target.result;
+                        }
+                        if (fileName) {
+                            fileName.textContent = '📎 ' + file.name;
+                        }
+                        if (preview) {
+                            preview.style.display = 'block';
+                        }
                     };
                     reader.readAsDataURL(file);
                 }
@@ -2451,13 +2489,13 @@
 
             try {
                 const formData = new FormData();
-                
+
                 if (imageFile) {
                     formData.append('serviceImage', imageFile);
                 } else if (imageUrl) {
                     formData.append('imageUrl', imageUrl);
                 }
-                
+
                 const payload = { name, price, duration, description };
                 formData.append('data', JSON.stringify(payload));
 
@@ -2469,7 +2507,10 @@
                     body: formData
                 });
 
-                if (!response.ok) throw new Error('Erro ao criar serviço');
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `Erro ao criar serviço (${response.status})`);
+                }
 
                 const newService = await response.json();
 
@@ -2478,6 +2519,7 @@
                 loadPage('services');
             } catch (error) {
                 showStatusModal('Erro: ' + error.message, 'error');
+                console.error('Erro ao criar serviço:', error);
             }
         }
 
@@ -2499,13 +2541,13 @@
 
             try {
                 const formData = new FormData();
-                
+
                 if (imageFile) {
                     formData.append('serviceImage', imageFile);
                 } else if (imageUrl) {
                     formData.append('imageUrl', imageUrl);
                 }
-                
+
                 const payload = { name, price, duration, description };
                 formData.append('data', JSON.stringify(payload));
 
@@ -2517,7 +2559,10 @@
                     body: formData
                 });
 
-                if (!response.ok) throw new Error('Erro ao atualizar serviço');
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `Erro ao atualizar serviço (${response.status})`);
+                }
 
                 const updatedService = await response.json();
 
@@ -2526,6 +2571,7 @@
                 loadPage('services');
             } catch (error) {
                 showStatusModal('Erro: ' + error.message, 'error');
+                console.error('Erro ao atualizar serviço:', error);
             }
         }
 

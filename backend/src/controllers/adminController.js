@@ -174,10 +174,20 @@ exports.createService = async (req, res) => {
     // Aceitar tanto JSON normal quanto FormData
     let data = req.body || {};
     if (req.body && req.body.data) {
-      data = JSON.parse(req.body.data || "{}");
+      try {
+        data = JSON.parse(req.body.data || "{}");
+      } catch (parseError) {
+        console.error("Erro ao fazer parse JSON:", parseError);
+        data = req.body;
+      }
     }
 
     const { name, description, price, duration, order } = data;
+    
+    if (!name || !price) {
+      return res.status(400).json({ error: "Nome e preço são obrigatórios" });
+    }
+    
     const normalizedPrice = normalizeServicePrice(price);
 
     // Processar imagem se foi feito upload
@@ -200,6 +210,7 @@ exports.createService = async (req, res) => {
     await service.save();
     res.status(201).json(service);
   } catch (error) {
+    console.error("Erro ao criar serviço:", error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -207,14 +218,25 @@ exports.createService = async (req, res) => {
 exports.updateService = async (req, res) => {
   try {
     const { serviceId } = req.params;
-    
+
     // Aceitar tanto JSON normal quanto FormData
     let data = req.body || {};
     if (req.body && req.body.data) {
-      data = JSON.parse(req.body.data || "{}");
+      try {
+        data = JSON.parse(req.body.data || "{}");
+      } catch (parseError) {
+        console.error("Erro ao fazer parse JSON:", parseError);
+        // Se falhar parse, usa o req.body como está
+        data = req.body;
+      }
     }
 
     const { name, description, price, duration, isActive, order } = data;
+    
+    if (!name || !price) {
+      return res.status(400).json({ error: "Nome e preço são obrigatórios" });
+    }
+    
     const normalizedPrice = normalizeServicePrice(price);
 
     // Obter serviço atual para preservar imagem se não for atualizada
@@ -237,18 +259,19 @@ exports.updateService = async (req, res) => {
       serviceId,
       {
         name,
-        description,
+        description: description || currentService.description,
         price: normalizedPrice,
-        duration,
+        duration: duration || currentService.duration,
         image: imageUrl,
-        isActive,
-        order,
+        isActive: isActive !== undefined ? isActive : currentService.isActive,
+        order: order !== undefined ? order : currentService.order,
       },
       { new: true },
     );
 
     res.json(service);
   } catch (error) {
+    console.error("Erro ao atualizar serviço:", error);
     res.status(500).json({ error: error.message });
   }
 };
