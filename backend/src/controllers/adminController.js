@@ -808,12 +808,12 @@ exports.updateSiteContent = async (req, res) => {
         req.barber2CoverImageUrl || req.body.barber2CoverImageUrl;
     }
 
-    // Showcase Cards Images
+    // Showcase Cards Images (2 Cards)
     if (!data.showcase) {
       data.showcase = { cards: [] };
     }
 
-    for (let i = 1; i <= 3; i++) {
+    for (let i = 1; i <= 2; i++) {
       if (!data.showcase.cards[i - 1]) {
         data.showcase.cards[i - 1] = { images: [] };
       }
@@ -821,7 +821,7 @@ exports.updateSiteContent = async (req, res) => {
       // Processar múltiplas imagens para cada card
       const showcaseKey = `showcaseCard${i}Images`;
       if (req[showcaseKey] && Array.isArray(req[showcaseKey])) {
-        // Se houver novascardImages, substitui as antigas
+        // Se houver novas cardImages, substitui as antigas
         data.showcase.cards[i - 1].images = req[showcaseKey];
       } else if (req.body.showcase?.cards?.[i - 1]?.images) {
         // Caso contrário, mantém as antigas

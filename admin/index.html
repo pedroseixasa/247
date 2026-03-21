@@ -1719,9 +1719,9 @@
 
                         <!-- SHOWCASE CARDS -->
                         <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid #ddd;">
-                        <h3 style="margin-top: 1rem; font-size: 1.1rem;">📸 Cards de Showcase (3 Cards)</h3>
+                        <h3 style="margin-top: 1rem; font-size: 1.1rem;">📸 Cards de Showcase (2 Cards)</h3>
                         
-                        ${[1, 2, 3].map((cardNum) => {
+                        ${[1, 2].map((cardNum) => {
                     const cardData = settings.showcase?.cards?.[cardNum - 1] || {};
                     const images = cardData.images || [];
                     return `

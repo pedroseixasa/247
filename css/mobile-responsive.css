@@ -572,9 +572,9 @@
   }
 
   .about-payment-pills li {
-    border: 2px solid #6b9d5d !important;
+    border: 2px solid #000 !important;
     border-radius: 999px !important;
-    padding: 0.65rem 1.2rem !important;
+    padding: 0.5rem 1rem !important;
     font-size: 0.85rem !important;
     font-weight: 600 !important;
     color: #1a1a1a !important;
@@ -589,6 +589,28 @@
     white-space: nowrap !important;
     visibility: visible !important;
     opacity: 1 !important;
+    transition: all 0.3s ease !important;
+  }
+
+  .about-payment-pills li:hover {
+    background: #000 !important;
+    color: #fff !important;
+    border-color: #000 !important;
+    transform: translateY(-2px) !important;
+  }
+
+  /* Showcase Grid Inline - Mobile */
+  .showcase-grid-inline {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+    margin-top: 1.5rem !important;
+    padding-top: 1.5rem !important;
+    border-top: 1px solid #e0e0e0 !important;
+  }
+
+  .showcase-grid-inline .showcase-card {
+    aspect-ratio: 3 / 4 !important;
   }
 
   .about-content p {

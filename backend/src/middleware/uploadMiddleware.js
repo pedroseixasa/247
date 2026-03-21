@@ -202,8 +202,8 @@ const optimizeUploadedImages = async (req, res, next) => {
       );
     }
 
-    // Processar imagens dos showcase cards (3 cards × 3 imagens cada)
-    for (let cardNum = 1; cardNum <= 3; cardNum++) {
+    // Processar imagens dos showcase cards (2 cards × 3 imagens cada)
+    for (let cardNum = 1; cardNum <= 2; cardNum++) {
       const fieldName = `showcaseCard${cardNum}Images`;
       if (req.files[fieldName] && req.files[fieldName].length > 0) {
         console.log(
@@ -221,8 +221,8 @@ const optimizeUploadedImages = async (req, res, next) => {
 
           let optimizedImage;
           try {
-            // Aspect ratio 1:1 (square), qualidade 80%
-            optimizedImage = await optimizeToWebp(file.buffer, 1000, 1000, 80);
+            // Aspect ratio 3:4 (portrait), qualidade 80%
+            optimizedImage = await optimizeToWebp(file.buffer, 800, 1067, 80);
           } catch (err) {
             console.error(`Erro ao otimizar imagem ${file.originalname}:`, err);
             return res.status(400).json({
@@ -271,7 +271,6 @@ module.exports = {
     { name: "serviceImage", maxCount: 1 },
     { name: "showcaseCard1Images", maxCount: 3 },
     { name: "showcaseCard2Images", maxCount: 3 },
-    { name: "showcaseCard3Images", maxCount: 3 },
   ]),
   optimizeUploadedImages,
 };
