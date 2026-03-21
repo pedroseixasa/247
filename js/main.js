@@ -1792,6 +1792,39 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  // Initialize About Carousel
+  function initAboutCarousel() {
+    const carouselTrack = document.getElementById('aboutCarouselTrack');
+    const prevBtn = document.getElementById('aboutCarouselPrev');
+    const nextBtn = document.getElementById('aboutCarouselNext');
+
+    if (!carouselTrack || !prevBtn || !nextBtn) return;
+
+    const items = carouselTrack.querySelectorAll('.about-carousel-item');
+    let currentIndex = 0;
+
+    function updateCarousel() {
+      const offset = -currentIndex * 100;
+      carouselTrack.style.transform = `translateX(${offset}%)`;
+    }
+
+    function goToNext() {
+      currentIndex = (currentIndex + 1) % items.length;
+      updateCarousel();
+    }
+
+    function goToPrev() {
+      currentIndex = (currentIndex - 1 + items.length) % items.length;
+      updateCarousel();
+    }
+
+    nextBtn.addEventListener('click', goToNext);
+    prevBtn.addEventListener('click', goToPrev);
+
+    // Auto-advance carousel every 5 seconds
+    setInterval(goToNext, 5000);
+  }
+
   // Initialize 3D animation with IntersectionObserver
   function init3DAnimation() {
     const staffCards = document.querySelectorAll(".staff-card");
@@ -1848,9 +1881,11 @@ document.addEventListener("DOMContentLoaded", function () {
     document.addEventListener("DOMContentLoaded", () => {
       loadStaffData();
       init3DAnimation();
+      initAboutCarousel();
     });
   } else {
     loadStaffData();
     init3DAnimation();
+    initAboutCarousel();
   }
 })();

@@ -816,6 +816,10 @@
 
         /* Desktop: secção mais ampla e melhor separação entre card 3D e texto */
         @media (min-width: 1025px) {
+            .about-layout {
+                grid-template-columns: minmax(0, 0.5fr) minmax(0, 0.7fr);
+            }
+
             .staff {
                 padding: var(--spacing-xl) 0 calc(var(--spacing-xl) + 2rem);
             }
@@ -1212,6 +1216,12 @@
             display: flex;
             justify-content: center;
             margin: 2rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .carousel-wrapper {
+                margin: 2rem 15px;
+            }
         }
 
 
@@ -2667,10 +2677,82 @@
 
         .about-layout {
             display: grid;
-            grid-template-columns: minmax(0, 0.5fr) minmax(0, 0.7fr);
+            grid-template-columns: 1fr;
             gap: 2.5rem;
             align-items: center;
             justify-items: center;
+        }
+
+        .about-carousel-wrapper {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .about-carousel-container {
+            overflow: hidden;
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            padding: 0 40px;
+        }
+
+        .about-carousel-track {
+            display: flex;
+            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .about-carousel-item {
+            flex: 0 0 100%;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+
+        .about-carousel-item img {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            border-radius: 1rem;
+            display: block;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .about-carousel-nav {
+            position: absolute;
+            top: 50%;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            transition: all 0.3s ease;
+            z-index: 10;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-50%);
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .about-carousel-nav:hover {
+            background: var(--accent);
+            color: var(--secondary);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .about-carousel-nav.prev {
+            left: 0;
+        }
+
+        .about-carousel-nav.next {
+            right: 0;
         }
 
         .about-text {
@@ -4366,14 +4448,27 @@
 
         <section class="about scroll-observer visible" id="about">
             <div class="container about-layout">
-                <div class="about-card-3d">
-                    <div class="about-card">
-                        <div class="about-card-wrapper">
-                            <img id="aboutCoverImage" src="images/cunhacorte.png" class="about-cover-image"
-                                alt="24.7 Barbearia" loading="lazy">
+                <div class="about-carousel-wrapper">
+                    <div class="about-carousel-container">
+                        <div class="about-carousel-track" id="aboutCarouselTrack">
+                            <div class="about-carousel-item">
+                                <img src="https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=500&h=400&fit=crop" alt="Barbearia 24.7" loading="lazy">
+                            </div>
+                            <div class="about-carousel-item">
+                                <img src="https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=500&h=400&fit=crop" alt="Ambiente Barbearia" loading="lazy">
+                            </div>
+                            <div class="about-carousel-item">
+                                <img src="https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=500&h=400&fit=crop" alt="Serviços Premium" loading="lazy">
+                            </div>
+                            <div class="about-carousel-item">
+                                <img src="https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=500&h=400&fit=crop" alt="Clientes Satisfeitos" loading="lazy">
+                            </div>
+                            <div class="about-carousel-item">
+                                <img src="images/1.jpg" alt="Barbearia 247" loading="lazy">
+                            </div>
                         </div>
-                        <img id="aboutCharacterImage" src="images/cunha.png" class="about-character-image"
-                            alt="Barbeiro 24.7 Barbearia" loading="lazy">
+                        <button class="about-carousel-nav prev" id="aboutCarouselPrev">&lt;</button>
+                        <button class="about-carousel-nav next" id="aboutCarouselNext">&gt;</button>
                     </div>
                 </div>
 
