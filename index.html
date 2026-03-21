@@ -52,11 +52,6 @@
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
     <link rel="preconnect" href="https://two4-7-barbearia.onrender.com" crossorigin>
 
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Serif:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap" rel="stylesheet">
-
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
     <script>
@@ -103,6 +98,8 @@
     </script>
 
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700;900&family=Manrope:wght@400;500;600;700;800&display=swap');
+
         :root {
             --primary: #1a1a1a;
             --secondary: #ffffff;
@@ -118,8 +115,8 @@
             --spacing-md: 1.25rem;
             --spacing-lg: 2.5rem;
             --spacing-xl: 4rem;
+            --font-headline: 'Noto Serif', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
             --font-body: 'Manrope', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            --font-headline: 'Noto Serif', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", serif;
         }
 
         a[href*="elfsight.com"] {
@@ -184,14 +181,13 @@
             border: 1px solid var(--border-light);
             border-radius: 0.375rem;
             font-size: 0.9rem;
-            font-weight: 600;
+            font-weight: 500;
             letter-spacing: 0.04em;
             cursor: pointer;
             transition: all 180ms ease;
             text-transform: none;
             position: relative;
             overflow: hidden;
-            font-family: var(--font-body);
         }
 
         .btn::before {
@@ -255,6 +251,7 @@
             font-family: var(--font-headline);
             font-weight: 900;
             letter-spacing: -0.02em;
+            line-height: 1.1;
         }
 
         h2 {
@@ -263,7 +260,6 @@
             animation: reveal-text 600ms ease-out;
             font-family: var(--font-headline);
             font-weight: 700;
-            letter-spacing: -0.01em;
         }
 
         h3 {
@@ -273,14 +269,13 @@
             font-weight: 700;
         }
 
-        body {
-            font-family: var(--font-body);
-        }
-
         p {
             color: var(--text-light);
             margin-bottom: var(--spacing-md);
             font-family: var(--font-body);
+            font-size: 1rem;
+            line-height: 1.65;
+            font-weight: 400;
         }
 
         .loader-overlay {
@@ -742,7 +737,6 @@
         .about {
             padding: var(--spacing-xl) 0;
             background-color: var(--secondary);
-            min-height: auto;
         }
 
         .section-title {
@@ -766,15 +760,16 @@
         }
 
         .about-content {
-            max-width: 100%;
-            text-align: left;
+            max-width: 700px;
+            margin: 0 auto;
+            text-align: center;
         }
 
         .about-content p {
-            font-size: 1.1875rem;
+            font-size: 1.0625rem;
             line-height: 1.8;
-            color: var(--text-dark);
-            font-weight: 400;
+            color: var(--text-light);
+            font-family: var(--font-body);
         }
 
         .staff {
@@ -784,9 +779,9 @@
 
         .staff-grid {
             display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 3rem;
-            max-width: 1100px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 4rem;
+            max-width: 1000px;
             margin: 0 auto;
         }
 
@@ -794,13 +789,12 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 1.5rem;
         }
 
         .staff-info {
             text-align: center;
-            margin-top: 0;
-            max-width: 360px;
+            margin-top: 4rem;
+            max-width: 400px;
         }
 
         .staff-name {
@@ -809,6 +803,7 @@
             color: var(--primary);
             margin: 0 0 1rem;
             letter-spacing: -0.5px;
+            font-family: var(--font-headline);
         }
 
         .staff-description {
@@ -816,25 +811,32 @@
             color: var(--text-light);
             line-height: 1.7;
             margin: 0;
+            font-family: var(--font-body);
         }
 
         /* Desktop: secção mais ampla e melhor separação entre card 3D e texto */
         @media (min-width: 1025px) {
             .staff {
-                padding: calc(var(--spacing-xl) + 1rem) 0;
+                padding: var(--spacing-xl) 0 calc(var(--spacing-xl) + 2rem);
             }
 
             .staff .container>div:first-child {
-                margin-bottom: 4rem;
+                margin-bottom: 7.5rem;
             }
 
             .staff-grid {
-                column-gap: 4rem;
-                row-gap: 3rem;
+                column-gap: 6rem;
+                row-gap: 4rem;
+                max-width: 1140px;
+            }
+
+            .staff-member {
+                gap: 4rem;
             }
 
             .staff-info {
-                max-width: 380px;
+                margin-top: 0;
+                max-width: 440px;
             }
         }
 
@@ -936,22 +938,16 @@
         }
 
         .services {
-            padding: var(--spacing-xl) 0 calc(var(--spacing-xl) + 2rem);
-            background: linear-gradient(180deg, #f9f7f2 0%, #f3ece2 100%);
-            min-height: 100vh;
-        }
-
-        .services .container {
-            max-width: 1200px;
-            width: 100%;
+            padding: var(--spacing-xl) 0;
+            background-color: var(--bg-light);
         }
 
         .services-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
             margin-top: 3rem;
-            padding: 0;
+            padding: 0 1rem;
         }
 
         @media (min-width: 1024px) {
@@ -1037,21 +1033,19 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            font-family: var(--font-headline);
         }
 
         .service-price {
             font-size: 1.375rem;
             font-weight: 700;
             color: var(--accent);
+            font-family: var(--font-headline);
         }
 
         .contact {
             padding: var(--spacing-xl) 0;
             background-color: var(--secondary);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
         .map-container iframe {
@@ -1063,10 +1057,6 @@
         .gallery {
             padding: var(--spacing-xl) 0;
             background-color: var(--secondary);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
         .gallery-grid {
@@ -1477,6 +1467,7 @@
             font-weight: 600;
             color: var(--text-dark);
             font-size: 1rem;
+            font-family: var(--font-headline);
         }
 
         .review-rating {
@@ -1490,11 +1481,13 @@
             font-size: 0.95rem;
             line-height: 1.6;
             margin-bottom: var(--spacing-md);
+            font-family: var(--font-body);
         }
 
         .review-date {
             color: var(--text-muted);
             font-size: 0.8rem;
+            font-family: var(--font-body);
         }
 
         .google-badge {
@@ -1538,6 +1531,7 @@
         .cta p {
             color: rgba(255, 255, 255, 0.8);
             margin-bottom: var(--spacing-lg);
+            font-size: 1rem;
         }
 
         .cta .btn {
@@ -1560,6 +1554,7 @@
         footer p {
             margin: 0;
             color: rgba(255, 255, 255, 0.8);
+            font-family: var(--font-body);
         }
 
         .scroll-observer {
@@ -1726,6 +1721,7 @@
             letter-spacing: 0.12em;
             text-transform: uppercase;
             font-weight: 700;
+            font-family: var(--font-headline);
         }
 
         .contact-item p {
@@ -1733,6 +1729,7 @@
             font-size: 1rem;
             color: var(--primary);
             font-weight: 500;
+            font-family: var(--font-body);
         }
 
         .contact-link {
@@ -1743,6 +1740,7 @@
             transition: all 200ms ease;
             padding-bottom: 0.25rem;
             border-bottom: 2px solid var(--accent);
+            font-family: var(--font-headline);
         }
 
         .contact-link:hover {
@@ -2021,13 +2019,13 @@
         /* Serviços - cards editoriais com foto sempre visível */
         .service-card-new {
             position: relative;
-            background: linear-gradient(145deg, #ffffff 0%, #fbf7ef 100%);
-            border-radius: 1.25rem;
-            border: 1px solid rgba(26, 26, 26, 0.08);
-            padding: 1.25rem;
+            background: #fff;
+            border-radius: 0.8rem;
+            border: 1px solid #e5e3e0;
+            padding: 0;
             overflow: hidden;
-            transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
-            box-shadow: 0 25px 55px rgba(20, 16, 11, 0.08);
+            transition: all 0.35s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
             display: flex;
             flex-direction: column;
             min-height: 100%;
@@ -2037,61 +2035,69 @@
         .service-card-new::before {
             content: '';
             position: absolute;
-            inset: 1px;
-            border-radius: 1.1rem;
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            pointer-events: none;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 0;
+            background: none;
+            opacity: 0;
+            transition: none;
+        }
+
+        .service-card-new:hover::before {
+            opacity: 0;
         }
 
         .service-card-new::after {
             content: '';
             position: absolute;
             inset: 0;
-            border-radius: 1.25rem;
-            background: radial-gradient(circle at top, rgba(255, 255, 255, 0.6), transparent 65%);
+            border-radius: 0.8rem;
+            background: none;
             opacity: 0;
-            transition: opacity 0.4s ease;
+            transition: none;
             pointer-events: none;
         }
 
-        .service-card-new:hover {
-            transform: translateY(-8px);
-            border-color: rgba(201, 169, 97, 0.6);
-            box-shadow: 0 30px 55px rgba(20, 16, 11, 0.15);
+        .service-card-new:hover::after {
+            opacity: 0;
         }
 
-        .service-card-new:hover::after {
-            opacity: 1;
+        .service-card-new:hover {
+            transform: translateY(-4px);
+            border-color: #d4c4b0;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
         }
 
         .service-card-content {
             position: relative;
             display: flex;
             flex-direction: column;
-            gap: 1.25rem;
+            align-items: stretch;
+            gap: 0;
             z-index: 1;
             height: 100%;
         }
 
         .service-photo {
             width: 100%;
-            aspect-ratio: 4 / 3;
-            border-radius: 1rem;
+            aspect-ratio: 16 / 10;
+            border-radius: 0.8rem 0.8rem 0 0;
             overflow: hidden;
-            background: #f3f0ea;
+            background: #f0f0f0;
             display: flex;
             align-items: center;
             justify-content: center;
+            box-shadow: none;
             position: relative;
-            box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.05);
         }
 
         .service-photo::after {
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(180deg, rgba(5, 5, 5, 0) 0%, rgba(5, 5, 5, 0.25) 100%);
-            mix-blend-mode: multiply;
+            background: none;
+            mix-blend-mode: normal;
         }
 
         .service-photo img {
@@ -2107,12 +2113,11 @@
         }
 
         .service-photo--placeholder {
-            background: linear-gradient(145deg, #d8c6a6, #b99b78);
-            color: #fff;
+            background: linear-gradient(135deg, #2a2a2a, #1f1f1f);
+            color: #c9a961;
             font-size: 1.5rem;
             letter-spacing: 0.2em;
             font-weight: 800;
-            font-family: var(--font-headline);
         }
 
         .service-photo--placeholder span {
@@ -2123,36 +2128,32 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            padding: 0;
-            gap: 1rem;
+            padding: 1.25rem 1.5rem;
+            gap: 0.8rem;
         }
 
         .service-card-new .service-main-line {
             display: flex;
-            flex-direction: column;
             align-items: flex-start;
-            gap: 0.45rem;
+            justify-content: space-between;
+            gap: 1rem;
         }
 
         .service-card-new .service-name {
-            font-size: 1.15rem;
-            font-weight: 800;
+            font-size: 1rem;
+            font-weight: 700;
             color: #1a1a1a;
-            letter-spacing: -0.02em;
-            line-height: 1.35;
-            font-family: var(--font-headline);
+            letter-spacing: -0.01em;
+            line-height: 1.4;
+            flex: 1;
         }
 
         .service-card-new .service-price {
-            font-size: 0.95rem;
-            font-weight: 700;
-            color: #1a1a1a;
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
-            background: #f2e6cf;
-            padding: 0.15rem 0.85rem;
-            border-radius: 999px;
-            border: 1px solid rgba(26, 26, 26, 0.08);
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #c9a961;
+            letter-spacing: -0.02em;
+            white-space: nowrap;
         }
 
         .service-card-new .service-description {
@@ -2168,7 +2169,7 @@
             align-items: center;
             gap: 0.8rem;
             margin-top: auto;
-            padding-top: 0.75rem;
+            padding-top: 0.5rem;
         }
 
         .service-card-new .service-duration-pill {
@@ -2178,45 +2179,45 @@
         .service-card-new .service-book-btn {
             width: 100%;
             margin-left: 0;
-            padding: 0.85rem 1.25rem;
-            background: transparent;
-            color: #1a1a1a;
-            border: 1px solid rgba(26, 26, 26, 0.35);
-            border-radius: 999px;
+            padding: 0.75rem 1rem;
+            background: #1a1a1a;
+            color: #fff;
+            border: none;
+            border-radius: 0.6rem;
             font-size: 0.85rem;
             font-weight: 700;
             cursor: pointer;
-            letter-spacing: 0.1em;
+            letter-spacing: 0.05em;
             text-transform: uppercase;
-            transition: all 0.35s ease;
-            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+            transition: all 0.3s ease;
+            box-shadow: none;
             position: relative;
             overflow: hidden;
-            background-clip: padding-box;
         }
 
         .service-card-new .service-book-btn::before {
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(120deg, rgba(201, 169, 97, 0.15), transparent);
-            opacity: 0;
-            transition: opacity 0.35s ease;
+            background: none;
+            transform: none;
+            transition: none;
         }
 
         .service-card-new .service-book-btn:hover::before {
-            opacity: 1;
+            transform: none;
         }
 
         .service-card-new .service-book-btn:hover {
-            background: #1a1a1a;
-            border-color: #1a1a1a;
-            color: #fff;
-            box-shadow: 0 15px 30px rgba(26, 26, 26, 0.2);
+            background: #c9a961;
+            border-color: transparent;
+            color: #1a1a1a;
+            transform: none;
+            box-shadow: none;
         }
 
         .service-card-new .service-book-btn:active {
-            transform: translateY(1px);
+            transform: none;
         }
 
         @media (max-width: 640px) {
@@ -2233,7 +2234,7 @@
             }
 
             .service-info {
-                gap: 0.6rem;
+                gap: 0.55rem;
             }
 
             .service-card-new .service-meta-line {
@@ -2666,35 +2667,21 @@
 
         .about-layout {
             display: grid;
-            grid-template-columns: 1fr 1.2fr;
-            gap: 4rem;
+            grid-template-columns: minmax(0, 0.5fr) minmax(0, 0.7fr);
+            gap: 2.5rem;
             align-items: center;
-            justify-items: start;
-            min-height: 85vh;
+            justify-items: center;
         }
 
         .about-text {
-            max-width: 100%;
+            max-width: 600px;
             justify-self: start;
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        .about-text .section-title {
-            text-align: left;
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            line-height: 1.1;
-        }
-
-        .about-text .section-title::after {
-            margin-left: 0;
         }
 
         /* Card 3D simples (logo de fundo + cunha à frente) */
         :root {
-            --about-card-height: 480px;
+            --about-card-height: 340px;
+            /* antes 260px */
             --about-card-width: calc(var(--about-card-height) / 1.3);
         }
 
@@ -2794,30 +2781,6 @@
         .about-card.is-3d .about-character-image {
             opacity: 1;
             transform: translate3d(0, -1%, 280px);
-        }
-
-        .staff-card {
-            width: 240px;
-            height: 320px;
-        }
-
-        .staff-card .about-card-wrapper {
-            width: 110%;
-            height: 110%;
-        }
-
-        @media (min-width: 1025px) {
-            .staff-card {
-                width: 280px;
-                height: 360px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .staff-card {
-                width: 220px;
-                height: 300px;
-            }
         }
 
 
@@ -3852,7 +3815,6 @@
             font-size: 0.875rem;
             font-weight: 600;
             color: var(--primary);
-            font-family: var(--font-body);
         }
 
         .form-group input {
