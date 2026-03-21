@@ -691,7 +691,7 @@ document.addEventListener("DOMContentLoaded", function () {
         <div class="about-carousel-item">
           <img src="${image}" alt="Barbearia 24.7" loading="lazy">
         </div>
-      `
+      `,
         )
         .join("");
     }
@@ -1825,13 +1825,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Initialize About Carousel
   function initAboutCarousel() {
-    const carouselTrack = document.getElementById('aboutCarouselTrack');
-    const prevBtn = document.getElementById('aboutCarouselPrev');
-    const nextBtn = document.getElementById('aboutCarouselNext');
+    const carouselTrack = document.getElementById("aboutCarouselTrack");
+    const prevBtn = document.getElementById("aboutCarouselPrev");
+    const nextBtn = document.getElementById("aboutCarouselNext");
 
     if (!carouselTrack || !prevBtn || !nextBtn) return;
 
-    const items = carouselTrack.querySelectorAll('.about-carousel-item');
+    const items = carouselTrack.querySelectorAll(".about-carousel-item");
     let currentIndex = 0;
 
     function updateCarousel() {
@@ -1849,8 +1849,8 @@ document.addEventListener("DOMContentLoaded", function () {
       updateCarousel();
     }
 
-    nextBtn.addEventListener('click', goToNext);
-    prevBtn.addEventListener('click', goToPrev);
+    nextBtn.addEventListener("click", goToNext);
+    prevBtn.addEventListener("click", goToPrev);
 
     // Auto-advance carousel every 5 seconds
     setInterval(goToNext, 5000);
