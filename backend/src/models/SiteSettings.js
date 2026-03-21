@@ -89,6 +89,13 @@ const siteSettingsSchema = new mongoose.Schema(
       barber2Image: String,
       barber2CoverImage: String,
     },
+    showcase: {
+      cards: [
+        {
+          images: [String],
+        },
+      ],
+    },
     staffSection: {
       title: String,
       subtitle: String,

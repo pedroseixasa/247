@@ -1717,6 +1717,22 @@
                             <textarea id="aboutPaymentMethods" rows="3" placeholder="MB Way&#10;Dinheiro">${aboutPaymentMethodsText}</textarea>
                         </div>
 
+                        <!-- SHOWCASE CARDS -->
+                        <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid #ddd;">
+                        <h3 style="margin-top: 1rem; font-size: 1.1rem;">📸 Cards de Showcase (3 Cards)</h3>
+                        
+                        ${[1, 2, 3].map((cardNum) => {
+                    const cardData = settings.showcase?.cards?.[cardNum - 1] || {};
+                    const images = cardData.images || [];
+                    return `
+                        <div class="form-group" style="border: 1px solid #e0e0e0; padding: 1rem; border-radius: 0.5rem; margin-top: 0.5rem;">
+                            <label><strong>Card ${cardNum} - Upload de Imagens (máx 3)</strong></label>
+                            <input type="file" id="showcaseCard${cardNum}Images" accept="image/*" multiple>
+                            ${images.length > 0 ? `<p style="margin-top: 0.5rem; color: #666; font-size: 0.9rem;">Imagens atuais: <strong>${images.length}</strong></p>` : ''}
+                        </div>
+                            `;
+                }).join('')}
+
                         <div class="form-group">
                             <label>Serviços: Título</label>
                             <input type="text" id="servicesTitle" value="${settings.services?.title || ''}">
@@ -1986,6 +2002,30 @@
                         .map(item => item.trim())
                         .filter(Boolean);
 
+                    // Process Showcase Cards Images
+                    const showcaseCards = [];
+                    for (let i = 1; i <= 3; i++) {
+                        const inputEl = document.getElementById(`showcaseCard${i}Images`);
+                        const files = Array.from(inputEl?.files || []);
+
+                        if (files.length > 3) {
+                            showStatusModal(`Card ${i}: Máximo 3 imagens permitidas`, 'error');
+                            return;
+                        }
+
+                        // Upload new files
+                        if (files.length > 0) {
+                            for (const file of files) {
+                                formData.append(`showcaseCard${i}Images`, file);
+                            }
+                        }
+
+                        // Keep existing images
+                        showcaseCards.push({
+                            images: settings.showcase?.cards?.[i - 1]?.images || []
+                        });
+                    }
+
                     // Adicionar outros dados como JSON em um campo separado
                     const payload = {
                         loaderText: document.getElementById('loaderText').value,
@@ -2054,6 +2094,9 @@
                             barber2Description: document.getElementById('barber2Description').value,
                             barber2Image: settings.barberCards?.barber2Image || '',
                             barber2CoverImage: settings.barberCards?.barber2CoverImage || ''
+                        },
+                        showcase: {
+                            cards: showcaseCards
                         }
                     };
 

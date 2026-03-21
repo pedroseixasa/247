@@ -808,6 +808,28 @@ exports.updateSiteContent = async (req, res) => {
         req.barber2CoverImageUrl || req.body.barber2CoverImageUrl;
     }
 
+    // Showcase Cards Images
+    if (!data.showcase) {
+      data.showcase = { cards: [] };
+    }
+
+    for (let i = 1; i <= 3; i++) {
+      if (!data.showcase.cards[i - 1]) {
+        data.showcase.cards[i - 1] = { images: [] };
+      }
+
+      // Processar múltiplas imagens para cada card
+      const showcaseKey = `showcaseCard${i}Images`;
+      if (req[showcaseKey] && Array.isArray(req[showcaseKey])) {
+        // Se houver novascardImages, substitui as antigas
+        data.showcase.cards[i - 1].images = req[showcaseKey];
+      } else if (req.body.showcase?.cards?.[i - 1]?.images) {
+        // Caso contrário, mantém as antigas
+        data.showcase.cards[i - 1].images =
+          req.body.showcase.cards[i - 1].images;
+      }
+    }
+
     // Verificar tamanho total antes de salvar (MongoDB tem limite de 16MB por documento)
     const dataSize = JSON.stringify(data).length;
     const dataSizeMB = (dataSize / (1024 * 1024)).toFixed(2);

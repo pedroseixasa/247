@@ -38,6 +38,17 @@
 /* Base Mobile Styles (< 768px) */
 @media (max-width: 768px) {
   /* Prevent horizontal scroll */
+
+  /* Showcase Cards - Mobile */
+  .showcase-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+
+  .showcase-card {
+    aspect-ratio: 1 !important;
+  }
+
   html {
     overflow-x: hidden;
     -webkit-text-size-adjust: 100%;
@@ -531,6 +542,53 @@
   .about-text {
     max-width: 100% !important;
     text-align: center !important;
+  }
+
+  .about-payment-inline {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1rem !important;
+    margin-top: 1.5rem !important;
+    padding-top: 1.5rem !important;
+    border-top: 1px solid #e0e0e0 !important;
+  }
+
+  .about-payment-label {
+    font-size: 0.7rem !important;
+    letter-spacing: 0.2em !important;
+    text-transform: uppercase !important;
+    color: #999 !important;
+    font-weight: 700 !important;
+  }
+
+  .about-payment-pills {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 0.8rem !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    list-style: none !important;
+    justify-content: center !important;
+  }
+
+  .about-payment-pills li {
+    border: 2px solid #6b9d5d !important;
+    border-radius: 999px !important;
+    padding: 0.65rem 1.2rem !important;
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+    color: #1a1a1a !important;
+    background: #fff !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.6rem !important;
+    min-width: 110px !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+    visibility: visible !important;
+    opacity: 1 !important;
   }
 
   .about-content p {

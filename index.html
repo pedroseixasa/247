@@ -585,13 +585,6 @@
             background-color: #ffffff;
         }
 
-        .about .container {
-            position: relative;
-            z-index: 1;
-            max-width: 1100px;
-            width: 100%;
-        }
-
         .section-title {
             text-align: center;
             margin-bottom: 1.2rem;
@@ -613,80 +606,45 @@
         }
 
         .about .section-title {
-            text-align: left;
-            margin-bottom: 1.2rem;
-            font-size: 2.2rem;
-        }
-
-        .about .section-title::after {
-            margin-left: 0;
-        }
-
-        .about .section-title {
-            text-align: left;
-            margin-bottom: 1.2rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
             font-size: clamp(2rem, 4vw, 2.75rem);
         }
 
         .about .section-title::after {
-            margin-left: 0;
+            margin: 0.75rem auto 0;
         }
 
         .about-layout {
             display: grid;
-            grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
-            gap: clamp(2.5rem, 6vw, 4.5rem);
-            align-items: center;
+            grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.3fr);
+            gap: clamp(3rem, 7vw, 5rem);
+            align-items: flex-start;
+            margin-top: 2rem;
         }
 
+
+
         .about-media {
-            position: relative;
-            border-radius: 1.75rem;
+            width: 100%;
             overflow: hidden;
-            box-shadow: 0 25px 60px rgba(15, 15, 15, 0.12);
-            background: #fff;
-            min-height: 460px;
+            border-radius: 1.25rem;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+            aspect-ratio: 3 / 4;
         }
 
         .about-media img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
             display: block;
-        }
-
-        .about-media-stamp {
-            position: absolute;
-            bottom: 2.25rem;
-            left: 2.25rem;
-            padding: 1.25rem 1.5rem;
-            border-radius: 1.25rem;
-            background: rgba(18, 18, 18, 0.7);
-            color: #fff;
-            text-transform: uppercase;
-            letter-spacing: 0.24em;
-            display: inline-flex;
-            flex-direction: column;
-            gap: 0.2rem;
-            min-width: 140px;
-        }
-
-        .about-media-stamp span:first-child {
-            font-size: clamp(1.9rem, 3vw, 2.6rem);
-            letter-spacing: 0.2em;
-            font-weight: 700;
-        }
-
-        .about-media-stamp span:last-child {
-            font-size: 0.85rem;
-            letter-spacing: 0.35em;
-            font-weight: 600;
+            object-fit: cover;
         }
 
         .about-text {
             display: flex;
             flex-direction: column;
-            gap: 1.25rem;
+            gap: 1.75rem;
+            padding-top: 0.5rem;
         }
 
         .about-content p {
@@ -713,104 +671,46 @@
         .about-payment-pills {
             display: flex;
             flex-wrap: wrap;
-            gap: 0.75rem;
+            gap: 1rem;
             padding: 0;
-            margin: 0;
+            margin: 1rem 0 0 0;
             list-style: none;
+            justify-content: flex-start;
         }
 
         .about-payment-pills li {
-            border: 1px solid rgba(26, 26, 26, 0.12);
+            border: 2px solid var(--accent);
             border-radius: 999px;
-            padding: 0.55rem 1.2rem;
+            padding: 0.75rem 1.5rem;
             font-size: 0.95rem;
             font-weight: 600;
             color: var(--primary);
             background: #fff;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
             display: inline-flex;
             align-items: center;
-            gap: 0.35rem;
-        }
-
-        .about-carousel-wrapper {
-            width: 100%;
-            display: flex;
             justify-content: center;
-        }
-
-        .about-carousel-container {
-            overflow: hidden;
-            position: relative;
-            width: 100%;
-            max-width: 500px;
-            padding: 0 40px;
-        }
-
-        .about-carousel-track {
-            display: flex;
-            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .about-carousel-item {
-            flex: 0 0 100%;
-            padding: 0 10px;
-            box-sizing: border-box;
-        }
-
-        .about-carousel-item img {
-            width: 100%;
-            height: 400px;
-            object-fit: cover;
-            border-radius: 1rem;
-            display: block;
+            gap: 0.8rem;
+            min-width: 140px;
+            text-align: center;
             transition: all 0.3s ease;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
         }
 
-        .about-carousel-nav {
-            position: absolute;
-            top: 50%;
-            width: 40px;
-            height: 40px;
-            background: rgba(255, 255, 255, 0.95);
-            border: 2px solid var(--accent);
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--accent);
-            transition: all 0.3s ease;
-            z-index: 10;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            transform: translateY(-50%);
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        .about-carousel-nav:hover {
+        .about-payment-pills li:hover {
             background: var(--accent);
-            color: var(--secondary);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-            transform: translateY(-50%) scale(1.1);
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(139, 115, 85, 0.2);
         }
 
-        .about-carousel-nav.prev {
-            left: 0;
-        }
-
-        .about-carousel-nav.next {
-            right: 0;
-        }
 
         .staff-info {
             margin-top: 0;
             max-width: 440px;
         }
-        }
 
         /* Tablet */
+
         @media (min-width: 769px) and (max-width: 1024px) {
             .staff {
                 padding: var(--spacing-xl) 0;
@@ -846,7 +746,62 @@
             }
         }
 
+        /* Showcase Cards */
+        .showcase {
+            padding: clamp(5rem, 8vw, 7.5rem) 0;
+            background-color: var(--bg-light);
+        }
+
+        .showcase-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(1.5rem, 4vw, 2.5rem);
+        }
+
+        .showcase-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 1.25rem;
+            aspect-ratio: 1;
+            cursor: pointer;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
+
+        .showcase-card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
+        }
+
+        .showcase-card-images {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .showcase-card-img {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 1;
+            transition: opacity 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .showcase-card-img:not(:first-child) {
+            opacity: 0;
+        }
+
+        .showcase-card:hover .showcase-card-img:not(:first-child) {
+            opacity: 1;
+        }
+
+        .showcase-card:hover .showcase-card-img:first-child {
+            opacity: 0;
+        }
+
         /* Mobile */
+
         @media (max-width: 768px) {
             .staff-grid {
                 grid-template-columns: 1fr;
@@ -2703,16 +2658,6 @@
             .about-text {
                 padding: 0 0.5rem;
             }
-
-            .about-media {
-                min-height: 360px;
-            }
-
-            .about-media-stamp {
-                bottom: 1.75rem;
-                left: 1.5rem;
-                padding: 1rem 1.2rem;
-            }
         }
 
         .instagram-feed {
@@ -4264,32 +4209,62 @@
         </section>
 
         <section class="about scroll-observer visible" id="about">
-            <div class="container about-layout">
-                <div class="about-carousel-wrapper">
-                    <div class="about-carousel-container">
-                        <div class="about-carousel-track" id="aboutCarouselTrack">
-                            <!-- Carousel items loaded from API -->
+            <div class="container">
+                <h2 class="section-title" id="aboutTitle">Sobre a 24.7 Barbearia</h2>
+
+                <div class="about-layout">
+                    <!-- Image Column -->
+                    <div class="about-media">
+                        <img id="aboutFeatureImage" src="images/1.jpg" alt="24.7 Barbearia" loading="lazy" />
+                    </div>
+
+                    <!-- Text & Payments Column -->
+                    <div class="about-text">
+                        <div class="about-content">
+                            <p id="aboutText">
+                                Somos uma barbearia moderna em Almada, comprometida com a excelência. Cada corte é feito
+                                com
+                                precisão, cada fade é trabalhado ao detalhe e cada barba é tratada com cuidado. Ambiente
+                                descontraído mas profissional, com marcações online, atendimento rápido e sem stress.
+                            </p>
                         </div>
-                        <button class="about-carousel-nav prev" id="aboutCarouselPrev">&lt;</button>
-                        <button class="about-carousel-nav next" id="aboutCarouselNext">&gt;</button>
+
+                        <div class="about-payment-inline">
+                            <span class="about-payment-label" id="aboutPaymentTitle">Métodos de Pagamento</span>
+                            <ul class="about-payment-pills" id="aboutPaymentMethods">
+                                <!-- Populated by JavaScript -->
+                            </ul>
+                        </div>
                     </div>
                 </div>
+            </div>
+        </section>
 
-                <div class="about-text">
-                    <h2 class="section-title" id="aboutTitle">Sobre a 24.7 Barbearia</h2>
-                    <div class="about-content">
-                        <p id="aboutText">
-                            Somos uma barbearia moderna em Almada, comprometida com a excelência. Cada corte é feito com
-                            precisão, cada fade é trabalhado ao detalhe e cada barba é tratada com cuidado. Ambiente
-                            descontraído mas profissional, com marcações online, atendimento rápido e sem stress.
-                        </p>
-                        <div class="about-payment-inline">
-                            <span class="about-payment-label" id="aboutPaymentTitle">Métodos de pagamento</span>
-                            <ul class="about-payment-pills" id="aboutPaymentMethods">
-                                <li>MB Way</li>
-                                <li>Multibanco</li>
-                                <li>Dinheiro</li>
-                            </ul>
+        <!-- SHOWCASE CARDS COM HOVER IMAGES -->
+        <section class="showcase scroll-observer" id="showcase">
+            <div class="container">
+                <div class="showcase-grid">
+                    <!-- Card 1 -->
+                    <div class="showcase-card">
+                        <div class="showcase-card-images">
+                            <img class="showcase-card-img showcase-card-img-1" src="images/1.jpg" alt="Showcase 1"
+                                loading="lazy" />
+                        </div>
+                    </div>
+
+                    <!-- Card 2 -->
+                    <div class="showcase-card">
+                        <div class="showcase-card-images">
+                            <img class="showcase-card-img showcase-card-img-2" src="images/cunhacorte.png"
+                                alt="Showcase 2" loading="lazy" />
+                        </div>
+                    </div>
+
+                    <!-- Card 3 -->
+                    <div class="showcase-card">
+                        <div class="showcase-card-images">
+                            <img class="showcase-card-img showcase-card-img-3" src="images/logo.jpg" alt="Showcase 3"
+                                loading="lazy" />
                         </div>
                     </div>
                 </div>

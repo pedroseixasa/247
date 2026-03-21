@@ -677,22 +677,18 @@ document.addEventListener("DOMContentLoaded", function () {
           ? settings.about.paymentCard.methods
           : DEFAULT_PAYMENT_METHODS;
 
-      aboutPaymentList.innerHTML = paymentMethods
-        .map((method) => `<li>${method}</li>`)
-        .join("");
-    }
+      // Icons for payment methods
+      const paymentIcons = {
+        "MB Way": "💳",
+        Multibanco: "🏧",
+        Dinheiro: "💵",
+      };
 
-    // Load About Carousel
-    const carouselTrack = document.getElementById("aboutCarouselTrack");
-    if (carouselTrack && Array.isArray(settings.about?.carouselImages)) {
-      carouselTrack.innerHTML = settings.about.carouselImages
-        .map(
-          (image) => `
-        <div class="about-carousel-item">
-          <img src="${image}" alt="Barbearia 24.7" loading="lazy">
-        </div>
-      `,
-        )
+      aboutPaymentList.innerHTML = paymentMethods
+        .map((method) => {
+          const icon = paymentIcons[method] || "💳"; // Default icon
+          return `<li>${icon} ${method}</li>`;
+        })
         .join("");
     }
 
@@ -758,6 +754,26 @@ document.addEventListener("DOMContentLoaded", function () {
     if (typeof window.updateBookingBarbers === "function") {
       window.updateBookingBarbers(settings);
     }
+
+    // Load Showcase Cards Images
+    const showcaseCards = settings.showcase?.cards || [];
+    showcaseCards.forEach((card, cardIndex) => {
+      const images = card.images || [];
+      const cardElement =
+        document.querySelectorAll(".showcase-card")[cardIndex];
+      if (cardElement && images.length > 0) {
+        const imagesContainer = cardElement.querySelector(
+          ".showcase-card-images",
+        );
+        imagesContainer.innerHTML = images
+          .map(
+            (img, idx) => `
+            <img class="showcase-card-img" style="${idx === 0 ? "" : "opacity: 0;"}" src="${img}" alt="Showcase ${cardIndex + 1}-${idx + 1}" loading="lazy" />
+          `,
+          )
+          .join("");
+      }
+    });
   }
 
   async function loadSiteSettings() {
@@ -1823,39 +1839,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // Initialize About Carousel
-  function initAboutCarousel() {
-    const carouselTrack = document.getElementById("aboutCarouselTrack");
-    const prevBtn = document.getElementById("aboutCarouselPrev");
-    const nextBtn = document.getElementById("aboutCarouselNext");
-
-    if (!carouselTrack || !prevBtn || !nextBtn) return;
-
-    const items = carouselTrack.querySelectorAll(".about-carousel-item");
-    let currentIndex = 0;
-
-    function updateCarousel() {
-      const offset = -currentIndex * 100;
-      carouselTrack.style.transform = `translateX(${offset}%)`;
-    }
-
-    function goToNext() {
-      currentIndex = (currentIndex + 1) % items.length;
-      updateCarousel();
-    }
-
-    function goToPrev() {
-      currentIndex = (currentIndex - 1 + items.length) % items.length;
-      updateCarousel();
-    }
-
-    nextBtn.addEventListener("click", goToNext);
-    prevBtn.addEventListener("click", goToPrev);
-
-    // Auto-advance carousel every 5 seconds
-    setInterval(goToNext, 5000);
-  }
-
   // Initialize 3D animation with IntersectionObserver
   function init3DAnimation() {
     const staffCards = document.querySelectorAll(".staff-card");
@@ -1911,12 +1894,10 @@ document.addEventListener("DOMContentLoaded", function () {
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () => {
       loadStaffData();
-      initAboutCarousel();
       init3DAnimation();
     });
   } else {
     loadStaffData();
-    initAboutCarousel();
     init3DAnimation();
   }
 })();
