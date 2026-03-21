@@ -155,6 +155,53 @@ const optimizeUploadedImages = async (req, res, next) => {
       );
     }
 
+    // Processar imagens do carrossel da secção Sobre (múltiplas)
+    if (
+      req.files.aboutCarouselImages &&
+      req.files.aboutCarouselImages.length > 0
+    ) {
+      console.log(
+        `Processando ${req.files.aboutCarouselImages.length} imagens do carrossel Sobre...`,
+      );
+
+      const carouselBase64 = [];
+      let totalBytes = 0;
+
+      for (let i = 0; i < req.files.aboutCarouselImages.length; i++) {
+        const file = req.files.aboutCarouselImages[i];
+        console.log(
+          `Otimizando carrossel ${i + 1}/${req.files.aboutCarouselImages.length}: ${file.originalname}`,
+        );
+
+        let optimizedImage;
+        try {
+          optimizedImage = await optimizeToWebp(file.buffer, 1100, 900, 70);
+        } catch (err) {
+          console.error(`Erro ao otimizar imagem ${file.originalname}:`, err);
+          return res.status(400).json({
+            error: `Erro ao otimizar imagem "${file.originalname}": ${err.message}`,
+          });
+        }
+
+        totalBytes += optimizedImage.length;
+        const sizeMB = (totalBytes / (1024 * 1024)).toFixed(2);
+        if (totalBytes > 6 * 1024 * 1024) {
+          return res.status(400).json({
+            error: `Imagens do carrossel muito grandes (${sizeMB} MB). Carrega menos imagens ou reduz a resolução`,
+          });
+        }
+
+        carouselBase64.push(
+          `data:image/webp;base64,${optimizedImage.toString("base64")}`,
+        );
+      }
+
+      req.aboutCarouselImagesBase64 = carouselBase64;
+      console.log(
+        `✓ ${carouselBase64.length} imagens do carrossel prontas (${(totalBytes / (1024 * 1024)).toFixed(2)} MB total)`,
+      );
+    }
+
     next();
   } catch (error) {
     res
@@ -169,6 +216,7 @@ module.exports = {
     { name: "heroImage", maxCount: 1 },
     { name: "aboutCoverImage", maxCount: 1 },
     { name: "aboutCharacterImage", maxCount: 1 },
+    { name: "aboutCarouselImages", maxCount: 8 },
     { name: "galleryLogoImage", maxCount: 1 },
     { name: "galleryImages", maxCount: 10 },
     { name: "loaderImage", maxCount: 1 },

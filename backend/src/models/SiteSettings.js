@@ -31,9 +31,22 @@ const siteSettingsSchema = new mongoose.Schema(
     },
     about: {
       title: String,
+      eyebrow: String,
       text: String,
       coverImage: String,
       characterImage: String,
+      carouselImages: [String],
+      highlights: [String],
+      ratingCard: {
+        value: String,
+        label: String,
+        description: String,
+      },
+      paymentCard: {
+        title: String,
+        subtitle: String,
+        methods: [String],
+      },
     },
     services: {
       title: String,

@@ -51,9 +51,32 @@ const defaultSiteSettings = {
   },
   about: {
     title: "Sobre a 24.7 Barbearia",
+    eyebrow: "Barbearia boutique em Almada",
     text: "Somos uma barbearia moderna em Almada, comprometida com a excelência. Cada corte é feito com precisão, cada fade é trabalhado ao detalhe e cada barba é tratada com cuidado. Ambiente descontraído mas profissional, com marcações online, atendimento rápido e sem stress.",
     coverImage: "images/cunhacorte.png",
     characterImage: "images/cunha.png",
+    carouselImages: [
+      "https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=500&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=500&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=500&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=500&h=400&fit=crop",
+      "images/1.jpg",
+    ],
+    highlights: [
+      "Técnicas de fades com acabamento a navalha",
+      "Barbas com toalha quente e produtos portugueses premium",
+      "Reservas online com confirmação imediata",
+    ],
+    ratingCard: {
+      value: "4.9",
+      label: "Avaliação média Google",
+      description: "Com base em 180+ reviews verificadas",
+    },
+    paymentCard: {
+      title: "Métodos de pagamento",
+      subtitle: "Escolhe como preferires pagar",
+      methods: ["MB Way", "Multibanco", "Dinheiro"],
+    },
   },
   services: {
     title: "Serviços & Preços",
@@ -736,6 +759,18 @@ exports.updateSiteContent = async (req, res) => {
         });
       }
       data.gallery.images = req.galleryImagesBase64;
+    }
+
+    if (
+      req.aboutCarouselImagesBase64 &&
+      req.aboutCarouselImagesBase64.length > 0
+    ) {
+      data.about.carouselImages = req.aboutCarouselImagesBase64;
+    } else if (
+      !data.about.carouselImages ||
+      data.about.carouselImages.length === 0
+    ) {
+      data.about.carouselImages = settings.about?.carouselImages || [];
     }
 
     if (req.loaderImageBase64) {

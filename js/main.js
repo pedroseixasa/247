@@ -600,6 +600,7 @@ document.addEventListener("DOMContentLoaded", function () {
 // ===== SITE SETTINGS =====
 (function () {
   const API_BASE_URL = "https://two4-7-barbearia.onrender.com/api";
+  const DEFAULT_PAYMENT_METHODS = ["MB Way", "Multibanco", "Dinheiro"];
 
   function setText(id, value) {
     const el = document.getElementById(id);
@@ -660,10 +661,40 @@ document.addEventListener("DOMContentLoaded", function () {
     setHref("heroCtaSecondary", settings.hero?.ctaSecondaryHref);
     setSrc("heroImage", settings.hero?.image);
 
+    setText("aboutEyebrow", settings.about?.eyebrow);
     setText("aboutTitle", settings.about?.title);
     setText("aboutText", settings.about?.text);
     setSrc("aboutCoverImage", settings.about?.coverImage);
     setSrc("aboutCharacterImage", settings.about?.characterImage);
+
+    setText("aboutPaymentTitle", settings.about?.paymentCard?.title);
+
+    const aboutPaymentList = document.getElementById("aboutPaymentMethods");
+    if (aboutPaymentList) {
+      const paymentMethods =
+        Array.isArray(settings.about?.paymentCard?.methods) &&
+        settings.about.paymentCard.methods.length > 0
+          ? settings.about.paymentCard.methods
+          : DEFAULT_PAYMENT_METHODS;
+
+      aboutPaymentList.innerHTML = paymentMethods
+        .map((method) => `<li>${method}</li>`)
+        .join("");
+    }
+
+    // Load About Carousel
+    const carouselTrack = document.getElementById("aboutCarouselTrack");
+    if (carouselTrack && Array.isArray(settings.about?.carouselImages)) {
+      carouselTrack.innerHTML = settings.about.carouselImages
+        .map(
+          (image) => `
+        <div class="about-carousel-item">
+          <img src="${image}" alt="Barbearia 24.7" loading="lazy">
+        </div>
+      `
+        )
+        .join("");
+    }
 
     setText("servicesTitle", settings.services?.title);
     setText("servicesSubtitle", settings.services?.subtitle);
@@ -1880,12 +1911,12 @@ document.addEventListener("DOMContentLoaded", function () {
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () => {
       loadStaffData();
-      init3DAnimation();
       initAboutCarousel();
+      init3DAnimation();
     });
   } else {
     loadStaffData();
-    init3DAnimation();
     initAboutCarousel();
+    init3DAnimation();
   }
 })();
