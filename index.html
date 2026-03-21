@@ -797,16 +797,6 @@
             gap: 1.5rem;
         }
 
-        .staff-card {
-            width: 280px;
-            height: 380px;
-        }
-
-        .staff-card .about-card-wrapper {
-            width: 115%;
-            height: 115%;
-        }
-
         .staff-info {
             text-align: center;
             margin-top: 0;
@@ -841,11 +831,6 @@
             .staff-grid {
                 column-gap: 4rem;
                 row-gap: 3rem;
-            }
-
-            .staff-card {
-                width: 320px;
-                height: 420px;
             }
 
             .staff-info {
@@ -2809,6 +2794,30 @@
         .about-card.is-3d .about-character-image {
             opacity: 1;
             transform: translate3d(0, -1%, 280px);
+        }
+
+        .staff-card {
+            width: 240px;
+            height: 320px;
+        }
+
+        .staff-card .about-card-wrapper {
+            width: 110%;
+            height: 110%;
+        }
+
+        @media (min-width: 1025px) {
+            .staff-card {
+                width: 280px;
+                height: 360px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .staff-card {
+                width: 220px;
+                height: 300px;
+            }
         }
 
 
