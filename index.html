@@ -780,17 +780,13 @@
         .staff {
             padding: var(--spacing-xl) 0;
             background-color: var(--bg-light);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
         .staff-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 4rem;
-            max-width: 1000px;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 3rem;
+            max-width: 1100px;
             margin: 0 auto;
         }
 
@@ -798,12 +794,23 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            gap: 1.5rem;
+        }
+
+        .staff-card {
+            width: 280px;
+            height: 380px;
+        }
+
+        .staff-card .about-card-wrapper {
+            width: 115%;
+            height: 115%;
         }
 
         .staff-info {
             text-align: center;
-            margin-top: 4rem;
-            max-width: 400px;
+            margin-top: 0;
+            max-width: 360px;
         }
 
         .staff-name {
@@ -824,26 +831,25 @@
         /* Desktop: secção mais ampla e melhor separação entre card 3D e texto */
         @media (min-width: 1025px) {
             .staff {
-                padding: var(--spacing-xl) 0 calc(var(--spacing-xl) + 2rem);
+                padding: calc(var(--spacing-xl) + 1rem) 0;
             }
 
             .staff .container>div:first-child {
-                margin-bottom: 7.5rem;
+                margin-bottom: 4rem;
             }
 
             .staff-grid {
-                column-gap: 6rem;
-                row-gap: 4rem;
-                max-width: 1140px;
+                column-gap: 4rem;
+                row-gap: 3rem;
             }
 
-            .staff-member {
-                gap: 4rem;
+            .staff-card {
+                width: 320px;
+                height: 420px;
             }
 
             .staff-info {
-                margin-top: 0;
-                max-width: 440px;
+                max-width: 380px;
             }
         }
 
