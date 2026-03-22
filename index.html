@@ -794,6 +794,8 @@
             height: 100%;
             z-index: -1;
             transform-style: preserve-3d;
+            overflow: hidden;
+            border-radius: 0.75rem;
         }
 
         .staff-card .about-cover-image {
@@ -819,8 +821,8 @@
         }
 
         .staff-card.is-3d .about-character-image {
-            opacity: 1;
-            transform: translate3d(0%, -30%, 100px);
+            opacity: 1 !important;
+            transform: translate3d(0, -5%, 75px) !important;
         }
 
         .staff-info {
@@ -908,6 +910,13 @@
             }
         }
 
+        /* Tablet Responsive 3D */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .staff-card.is-3d .about-character-image {
+                transform: translate3d(0, 0%, 50px) !important;
+            }
+        }
+
         /* Mobile */
         @media (max-width: 768px) {
             .staff-grid {
@@ -943,6 +952,10 @@
                 font-size: 0.95rem;
                 line-height: 1.6;
             }
+
+            .staff-card.is-3d .about-character-image {
+                transform: translate3d(0, -5%, 50px) !important;
+            }
         }
 
         @media (max-width: 480px) {
@@ -964,6 +977,10 @@
 
             .staff-description {
                 font-size: 0.9rem;
+            }
+
+            .staff-card.is-3d .about-character-image {
+                transform: translate3d(0, -8%, 40px) !important;
             }
         }
 
@@ -2792,6 +2809,74 @@
             pointer-events: none !important;
         }
 
+        /* Loader Styles */
+        .loader-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--bg-light) 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            transition: opacity 500ms ease, visibility 500ms ease;
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loader-overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader-content {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .loader-container {
+            position: relative;
+            width: 120px;
+            height: 120px;
+        }
+
+        .loader-logo {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: loader-fade 2s ease-in-out infinite;
+        }
+
+        .loader-logo img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .loader-text {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: 0.05em;
+        }
+
+        .loader-bar {
+            width: 200px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            border-radius: 2px;
+            animation: loader-slide 1.5s ease-in-out infinite;
+            position: relative;
+        }
+
         .about-card-3d {
             display: flex;
             align-items: center;
@@ -2813,6 +2898,7 @@
             width: 120%;
             height: 120%;
             transform-style: preserve-3d;
+            overflow: hidden;
         }
 
         .about-card.is-3d .about-card-wrapper {
@@ -2822,8 +2908,10 @@
 
         .about-cover-image {
             width: 100%;
+            height: 100%;
             object-fit: cover;
             border-radius: 0.75rem;
+            background-clip: content-box;
         }
 
         .about-card.is-3d .about-cover-image {
