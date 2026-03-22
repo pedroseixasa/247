@@ -44,6 +44,7 @@ const optimizeToWebp = async (buffer, maxWidth, maxHeight, quality) => {
   }
 
   return sharp(buffer)
+    .rotate() // Auto-rotate based on EXIF orientation metadata
     .resize(maxWidth, maxHeight, {
       fit: "inside",
       withoutEnlargement: true,
