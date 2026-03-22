@@ -1753,13 +1753,9 @@
     padding-top: 1rem !important;
   }
 
-  .staff-card.is-3d .about-card-wrapper {
-    transform: perspective(900px) translateY(-3%) rotateX(15deg) translateZ(0) !important;
-  }
-
   .staff-card.is-3d .about-character-image {
     opacity: 1 !important;
-    transform: translate3d(0, 0%, 50px) !important;
+    transform: translate3d(0, -3%, -19px) !important;
   }
 }
 
@@ -1788,7 +1784,7 @@
 
   .staff-card.is-3d .about-character-image {
     opacity: 1 !important;
-    transform: translate3d(0, -5%, 50px) !important;
+    transform: translate3d(0, -3%, -19px) !important;
   }
 
   .staff-info {
@@ -1844,7 +1840,7 @@
   /* Staff cards também */
   .staff-card.is-3d .about-character-image {
     opacity: 1 !important;
-    transform: translate3d(0, -5%, 75px) !important;
+    transform: translate3d(0, -3%, -19px) !important;
   }
 
   .staff-card.is-3d .about-card-wrapper {
