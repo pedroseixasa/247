@@ -1758,7 +1758,8 @@
   }
 
   .staff-card.is-3d .about-character-image {
-    transform: translate3d(0, 3%, 130px) !important;
+    opacity: 1 !important;
+    transform: translate3d(0, 0%, 50px) !important;
   }
 }
 
@@ -1787,7 +1788,7 @@
 
   .staff-card.is-3d .about-character-image {
     opacity: 1 !important;
-    transform: translate3d(0, -8%, 130px) !important;
+    transform: translate3d(0, -5%, 50px) !important;
   }
 
   .staff-info {
@@ -1843,7 +1844,7 @@
   /* Staff cards também */
   .staff-card.is-3d .about-character-image {
     opacity: 1 !important;
-    transform: translate3d(0, -2%, 325px) !important;
+    transform: translate3d(0, -5%, 75px) !important;
   }
 
   .staff-card.is-3d .about-card-wrapper {
