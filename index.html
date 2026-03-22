@@ -2816,7 +2816,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, var(--secondary) 0%, var(--bg-light) 100%);
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -2829,6 +2829,7 @@
         .loader-overlay.hidden {
             opacity: 0;
             visibility: hidden;
+            pointer-events: none;
         }
 
         .loader-content {
@@ -2836,22 +2837,37 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 2rem;
+            gap: 2.5rem;
         }
 
         .loader-container {
             position: relative;
-            width: 120px;
-            height: 120px;
-        }
-
-        .loader-logo {
-            width: 100%;
-            height: 100%;
+            width: 140px;
+            height: 140px;
             display: flex;
             justify-content: center;
             align-items: center;
-            animation: loader-fade 2s ease-in-out infinite;
+        }
+
+        .loader-logo {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .loader-logo::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 3px solid transparent;
+            border-top-color: var(--accent);
+            border-right-color: var(--accent);
+            border-radius: 50%;
+            animation: loader-rotate 1.2s linear infinite;
         }
 
         .loader-logo img {
@@ -2859,22 +2875,35 @@
             height: 80px;
             border-radius: 50%;
             object-fit: cover;
+            position: relative;
+            z-index: 2;
+            box-shadow: 0 0 20px rgba(201, 169, 97, 0.3);
         }
 
         .loader-text {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             font-weight: 700;
-            color: var(--primary);
-            letter-spacing: 0.05em;
+            color: var(--accent);
+            letter-spacing: 0.1em;
+            animation: loader-fade 2s ease-in-out infinite;
         }
 
         .loader-bar {
             width: 200px;
-            height: 3px;
-            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            height: 4px;
+            background: rgba(201, 169, 97, 0.2);
             border-radius: 2px;
-            animation: loader-slide 1.5s ease-in-out infinite;
+            overflow: hidden;
             position: relative;
+        }
+
+        .loader-bar::after {
+            content: '';
+            position: absolute;
+            height: 100%;
+            width: 50%;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            animation: loader-slide 1.5s ease-in-out infinite;
         }
 
         .about-card-3d {
