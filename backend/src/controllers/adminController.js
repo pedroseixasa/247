@@ -319,26 +319,32 @@ exports.reorderService = async (req, res) => {
     const { serviceId } = req.params;
     const { direction } = req.body; // 'up' ou 'down'
 
-    if (!['up', 'down'].includes(direction)) {
-      return res.status(400).json({ error: "Direção inválida. Use 'up' ou 'down'" });
+    if (!["up", "down"].includes(direction)) {
+      return res
+        .status(400)
+        .json({ error: "Direção inválida. Use 'up' ou 'down'" });
     }
 
     // Obter todos os serviços ordenados
     const services = await Service.find().sort({ order: 1 });
 
     // Encontrar o índice do serviço atual
-    const currentIndex = services.findIndex(s => s._id.toString() === serviceId);
+    const currentIndex = services.findIndex(
+      (s) => s._id.toString() === serviceId,
+    );
 
     if (currentIndex === -1) {
       return res.status(404).json({ error: "Serviço não encontrado" });
     }
 
     // Calcular o índice do serviço a trocar
-    const swapIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+    const swapIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
 
     // Verificar limites
     if (swapIndex < 0 || swapIndex >= services.length) {
-      return res.status(400).json({ error: `Não é possível mover ${direction}` });
+      return res
+        .status(400)
+        .json({ error: `Não é possível mover ${direction}` });
     }
 
     // Trocar as ordens
@@ -350,8 +356,12 @@ exports.reorderService = async (req, res) => {
     swapService.order = tempOrder;
 
     // Atualizar na BD
-    await Service.findByIdAndUpdate(currentService._id, { order: currentService.order });
-    await Service.findByIdAndUpdate(swapService._id, { order: swapService.order });
+    await Service.findByIdAndUpdate(currentService._id, {
+      order: currentService.order,
+    });
+    await Service.findByIdAndUpdate(swapService._id, {
+      order: swapService.order,
+    });
 
     // Retornar a lista atualizada
     const updatedServices = await Service.find().sort({ order: 1 });
@@ -732,7 +742,7 @@ exports.getSiteSettings = async (req, res) => {
 exports.getWeeklyStats = async (req, res) => {
   try {
     const { month, year, barberId } = req.query;
-    
+
     if (!month || !year) {
       return res.status(400).json({ error: "Month and year are required" });
     }
@@ -762,77 +772,84 @@ exports.getWeeklyStats = async (req, res) => {
     while (currentWeekStart <= lastDay) {
       const weekEnd = new Date(currentWeekStart);
       weekEnd.setDate(weekEnd.getDate() + 6);
-      
-      const weekLabel = `${currentWeekStart.getDate()} - ${weekEnd.getDate()} de ${currentWeekStart.toLocaleDateString('pt-PT', { month: 'long' })}`;
+
+      const weekLabel = `${currentWeekStart.getDate()} - ${weekEnd.getDate()} de ${currentWeekStart.toLocaleDateString("pt-PT", { month: "long" })}`;
       weeks.push({
         start: new Date(currentWeekStart),
         end: new Date(weekEnd),
-        label: weekLabel
+        label: weekLabel,
       });
-      
+
       currentWeekStart.setDate(currentWeekStart.getDate() + 7);
     }
 
     // Para cada semana, contar reservas e somar receitas
     const confirmedFilter = { status: "confirmed" };
-    
-    const weeklyData = await Promise.all(weeks.map(async (week) => {
-      const weekStart = new Date(week.start);
-      weekStart.setHours(0, 0, 0, 0);
-      const weekEnd = new Date(week.end);
-      weekEnd.setHours(23, 59, 59, 999);
 
-      // Contar reservas
-      const count = await Reservation.countDocuments({
-        ...confirmedFilter,
-        ...barbIdFilter,
-        reservationDate: { $gte: weekStart, $lte: weekEnd }
-      });
+    const weeklyData = await Promise.all(
+      weeks.map(async (week) => {
+        const weekStart = new Date(week.start);
+        weekStart.setHours(0, 0, 0, 0);
+        const weekEnd = new Date(week.end);
+        weekEnd.setHours(23, 59, 59, 999);
 
-      // Calcular receitas (realizada vs prevista)
-      let revenuePast = 0;
-      let revenueFuture = 0;
+        // Contar reservas
+        const count = await Reservation.countDocuments({
+          ...confirmedFilter,
+          ...barbIdFilter,
+          reservationDate: { $gte: weekStart, $lte: weekEnd },
+        });
 
-      // Receita realizada (reservas que já passaram)
-      const pastReservations = await Reservation.find({
-        ...confirmedFilter,
-        ...barbIdFilter,
-        reservationDate: { $gte: weekStart, $lte: Math.min(weekEnd, now - 1) }
-      }).populate('serviceId');
+        // Calcular receitas (realizada vs prevista)
+        let revenuePast = 0;
+        let revenueFuture = 0;
 
-      revenuePast = pastReservations.reduce((sum, res) => {
-        const price = res.serviceId?.price || 0;
-        const numPrice = typeof price === 'number' ? price : parseFloat(price) || 0;
-        return sum + numPrice;
-      }, 0);
+        // Receita realizada (reservas que já passaram)
+        const pastReservations = await Reservation.find({
+          ...confirmedFilter,
+          ...barbIdFilter,
+          reservationDate: {
+            $gte: weekStart,
+            $lte: Math.min(weekEnd, now - 1),
+          },
+        }).populate("serviceId");
 
-      // Receita prevista (reservas futuras dentro da semana)
-      const futureReservations = await Reservation.find({
-        ...confirmedFilter,
-        ...barbIdFilter,
-        reservationDate: { $gt: now, $lte: weekEnd }
-      }).populate('serviceId');
+        revenuePast = pastReservations.reduce((sum, res) => {
+          const price = res.serviceId?.price || 0;
+          const numPrice =
+            typeof price === "number" ? price : parseFloat(price) || 0;
+          return sum + numPrice;
+        }, 0);
 
-      revenueFuture = futureReservations.reduce((sum, res) => {
-        const price = res.serviceId?.price || 0;
-        const numPrice = typeof price === 'number' ? price : parseFloat(price) || 0;
-        return sum + numPrice;
-      }, 0);
+        // Receita prevista (reservas futuras dentro da semana)
+        const futureReservations = await Reservation.find({
+          ...confirmedFilter,
+          ...barbIdFilter,
+          reservationDate: { $gt: now, $lte: weekEnd },
+        }).populate("serviceId");
 
-      return {
-        week: week.label,
-        weekNum: weeks.indexOf(week) + 1,
-        count,
-        revenuePast: Math.round(revenuePast * 100) / 100,
-        revenueFuture: Math.round(revenueFuture * 100) / 100,
-        revenueTotal: Math.round((revenuePast + revenueFuture) * 100) / 100
-      };
-    }));
+        revenueFuture = futureReservations.reduce((sum, res) => {
+          const price = res.serviceId?.price || 0;
+          const numPrice =
+            typeof price === "number" ? price : parseFloat(price) || 0;
+          return sum + numPrice;
+        }, 0);
+
+        return {
+          week: week.label,
+          weekNum: weeks.indexOf(week) + 1,
+          count,
+          revenuePast: Math.round(revenuePast * 100) / 100,
+          revenueFuture: Math.round(revenueFuture * 100) / 100,
+          revenueTotal: Math.round((revenuePast + revenueFuture) * 100) / 100,
+        };
+      }),
+    );
 
     res.json({
       month: selectedMonth,
       year: selectedYear,
-      weeks: weeklyData
+      weeks: weeklyData,
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
