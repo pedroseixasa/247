@@ -1,6 +1,6 @@
 # 🎯 24.7 Barbearia - Contexto do Projeto
 
-**Última atualização:** 12 Mar 2026  
+**Última atualização:** 23 Mar 2026  
 **Status:** Em desenvolvimento ativo
 
 ---
@@ -287,9 +287,41 @@ ADMIN_EMAIL=admin@247barbearia.pt        # Email que recebe notificações
 
 ---
 
+## 🧹 Limpeza & Refactoring (23 Mar 2026)
+
+**Consolidação de Scripts Backend:**
+- ✅ 18+ scripts soltos no `/backend` → consolidados em `package.json` npm scripts
+- ✅ Novos comandos:
+  ```bash
+  npm run debug                 # debug-db.js
+  npm run test:create          # create-test-reservation.js
+  npm run test:inspect         # inspect-reservations.js
+  npm run db:fix               # fix-database.js
+  npm run db:clean-duplicates  # clean-duplicates.js
+  npm run admin:create         # create-admin.js
+  npm run admin:reset-password # reset-admin-password.js
+  npm run seed                 # seed.js
+  npm run seed:reviews         # seed-reviews.js
+  npm run stats:monthly        # aggregate-monthly-stats.js
+  ```
+
+**CSS/JS Duplicados Identificados (para remoção futura):**
+- ❌ `css/all.css` - Font Awesome completo (substituir por ícones necessários)
+- ❌ `css/site-enhancements.css` - Estilos antigos (lógica em main.js)
+- ❌ `css/87030a3a16187aa4.css` - Build artifact obsoleto
+- ❌ `js/api-client.js` - Classe não utilizada
+- ❌ `js/site-enhancements.js` - Duplica lógica em main.js
+
+**Ficheiros HTML Antigos:**
+- ⚠️ `test-admin.html`, `imagens-servicos.html`, `cancel.html` - Não em uso
+- 📝 Substituir por testes unitários em `/backend` se necessário
+
+---
+
 ## 🎯 Próximas Prioridades
 
-1. **Staff dinâmico** - Carregar 2 barbeiros do backend + IDs únicos
-2. **Admin panel** - Editar staff + serviços + conteúdo
-3. **Otimização** - Minify CSS/JS, asset lazy loading
-4. **Testes** - Unit tests para booking modal, API calls
+1. **Finalizar Limpeza** - Remover CSS/JS duplicados após verificar importações
+2. **Staff dinâmico** - Carregar 2 barbeiros do backend + IDs únicos
+3. **Admin panel** - Editar staff + serviços + conteúdo
+4. **Otimização** - Minify CSS/JS, asset lazy loading
+5. **Testes** - Unit tests para booking modal, API calls
