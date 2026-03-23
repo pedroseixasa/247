@@ -1310,10 +1310,10 @@
                                     </thead>
                                     <tbody>
                                         ${(stats.monthlyBreakdown || []).map((item, idx) => {
-                            const revenuePast = item.revenuePast || 0;
-                            const revenueFuture = item.revenueFuture || 0;
-                            const isAggregated = item.isAggregated || false;
-                            return `
+                        const revenuePast = item.revenuePast || 0;
+                        const revenueFuture = item.revenueFuture || 0;
+                        const isAggregated = item.isAggregated || false;
+                        return `
                                             <tr style="border-bottom: 1px solid #e0e0e0; background: ${idx % 2 === 0 ? '#fff' : '#f8f9fa'};">
                                                 <td style="padding: 1rem; font-size: 0.9rem; color: #333; white-space: nowrap;">
                                                     ${item.label}
@@ -1325,7 +1325,7 @@
                                                 <td style="text-align: right; padding: 1rem; font-weight: 600; color: #2c3e50; white-space: nowrap;">${formatCurrency(revenuePast)}</td>
                                             </tr>
                                         `;
-                        }).join('')}
+                    }).join('')}
                                     </tbody>
                                 </table>
                             </div>
@@ -1386,16 +1386,22 @@
                         refreshedFilter.value = barberId;
                     }
 
+                    // Re-attach listeners after DOM update
+                    attachDashboardListeners();
+                };
+
+                // Attach all dashboard listeners
+                const attachDashboardListeners = () => {
                     document.getElementById('dashboardApply').addEventListener('click', applyDashboardFilters);
                 };
 
-                document.getElementById('dashboardApply').addEventListener('click', applyDashboardFilters);
+                attachDashboardListeners();
 
                 // Histórico: Event listeners para vista mensal/semanal
                 document.querySelectorAll('.history-view-btn').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         const viewType = e.target.getAttribute('data-view');
-                        
+
                         // Update button styles
                         document.querySelectorAll('.history-view-btn').forEach(b => {
                             if (b.getAttribute('data-view') === viewType) {
@@ -1435,7 +1441,7 @@
 
                     // Popular os meses no select
                     const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-                    monthSelect.innerHTML = '<option value="">Selecionar mês...</option>' + months.map((m, i) => `<option value="${i+1}">${m}</option>`).join('');
+                    monthSelect.innerHTML = '<option value="">Selecionar mês...</option>' + months.map((m, i) => `<option value="${i + 1}">${m}</option>`).join('');
 
                     const generateWeeksForMonth = (month, year) => {
                         const firstDay = new Date(year, month - 1, 1);
@@ -1505,8 +1511,9 @@
                     monthSelect.dispatchEvent(new Event('change'));
                 };
 
+                // Trigger inicial
+                generateWeeklyData(stats);
 
-                document.getElementById('dashboardApply').addEventListener('click', applyDashboardFilters);
             } catch (error) {
                 container.innerHTML = `<div class="alert alert-error">Erro ao carregar dashboard: ${error.message}</div>`;
             }
@@ -2928,7 +2935,7 @@
         async function loadAbsences(container) {
             try {
                 container.innerHTML = '<p>A carregar ausências...</p>';
-                
+
                 const barbers = await fetchJson(`${API_URL}/admin/barbers`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
@@ -2939,7 +2946,7 @@
                 }
 
                 let html = '<div class="absences-container" style="max-width: 1200px;">';
-                
+
                 // Iterar sobre cada barbeiro
                 for (const barber of barbers) {
                     const absences = barber.absences || [];
@@ -2960,21 +2967,21 @@
                                 ${absences.length > 0 ? `
                                     <div style="display: grid; gap: 0.8rem;">
                                         ${absences.map(absence => {
-                                            const date = new Date(absence.date);
-                                            const dateStr = date.toLocaleDateString('pt-PT', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-                                            let typeLabel = {
-                                                'full': '🔴 Dia Completo',
-                                                'morning': '🟡 Manhã',
-                                                'afternoon': '🟡 Tarde',
-                                                'specific': '🔵 Horário Específico'
-                                            }[absence.type] || absence.type;
+                        const date = new Date(absence.date);
+                        const dateStr = date.toLocaleDateString('pt-PT', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                        let typeLabel = {
+                            'full': '🔴 Dia Completo',
+                            'morning': '🟡 Manhã',
+                            'afternoon': '🟡 Tarde',
+                            'specific': '🔵 Horário Específico'
+                        }[absence.type] || absence.type;
 
-                                            let timeStr = '';
-                                            if (absence.type === 'specific' && absence.startTime && absence.endTime) {
-                                                timeStr = ` (${absence.startTime} - ${absence.endTime})`;
-                                            }
+                        let timeStr = '';
+                        if (absence.type === 'specific' && absence.startTime && absence.endTime) {
+                            timeStr = ` (${absence.startTime} - ${absence.endTime})`;
+                        }
 
-                                            return `
+                        return `
                                                 <div style="background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 6px; padding: 1rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem;">
                                                     <div>
                                                         <div style="font-weight: 600; color: #333; margin-bottom: 0.3rem;">${dateStr}</div>
@@ -2984,7 +2991,7 @@
                                                     <button type="button" class="delete-absence-btn" data-barber-id="${barberId}" data-absence-id="${absence._id}" style="padding: 0.5rem 1rem; background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; white-space: nowrap;">Apagar</button>
                                                 </div>
                                             `;
-                                        }).join('')}
+                    }).join('')}
                                     </div>
                                 ` : `
                                     <div style="background: #e8f5e9; border-left: 4px solid #27ae60; padding: 1rem; color: #27ae60; border-radius: 4px;">
