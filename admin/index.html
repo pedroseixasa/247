@@ -1006,6 +1006,7 @@
                     <li><a href="#dashboard" class="menu-link active"><span class="emoji">📊</span><span>Dashboard</span></a></li>
                     <li><a href="#reservations" class="menu-link"><span class="emoji">📅</span><span>Reservas</span></a></li>
                     <li><a href="#services" class="menu-link"><span class="emoji">✂️</span><span>Serviços</span></a></li>
+                    <li><a href="#ausencias" class="menu-link"><span class="emoji">🚫</span><span>Ausências</span></a></li>
                     <li><a href="#settings" class="menu-link"><span class="emoji">⚙️</span><span>Config</span></a></li>
                     <li><a href="#change-password" class="menu-link"><span class="emoji">🔐</span><span>Password</span></a></li>
                 `
@@ -1099,6 +1100,7 @@
                 'dashboard': '📊 Dashboard',
                 'reservations': currentUser.role === 'admin' ? '📅 Reservas' : '📅 Minhas Reservas',
                 'services': '✂️ Serviços',
+                'ausencias': '🚫 Ausências dos Barbeiros',
                 'settings': '⚙️ Configurações',
                 'change-password': '🔐 Mudar Password'
             };
@@ -1116,6 +1118,9 @@
                     break;
                 case 'services':
                     loadServices(content);
+                    break;
+                case 'ausencias':
+                    loadAbsences(content);
                     break;
                 case 'barbers':
                     loadBarbers(content);
@@ -1287,39 +1292,79 @@
 
                         <!-- Histórico Mensal do Ano Selecionado -->
                         <div style="background: white; border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
-                            <div style="padding: 1.5rem; border-bottom: 1px solid #e0e0e0;">
-                                <h3 style="margin: 0; font-size: 1rem; color: #333; font-weight: 600;">Histórico Mensal - ${stats.selectedYear}</h3>
+                            <div style="padding: 1.5rem; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                                <h3 style="margin: 0; font-size: 1rem; color: #333; font-weight: 600;">Histórico - ${stats.selectedYear}</h3>
+                                <div style="display: flex; gap: 0.5rem; border: 1px solid #ddd; border-radius: 4px; padding: 0.25rem; background: #f8f9fa;">
+                                    <button class="history-view-btn" data-view="monthly" style="padding: 0.5rem 1rem; background: white; border: 1px solid #ddd; border-radius: 3px; cursor: pointer; font-weight: 600; color: #333;">📊 Mensal</button>
+                                    <button class="history-view-btn" data-view="weekly" style="padding: 0.5rem 1rem; background: transparent; border: none; cursor: pointer; color: #666;">📆 Semanal</button>
+                                </div>
                             </div>
-                            <table style="width: 100%; border-collapse: collapse;">
-                                <thead>
-                                    <tr style="background: #f8f9fa; border-bottom: 1px solid #e0e0e0;">
-                                        <th style="text-align: left; padding: 1rem; color: #666; font-weight: 600; font-size: 0.9rem;">Mês</th>
-                                        <th style="text-align: right; padding: 1rem; color: #666; font-weight: 600; font-size: 0.9rem;">Reservas</th>
-                                        <th style="text-align: right; padding: 1rem; color: #666; font-weight: 600; font-size: 0.9rem;">Realizada</th>
-                                        <th style="text-align: right; padding: 1rem; color: #666; font-weight: 600; font-size: 0.9rem;">Prevista</th>
-                                        <th style="text-align: right; padding: 1rem; color: #666; font-weight: 600; font-size: 0.9rem;">Total (Realizada)</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${(stats.monthlyBreakdown || []).map((item, idx) => {
-                        const revenuePast = item.revenuePast || 0;
-                        const revenueFuture = item.revenueFuture || 0;
-                        const isAggregated = item.isAggregated || false;
-                        return `
-                                        <tr style="border-bottom: 1px solid #e0e0e0; background: ${idx % 2 === 0 ? '#fff' : '#f8f9fa'};">
-                                            <td style="padding: 1rem; font-size: 0.9rem; color: #333;">
-                                                ${item.label}
-                                                ${isAggregated ? '<span style="background: #3498db; color: white; font-size: 0.7rem; padding: 0.15rem 0.4rem; border-radius: 3px; margin-left: 0.5rem;">Agregado</span>' : ''}
-                                            </td>
-                                            <td style="text-align: right; padding: 1rem; color: #666;">${item.count}</td>
-                                            <td style="text-align: right; padding: 1rem; font-weight: 600; color: #27ae60;">${formatCurrency(revenuePast)}</td>
-                                            <td style="text-align: right; padding: 1rem; font-weight: 600; color: #3498db;">${formatCurrency(revenueFuture)}</td>
-                                            <td style="text-align: right; padding: 1rem; font-weight: 600; color: #2c3e50;">${formatCurrency(revenuePast)}</td>
+                            
+                            <!-- Vista Mensal -->
+                            <div class="history-view-container" data-view="monthly" style="overflow-x: auto;">
+                                <table style="width: 100%; border-collapse: collapse; min-width: 600px;">
+                                    <thead>
+                                        <tr style="background: #f8f9fa; border-bottom: 1px solid #e0e0e0;">
+                                            <th style="text-align: left; padding: 1rem; color: #666; font-weight: 600; font-size: 0.9rem;">Mês</th>
+                                            <th style="text-align: right; padding: 1rem; color: #666; font-weight: 600; font-size: 0.9rem;">Reservas</th>
+                                            <th style="text-align: right; padding: 1rem; color: #666; font-weight: 600; font-size: 0.9rem;">Realizada</th>
+                                            <th style="text-align: right; padding: 1rem; color: #666; font-weight: 600; font-size: 0.9rem;">Prevista</th>
+                                            <th style="text-align: right; padding: 1rem; color: #666; font-weight: 600; font-size: 0.9rem;">Total (Realizada)</th>
                                         </tr>
-                                    `;
-                    }).join('')}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        ${(stats.monthlyBreakdown || []).map((item, idx) => {
+                            const revenuePast = item.revenuePast || 0;
+                            const revenueFuture = item.revenueFuture || 0;
+                            const isAggregated = item.isAggregated || false;
+                            return `
+                                            <tr style="border-bottom: 1px solid #e0e0e0; background: ${idx % 2 === 0 ? '#fff' : '#f8f9fa'};">
+                                                <td style="padding: 1rem; font-size: 0.9rem; color: #333; white-space: nowrap;">
+                                                    ${item.label}
+                                                    ${isAggregated ? '<span style="background: #3498db; color: white; font-size: 0.7rem; padding: 0.15rem 0.4rem; border-radius: 3px; margin-left: 0.5rem; white-space: nowrap;">Agregado</span>' : ''}
+                                                </td>
+                                                <td style="text-align: right; padding: 1rem; color: #666; white-space: nowrap;">${item.count}</td>
+                                                <td style="text-align: right; padding: 1rem; font-weight: 600; color: #27ae60; white-space: nowrap;">${formatCurrency(revenuePast)}</td>
+                                                <td style="text-align: right; padding: 1rem; font-weight: 600; color: #3498db; white-space: nowrap;">${formatCurrency(revenueFuture)}</td>
+                                                <td style="text-align: right; padding: 1rem; font-weight: 600; color: #2c3e50; white-space: nowrap;">${formatCurrency(revenuePast)}</td>
+                                            </tr>
+                                        `;
+                        }).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Vista Semanal -->
+                            <div class="history-view-container" data-view="weekly" style="overflow-x: auto; display: none;">
+                                <table style="width: 100%; border-collapse: collapse; min-width: 700px;">
+                                    <thead>
+                                        <tr style="background: #f8f9fa; border-bottom: 1px solid #e0e0e0;">
+                                            <th style="text-align: left; padding: 1rem; color: #666; font-weight: 600; font-size: 0.9rem;">Semana</th>
+                                            <th style="text-align: right; padding: 1rem; color: #666; font-weight: 600; font-size: 0.9rem;">Reservas</th>
+                                            <th style="text-align: right; padding: 1rem; color: #666; font-weight: 600; font-size: 0.9rem;">Realizada</th>
+                                            <th style="text-align: right; padding: 1rem; color: #666; font-weight: 600; font-size: 0.9rem;">Prevista</th>
+                                            <th style="text-align: right; padding: 1rem; color: #666; font-weight: 600; font-size: 0.9rem;">Total (Realizada)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="weeklyTableBody">
+                                        <tr style="border-bottom: 1px solid #e0e0e0; background: #fff;">
+                                            <td colspan="5" style="padding: 2rem; text-align: center; color: #999;">Selecione um mês para ver o histórico semanal</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Selector de Mês para Vista Semanal -->
+                        <div class="weekly-selector" style="display: none; background: white; border: 1px solid #e0e0e0; border-top: none; border-radius: 0 0 6px 6px; padding: 1.5rem;">
+                            <label style="font-weight: 600; margin-right: 1rem;">Filtrar semanas por mês:</label>
+                            <select id="monthForWeekly" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                                <option value="">Selecionar mês...</option>
+                                ${(() => {
+                                    const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+                                    return months.map((m, i) => `<option value="\${i+1}">\${m}</option>`).join('');
+                                })()}
+                            </select>
                         </div>
                     `;
                 };
@@ -1353,6 +1398,130 @@
 
                     document.getElementById('dashboardApply').addEventListener('click', applyDashboardFilters);
                 };
+
+                document.getElementById('dashboardApply').addEventListener('click', applyDashboardFilters);
+
+                // Histórico: Event listeners para vista mensal/semanal
+                document.querySelectorAll('.history-view-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const viewType = e.target.getAttribute('data-view');
+                        
+                        // Update button styles
+                        document.querySelectorAll('.history-view-btn').forEach(b => {
+                            if (b.getAttribute('data-view') === viewType) {
+                                b.style.background = 'white';
+                                b.style.color = '#333';
+                                b.style.fontWeight = '600';
+                            } else {
+                                b.style.background = 'transparent';
+                                b.style.color = '#666';
+                                b.style.fontWeight = '400';
+                            }
+                        });
+
+                        // Show/hide views
+                        document.querySelectorAll('.history-view-container').forEach(view => {
+                            const isTarget = view.getAttribute('data-view') === viewType;
+                            view.style.display = isTarget ? 'block' : 'none';
+                        });
+
+                        // Show/hide weekly selector
+                        const weeklySelector = document.querySelector('.weekly-selector');
+                        if (weeklySelector) {
+                            weeklySelector.style.display = viewType === 'weekly' ? 'block' : 'none';
+                        }
+
+                        // Se semanal, gera os dados
+                        if (viewType === 'weekly') {
+                            generateWeeklyData(stats);
+                        }
+                    });
+                });
+
+                // Função para gerar dados semanais
+                const generateWeeklyData = (stats) => {
+                    const monthSelect = document.getElementById('monthForWeekly');
+                    if (!monthSelect) return;
+
+                    const generateWeeksForMonth = (month, year) => {
+                        const firstDay = new Date(year, month - 1, 1);
+                        const lastDay = new Date(year, month, 0);
+                        const weeks = [];
+                        let currentWeekStart = new Date(firstDay);
+
+                        // Ajustar para segunda-feira se necessário
+                        const dayOfWeek = currentWeekStart.getDay();
+                        const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+                        currentWeekStart.setDate(currentWeekStart.getDate() - daysToMonday);
+
+                        while (currentWeekStart <= lastDay) {
+                            const weekEnd = new Date(currentWeekStart);
+                            weekEnd.setDate(weekEnd.getDate() + 6);
+
+                            const weekLabel = \`\${currentWeekStart.getDate()} - \${weekEnd.getDate()} de \${currentWeekStart.toLocaleDateString('pt-PT', { month: 'long' })}\`;
+                            
+                            weeks.push({
+                                start: new Date(currentWeekStart),
+                                end: new Date(weekEnd),
+                                label: weekLabel
+                            });
+
+                            currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+                        }
+
+                        return weeks;
+                    };
+
+                    monthSelect.addEventListener('change', (e) => {
+                        const selectedMonth = parseInt(e.target.value) || new Date().getMonth() + 1;
+                        const year = parseInt(stats.selectedYear) || new Date().getFullYear();
+                        const weeks = generateWeeksForMonth(selectedMonth, year);
+
+                        const weeklyTableBody = document.getElementById('weeklyTableBody');
+                        if (!weeklyTableBody || !weeks.length) return;
+
+                        // Para esta demonstração, vamos criar dados simulados baseados no quebra-cabezas mensal
+                        // Em produção, isto viria do backend
+                        const monthlyBreakdown = stats.monthlyBreakdown || [];
+                        const selectedMonthData = monthlyBreakdown.find(m => {
+                            const mIndex = m.label.match(/\\d+/) ? 0 : new Date(\`\${m.label} 1\`).getMonth();
+                            return mIndex === selectedMonth - 1;
+                        });
+
+                        const totalReservas = selectedMonthData?.count || 0;
+                        const totalRevenuePast = selectedMonthData?.revenuePast || 0;
+                        const totalRevenueFuture = selectedMonthData?.revenueFuture || 0;
+
+                        const avgPerWeek = weeks.length > 0 ? Math.ceil(totalReservas / weeks.length) : 0;
+                        const avgRevenuePastPerWeek = weeks.length > 0 ? (totalRevenuePast / weeks.length) : 0;
+                        const avgRevenueFuturePerWeek = weeks.length > 0 ? (totalRevenueFuture / weeks.length) : 0;
+
+                        const weeksHtml = weeks.map((week, idx) => {
+                            // Distribuir dados de forma aproximadamente igual
+                            const weekReservas = idx === weeks.length - 1 ? (totalReservas - avgPerWeek * idx) : avgPerWeek;
+                            const weekRevenuePast = idx === weeks.length - 1 ? (totalRevenuePast - avgRevenuePastPerWeek * idx) : avgRevenuePastPerWeek;
+                            const weekRevenueFuture = idx === weeks.length - 1 ? (totalRevenueFuture - avgRevenueFuturePerWeek * idx) : avgRevenueFuturePerWeek;
+
+                            return \`
+                                <tr style="border-bottom: 1px solid #e0e0e0; background: \${idx % 2 === 0 ? '#fff' : '#f8f9fa'};">
+                                    <td style="padding: 1rem; font-size: 0.9rem; color: #333; white-space: nowrap;"><strong>Semana \${idx + 1}</strong><br>\${week.label}</td>
+                                    <td style="text-align: right; padding: 1rem; color: #666; white-space: nowrap;">\${Math.round(weekReservas)}</td>
+                                    <td style="text-align: right; padding: 1rem; font-weight: 600; color: #27ae60; white-space: nowrap;">\${formatCurrency(weekRevenuePast)}</td>
+                                    <td style="text-align: right; padding: 1rem; font-weight: 600; color: #3498db; white-space: nowrap;">\${formatCurrency(weekRevenueFuture)}</td>
+                                    <td style="text-align: right; padding: 1rem; font-weight: 600; color: #2c3e50; white-space: nowrap;">\${formatCurrency(weekRevenuePast)}</td>
+                                </tr>
+                            \`;
+                        }).join('');
+
+                        weeklyTableBody.innerHTML = weeksHtml || '<tr><td colspan="5" style="padding: 2rem; text-align: center; color: #999;">Sem dados para este mês</td></tr>';
+                    });
+
+                    // Trigger inicial
+                    const currentMonth = new Date().getMonth() + 1;
+                    monthSelect.value = currentMonth;
+                    monthSelect.dispatchEvent(new Event('change'));
+                };
+
 
                 document.getElementById('dashboardApply').addEventListener('click', applyDashboardFilters);
             } catch (error) {
@@ -2770,6 +2939,212 @@
                 loadPage('reservations'); // Reload reservations
             } catch (error) {
                 showStatusModal('Erro: ' + error.message, 'error');
+            }
+        }
+
+        async function loadAbsences(container) {
+            try {
+                container.innerHTML = '<p>A carregar ausências...</p>';
+                
+                const barbers = await fetchJson(`${API_URL}/admin/barbers`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!barbers || barbers.length === 0) {
+                    container.innerHTML = '<div class="alert alert-info">Nenhum barbeiro encontrado.</div>';
+                    return;
+                }
+
+                let html = '<div class="absences-container" style="max-width: 1200px;">';
+                
+                // Iterar sobre cada barbeiro
+                for (const barber of barbers) {
+                    const absences = barber.absences || [];
+                    const barberId = barber._id;
+                    const formId = `absence-form-${barberId}`;
+
+                    html += `
+                        <div style="background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+                            <h3 style="margin-top: 0; margin-bottom: 1.5rem; color: #1a1a1a; display: flex; align-items: center; gap: 0.5rem;">
+                                <span>💈</span>
+                                <span>${barber.name}</span>
+                                <span style="background: rgba(52, 152, 219, 0.1); color: #3498db; padding: 0.3rem 0.6rem; border-radius: 4px; font-size: 0.85rem; font-weight: 500; margin-left: auto;">${absences.length} ausência${absences.length !== 1 ? 's' : ''}</span>
+                            </h3>
+
+                            <!-- Lista de Absências Atuais -->
+                            <div style="margin-bottom: 2rem;">
+                                <h4 style="color: #666; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 1rem 0;">Ausências Registradas</h4>
+                                ${absences.length > 0 ? `
+                                    <div style="display: grid; gap: 0.8rem;">
+                                        ${absences.map(absence => {
+                                            const date = new Date(absence.date);
+                                            const dateStr = date.toLocaleDateString('pt-PT', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                                            let typeLabel = {
+                                                'full': '🔴 Dia Completo',
+                                                'morning': '🟡 Manhã',
+                                                'afternoon': '🟡 Tarde',
+                                                'specific': '🔵 Horário Específico'
+                                            }[absence.type] || absence.type;
+
+                                            let timeStr = '';
+                                            if (absence.type === 'specific' && absence.startTime && absence.endTime) {
+                                                timeStr = ` (${absence.startTime} - ${absence.endTime})`;
+                                            }
+
+                                            return `
+                                                <div style="background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 6px; padding: 1rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem;">
+                                                    <div>
+                                                        <div style="font-weight: 600; color: #333; margin-bottom: 0.3rem;">${dateStr}</div>
+                                                        <div style="color: #666; font-size: 0.9rem;">${typeLabel}${timeStr}</div>
+                                                        ${absence.reason ? `<div style="color: #999; font-size: 0.85rem; margin-top: 0.3rem;">Motivo: ${absence.reason}</div>` : ''}
+                                                    </div>
+                                                    <button type="button" class="delete-absence-btn" data-barber-id="${barberId}" data-absence-id="${absence._id}" style="padding: 0.5rem 1rem; background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; white-space: nowrap;">Apagar</button>
+                                                </div>
+                                            `;
+                                        }).join('')}
+                                    </div>
+                                ` : `
+                                    <div style="background: #e8f5e9; border-left: 4px solid #27ae60; padding: 1rem; color: #27ae60; border-radius: 4px;">
+                                        ✓ Sem ausências registradas
+                                    </div>
+                                `}
+                            </div>
+
+                            <!-- Formulário para Adicionar Ausência -->
+                            <div style="background: #f0f8ff; border: 1px solid #3498db; border-radius: 6px; padding: 1.5rem;">
+                                <h4 style="margin-top: 0; color: #3498db; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.5px;">Nova Ausência</h4>
+                                <form id="${formId}" style="display: grid; gap: 1rem;">
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                        <div style="grid-column: 1 / -1;">
+                                            <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #333;">Data da Ausência *</label>
+                                            <input type="date" class="absence-date" required style="width: 100%; padding: 0.7rem; border: 1px solid #ddd; border-radius: 4px; font-size: 0.95rem;">
+                                        </div>
+                                        <div>
+                                            <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #333;">Tipo de Ausência *</label>
+                                            <select class="absence-type" required style="width: 100%; padding: 0.7rem; border: 1px solid #ddd; border-radius: 4px; font-size: 0.95rem;">
+                                                <option value="">Selecionar:</option>
+                                                <option value="full">🔴 Dia Completo</option>
+                                                <option value="morning">🟡 Manhã</option>
+                                                <option value="afternoon">🟡 Tarde</option>
+                                                <option value="specific">🔵 Horário Específico</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #333;">Motivo (opcional)</label>
+                                            <input type="text" class="absence-reason" placeholder="ex: Férias, Doença..." style="width: 100%; padding: 0.7rem; border: 1px solid #ddd; border-radius: 4px; font-size: 0.95rem;">
+                                        </div>
+                                    </div>
+
+                                    <!-- Tempo Específico (aparece apenas se tipo = specific) -->
+                                    <div class="specific-time-group" style="display: none; background: white; border: 1px solid #ddd; border-radius: 4px; padding: 1rem; grid-column: 1 / -1;">
+                                        <p style="margin: 0 0 1rem 0; color: #666; font-size: 0.9rem;">Défina o horário específico da ausência:</p>
+                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                            <div>
+                                                <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #333;">Horário Início</label>
+                                                <input type="time" class="absence-start-time" style="width: 100%; padding: 0.7rem; border: 1px solid #ddd; border-radius: 4px; font-size: 0.95rem;">
+                                            </div>
+                                            <div>
+                                                <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #333;">Horário Fim</label>
+                                                <input type="time" class="absence-end-time" style="width: 100%; padding: 0.7rem; border: 1px solid #ddd; border-radius: 4px; font-size: 0.95rem;">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div style="display: flex; gap: 0.75rem; grid-column: 1 / -1;">
+                                        <button type="submit" class="save-absence-btn" data-barber-id="${barberId}" style="flex: 1; padding: 0.8rem; background: #27ae60; color: white; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 0.95rem;">+ Guardar Ausência</button>
+                                        <button type="reset" style="flex: 0.5; padding: 0.8rem; background: #95a5a6; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.95rem;">Limpar</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                html += '</div>';
+                container.innerHTML = html;
+
+                // Event Listeners
+                document.querySelectorAll('.absence-type').forEach(select => {
+                    select.addEventListener('change', (e) => {
+                        const form = e.target.closest('form');
+                        const specificTimeGroup = form.querySelector('.specific-time-group');
+                        specificTimeGroup.style.display = e.target.value === 'specific' ? 'block' : 'none';
+                    });
+                });
+
+                document.querySelectorAll('form[id^="absence-form"]').forEach(form => {
+                    form.addEventListener('submit', async (e) => {
+                        e.preventDefault();
+                        const barberId = form.querySelector('.save-absence-btn').getAttribute('data-barber-id');
+                        const date = form.querySelector('.absence-date').value;
+                        const type = form.querySelector('.absence-type').value;
+                        const reason = form.querySelector('.absence-reason').value;
+                        const startTime = form.querySelector('.absence-start-time').value;
+                        const endTime = form.querySelector('.absence-end-time').value;
+
+                        if (!date || !type) {
+                            showStatusModal('Por favor, preencha data e tipo da ausência.', 'error');
+                            return;
+                        }
+
+                        if (type === 'specific' && (!startTime || !endTime)) {
+                            showStatusModal('Para horário específico, preencha início e fim.', 'error');
+                            return;
+                        }
+
+                        try {
+                            const payload = {
+                                date,
+                                type,
+                                reason,
+                                ...(type === 'specific' && { startTime, endTime })
+                            };
+
+                            const response = await fetchJson(`${API_URL}/admin/barbers/${barberId}/absences`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${token}`
+                                },
+                                body: JSON.stringify(payload)
+                            });
+
+                            showStatusModal('Ausência registrada com sucesso!', 'success');
+                            form.reset();
+                            loadAbsences(container); // Reload
+                        } catch (error) {
+                            showStatusModal('Erro ao registrar ausência: ' + error.message, 'error');
+                        }
+                    });
+                });
+
+                document.querySelectorAll('.delete-absence-btn').forEach(btn => {
+                    btn.addEventListener('click', async () => {
+                        const barberId = btn.getAttribute('data-barber-id');
+                        const absenceId = btn.getAttribute('data-absence-id');
+
+                        const confirmed = await showConfirmModal('Tem a certeza que quer apagar esta ausência?', {
+                            confirmText: 'Apagar'
+                        });
+
+                        if (!confirmed) return;
+
+                        try {
+                            await fetchJson(`${API_URL}/admin/barbers/${barberId}/absences/${absenceId}`, {
+                                method: 'DELETE',
+                                headers: { 'Authorization': `Bearer ${token}` }
+                            });
+
+                            showStatusModal('Ausência removida!', 'success');
+                            loadAbsences(container); // Reload
+                        } catch (error) {
+                            showStatusModal('Erro ao apagar ausência: ' + error.message, 'error');
+                        }
+                    });
+                });
+
+            } catch (error) {
+                container.innerHTML = `<div class="alert alert-error">Erro ao carregar ausências: ${error.message}</div>`;
             }
         }
 
