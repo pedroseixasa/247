@@ -331,13 +331,13 @@ router.post(
       }
 
       // Integrar web-push library para envio real
-      const webpush = require('web-push');
-      
+      const webpush = require("web-push");
+
       // Configurar VAPID keys do .env
       webpush.setVapidDetails(
         process.env.VAPID_SUBJECT,
         process.env.VAPID_PUBLIC_KEY,
-        process.env.VAPID_PRIVATE_KEY
+        process.env.VAPID_PRIVATE_KEY,
       );
 
       let successCount = 0;
@@ -350,24 +350,24 @@ router.post(
             JSON.stringify({
               title,
               body,
-              icon: '/images/logo.png',
-              badge: '/images/logo.png',
-              tag: 'reserva-notification',
-              requireInteraction: true
-            })
+              icon: "/images/logo.png",
+              badge: "/images/logo.png",
+              tag: "reserva-notification",
+              requireInteraction: true,
+            }),
           );
 
           // Atualizar lastUsed após sucesso
           sub.lastUsed = new Date();
           await sub.save();
           successCount++;
-          
+
           console.log(`✅ Notificação enviada a ${sub.userId}`);
         } catch (error) {
           failureCount++;
           console.error(
             `❌ Erro ao enviar a ${sub.userId}: ${error.statusCode}`,
-            error.message
+            error.message,
           );
 
           // Se subscription expirou (410), remover da BD
@@ -379,7 +379,7 @@ router.post(
       }
 
       console.log(
-        `📢 Notificações enviadas: ${successCount} sucesso, ${failureCount} falharam`
+        `📢 Notificações enviadas: ${successCount} sucesso, ${failureCount} falharam`,
       );
 
       res.json({
@@ -390,9 +390,7 @@ router.post(
       });
     } catch (error) {
       console.error("Erro ao enviar notificações:", error);
-      res
-        .status(500)
-        .json({ error: error.message });
+      res.status(500).json({ error: error.message });
     }
   },
 );

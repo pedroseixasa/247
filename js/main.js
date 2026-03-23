@@ -899,7 +899,7 @@ document.addEventListener("DOMContentLoaded", function () {
           const imageSrc = overrideImage || service.image;
 
           return `
-          <div class="service-card-new" data-service-id="${service._id || ""}" data-service="${service.name?.toLowerCase().replace(/\s+/g, "-") || ""}">
+          <div class="service-card-new" data-service-id="${service._id || ""}" data-duration="${service.duration || 60}" data-service="${service.name?.toLowerCase().replace(/\s+/g, "-") || ""}">
             <div class="service-card-content">
               <div class="service-photo ${!hasImage ? "service-photo--placeholder" : ""}">
                 ${
@@ -959,6 +959,7 @@ document.addEventListener("DOMContentLoaded", function () {
     service: null,
     serviceId: null,
     servicePrice: null,
+    serviceDuration: 60, // duração em minutos (padrão 60)
     barber: null,
     barberId: null,
     date: null,
@@ -991,15 +992,20 @@ document.addEventListener("DOMContentLoaded", function () {
     return `${h}:${m}`;
   }
 
-  function getTimeSlotsForDate(date) {
+  function getTimeSlotsForDate(date, serviceDuration = 60) {
     const schedule = getScheduleForDay(date.getDay());
     if (!schedule || !schedule.open) return [];
 
     const slots = [];
-    const slotMinutes = 60;
+    const slotMinutes = 60; // sempre 60 minutos entre slots
+    
+    // Último slot deve permitir que o serviço termine antes do fecho
+    // Ex: Fecho às 18:00 (1080 min), serviço de 90 min → último slot às 16:30 (990 min)
+    const lastPossibleStartTime = schedule.closeMinutes - serviceDuration;
+    
     for (
       let t = schedule.openMinutes;
-      t + slotMinutes <= schedule.closeMinutes;
+      t <= lastPossibleStartTime;
       t += slotMinutes
     ) {
       slots.push(formatTime(t));
@@ -1074,6 +1080,7 @@ document.addEventListener("DOMContentLoaded", function () {
       bookingState.service = nameEl ? nameEl.textContent : "Serviço";
       bookingState.servicePrice = priceEl ? priceEl.textContent : "";
       bookingState.serviceId = card.getAttribute("data-service-id");
+      bookingState.serviceDuration = parseInt(card.getAttribute("data-duration") || "60", 10);
 
       const selectedServiceEl = document.getElementById("selectedService");
       if (selectedServiceEl) {
@@ -1458,7 +1465,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     const dateKey = bookingState.date.toISOString().split("T")[0];
-    const barberHours = getTimeSlotsForDate(bookingState.date);
+    const barberHours = getTimeSlotsForDate(bookingState.date, bookingState.serviceDuration || 60);
     const dayOfWeek = bookingState.date.getDay();
     const dayNames = [
       "Domingo",
@@ -1717,12 +1724,35 @@ document.addEventListener("DOMContentLoaded", function () {
 
       const reservations = await response.json();
 
-      // Construir mapa de slots ocupados
+      // Construir mapa de slots ocupados (considerando duração do serviço)
       bookedSlots = {};
       reservations.forEach((reservation) => {
         if (reservation.status !== "cancelled") {
+          // Marcar o slot inicial como ocupado
           const key = `${bookingState.barber}-${dateStr}-${reservation.timeSlot}`;
           bookedSlots[key] = true;
+
+          // Se a reserva tem duração, marcar também os próximos slots
+          // A duração vem via populate de serviceId.duration
+          const serviceDuration =
+            reservation.serviceId?.duration ||
+            reservation.serviceDuration ||
+            60;
+          if (serviceDuration > 60) {
+            const [slotHour, slotMinute] = reservation.timeSlot
+              .split(":")
+              .map(Number);
+            let currentMinutes = slotHour * 60 + slotMinute;
+            const endMinutes = currentMinutes + serviceDuration;
+
+            // Marcar cada slot de 60 minutos durante a duração
+            while (currentMinutes + 60 <= endMinutes) {
+              currentMinutes += 60;
+              const nextSlotTime = formatTime(currentMinutes);
+              const nextKey = `${bookingState.barber}-${dateStr}-${nextSlotTime}`;
+              bookedSlots[nextKey] = true;
+            }
+          }
         }
       });
 
