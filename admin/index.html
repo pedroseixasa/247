@@ -3370,6 +3370,9 @@
         }
 
         // ===== PWA & PUSH NOTIFICATIONS =====
+        // VAPID Public Key para Web Push (gerada com: npx web-push generate-vapid-keys)
+        const VAPID_PUBLIC_KEY = "BF2pkMaAAfT_oKcpwyxP0i7UlMOKCGMJp_hpVhQ_JmL9Xb8ogf9J8yfJ6Y0ReZa123vUIV4NoN3rmahTu4v4R7Q";
+
         // Registar Service Worker para PWA
         async function registerServiceWorker() {
             if (!('serviceWorker' in navigator)) {
@@ -3426,14 +3429,13 @@
                 // Verificar se já tem subscription
                 let subscription = await registration.pushManager.getSubscription();
 
-                // Se não tem, tentar criar (nota: precisa de VAPID public key)
+                // Se não tem, tentar criar com VAPID public key
                 if (!subscription) {
                     console.log('🔔 Criando nova push subscription...');
-                    // TODO: Descomentar quando VAPID keys forem configuradas
-                    // subscription = await registration.pushManager.subscribe({
-                    //     userVisibleOnly: true,
-                    //     applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
-                    // });
+                    subscription = await registration.pushManager.subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+                    });
                 }
 
                 // Enviar subscription para o backend

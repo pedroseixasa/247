@@ -330,68 +330,104 @@ router.post(
         });
       }
 
-      // TODO: Integrar web-push library aqui
-      // const webpush = require('web-push');
-      // for (const sub of subscriptions) {
-      //   try {
-      //     await webpush.sendNotification(sub.subscription, JSON.stringify({
-      //       title,
-      //       body,
-      //       icon: '/images/logo.png'
-      //     }));
-      //   } catch (error) {
-      //     // Se falhar, desativar subscription ou remover
-      //     if (error.statusCode === 410) {
-      //       await PushSubscription.deleteOne({ _id: sub._id });
-      //     }
-      //   }
-      // }
+      // Integrar web-push library para envio real
+      const webpush = require('web-push');
+      
+      // Configurar VAPID keys do .env
+      webpush.setVapidDetails(
+        process.env.VAPID_SUBJECT,
+        process.env.VAPID_PUBLIC_KEY,
+        process.env.VAPID_PRIVATE_KEY
+      );
 
-      console.log(`📢 Sistema de notificações push:`);
-      console.log(`   Título: ${title}`);
-      console.log(`   Corpo: ${body}`);
-      console.log(`   Subscriptions ativas encontradas: ${subscriptions.length}`);
-      console.log(`   [PENDENTE] Integração web-push library para envio real`);
+      let successCount = 0;
+      let failureCount = 0;
+
+      for (const sub of subscriptions) {
+        try {
+          await webpush.sendNotification(
+            sub.subscription,
+            JSON.stringify({
+              title,
+              body,
+              icon: '/images/logo.png',
+              badge: '/images/logo.png',
+              tag: 'reserva-notification',
+              requireInteraction: true
+            })
+          );
+
+          // Atualizar lastUsed após sucesso
+          sub.lastUsed = new Date();
+          await sub.save();
+          successCount++;
+          
+          console.log(`✅ Notificação enviada a ${sub.userId}`);
+        } catch (error) {
+          failureCount++;
+          console.error(
+            `❌ Erro ao enviar a ${sub.userId}: ${error.statusCode}`,
+            error.message
+          );
+
+          // Se subscription expirou (410), remover da BD
+          if (error.statusCode === 410) {
+            await PushSubscription.deleteOne({ _id: sub._id });
+            console.log(`🗑️  Subscription expirada removida: ${sub._id}`);
+          }
+        }
+      }
+
+      console.log(
+        `📢 Notificações enviadas: ${successCount} sucesso, ${failureCount} falharam`
+      );
 
       res.json({
         success: true,
-        message: `Notificações enfileiradas (${subscriptions.length} dispositivos)`,
-        sent: subscriptions.length,
+        message: `Notificações enviadas (${successCount}/${subscriptions.length} dispositivos)`,
+        sent: successCount,
+        failed: failureCount,
       });
     } catch (error) {
       console.error("Erro ao enviar notificações:", error);
-      res.status(500).json({ error: error.message });
+      res
+        .status(500)
+        .json({ error: error.message });
     }
   },
 );
 
 // Endpoint para o utilizador cancelar sua push subscription
-router.delete("/subscriptions/:subscriptionId", authMiddleware, async (req, res) => {
-  try {
-    const { subscriptionId } = req.params;
-    const userId = req.user._id;
+router.delete(
+  "/subscriptions/:subscriptionId",
+  authMiddleware,
+  async (req, res) => {
+    try {
+      const { subscriptionId } = req.params;
+      const userId = req.user._id;
 
-    // Verificar se a subscription pertence ao utilizador
-    const subscription = await PushSubscription.findOne({
-      _id: subscriptionId,
-      userId,
-    });
+      // Verificar se a subscription pertence ao utilizador
+      const subscription = await PushSubscription.findOne({
+        _id: subscriptionId,
+        userId,
+      });
 
-    if (!subscription) {
-      return res.status(404).json({ error: "Subscription não encontrada" });
+      if (!subscription) {
+        return res.status(404).json({ error: "Subscription não encontrada" });
+      }
+
+      // Marcar como inativa em vez de deletar (mantém histórico)
+      subscription.isActive = false;
+      await subscription.save();
+
+      console.log(`✅ Push subscription desativada: ${subscriptionId}`);
+
+      res.json({ success: true, message: "Subscription cancelada" });
+    } catch (error) {
+      console.error("Erro ao cancelar subscription:", error);
+      res.status(500).json({ error: error.message });
     }
-
-    // Marcar como inativa em vez de deletar (mantém histórico)
-    subscription.isActive = false;
-    await subscription.save();
-
-    console.log(`✅ Push subscription desativada: ${subscriptionId}`);
-
-    res.json({ success: true, message: "Subscription cancelada" });
-  } catch (error) {
-    console.error("Erro ao cancelar subscription:", error);
-    res.status(500).json({ error: error.message });
-  }
-});
+  },
+);
 
 module.exports = router;

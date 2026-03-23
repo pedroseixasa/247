@@ -12,15 +12,15 @@ As push subscriptions foram migradas de **memória para MongoDB**. Agora as subs
 
 ### Campos:
 
-| Campo | Tipo | Descrição |
-|-------|------|-----------|
-| `userId` | ObjectId (ref: Barber) | ID do utilizador que se subscreveu |
-| `subscription` | Object | Objeto de subscription do browser (com endpoint + keys) |
-| `userAgent` | String | Identificação do browser/dispositivo |
-| `deviceType` | String | desktop\|mobile\|tablet |
-| `isActive` | Boolean | Se a subscription ainda é válida |
-| `createdAt` | Date | Quando foi criada |
-| `lastUsed` | Date | Última notificação enviada com sucesso |
+| Campo          | Tipo                   | Descrição                                               |
+| -------------- | ---------------------- | ------------------------------------------------------- |
+| `userId`       | ObjectId (ref: Barber) | ID do utilizador que se subscreveu                      |
+| `subscription` | Object                 | Objeto de subscription do browser (com endpoint + keys) |
+| `userAgent`    | String                 | Identificação do browser/dispositivo                    |
+| `deviceType`   | String                 | desktop\|mobile\|tablet                                 |
+| `isActive`     | Boolean                | Se a subscription ainda é válida                        |
+| `createdAt`    | Date                   | Quando foi criada                                       |
+| `lastUsed`     | Date                   | Última notificação enviada com sucesso                  |
 
 ### Índices:
 
@@ -54,6 +54,7 @@ As push subscriptions foram migradas de **memória para MongoDB**. Agora as subs
 ```
 
 **Comportamento:**
+
 - Se já existe com o mesmo endpoint → **atualiza** `lastUsed`
 - Se é nova → **cria** registo na BD
 - Auto-detecta deviceType se não fornecido
@@ -81,6 +82,7 @@ As push subscriptions foram migradas de **memória para MongoDB**. Agora as subs
 ```
 
 **Comportamento:**
+
 - Busca subscriptions ativas na BD
 - Se barberId → filtra apenas esse barbeiro
 - Envia notificação para cada subscription (com retry automático)
@@ -102,6 +104,7 @@ As push subscriptions foram migradas de **memória para MongoDB**. Agora as subs
 ```
 
 **Comportamento:**
+
 - Marca subscription como `isActive: false` (não deleta para histórico)
 - Só o utilizador que criou pode cancelar a sua própria
 
@@ -151,10 +154,9 @@ npm run test:push  # Mostra stats e subscriptions
 
 ## Troubleshooting
 
-| Problema | Causa | Solução |
-|----------|-------|---------|
-| "Nenhuma subscription ativa" | Admin nunca registou push | Abrir admin panel, aceitar permissões push |
-| Notificações não chegam | VAPID keys não configuradas | Ver `VAPID_SETUP.md` |
-| Subscription removida após restart | Old code (memória) | Agora persiste em BD ✅ |
-| Erro 410 ao enviar | Subscription expirou (device desativado) | Auto-removida, próxima será nova |
-
+| Problema                           | Causa                                    | Solução                                    |
+| ---------------------------------- | ---------------------------------------- | ------------------------------------------ |
+| "Nenhuma subscription ativa"       | Admin nunca registou push                | Abrir admin panel, aceitar permissões push |
+| Notificações não chegam            | VAPID keys não configuradas              | Ver `VAPID_SETUP.md`                       |
+| Subscription removida após restart | Old code (memória)                       | Agora persiste em BD ✅                    |
+| Erro 410 ao enviar                 | Subscription expirou (device desativado) | Auto-removida, próxima será nova           |
