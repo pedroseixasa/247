@@ -15,6 +15,10 @@ const barberSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  notificationEmail: {
+    type: String,
+    default: null, // Email pessoal para receber notificações de reservas
+  },
   password: {
     type: String,
     required: true,

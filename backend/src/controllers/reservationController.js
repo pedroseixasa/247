@@ -7,6 +7,7 @@ const crypto = require("crypto");
 const {
   sendBookingConfirmation,
   sendAdminNotification,
+  sendBarberNotification,
 } = require("../services/emailService");
 
 // Inicializar Twilio sob demanda (lazy loading)
@@ -284,7 +285,7 @@ exports.createReservation = async (req, res) => {
     await reservation.populate("barberId serviceId");
 
     // Enviar emails de confirmação (não bloqueia resposta)
-    Promise.all([
+    const emailPromises = [
       sendBookingConfirmation({
         clientName,
         clientEmail,
@@ -303,8 +304,38 @@ exports.createReservation = async (req, res) => {
         reservationDate,
         timeSlot,
       }),
-    ]).catch((emailError) => {
+    ];
+
+    // Enviar notificação ao barbeiro se tiver email pessoal configurado
+    if (barber.notificationEmail) {
+      emailPromises.push(
+        sendBarberNotification({
+          barberEmail: barber.notificationEmail,
+          barberName: barber.name,
+          clientName,
+          clientPhone,
+          serviceName: service.name,
+          reservationDate,
+          timeSlot,
+        }),
+      );
+    }
+
+    // Enviar notificações push (background, não bloqueia resposta)
+    Promise.all(emailPromises).catch((emailError) => {
       console.error("Erro ao enviar emails:", emailError);
+    });
+
+    // Enviar push notifications em background (graceful fallback)
+    sendPushNotifications(
+      barber,
+      clientName,
+      service.name,
+      reservationDate,
+      timeSlot,
+    ).catch((pushError) => {
+      console.warn("Erro ao enviar push notifications:", pushError);
+      // Não falha a reserva se push falhar
     });
 
     res.status(201).json({
@@ -315,6 +346,48 @@ exports.createReservation = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+/**
+ * Função auxiliar para enviar push notifications
+ * (Implementação básica - seria expandida com real web-push)
+ */
+async function sendPushNotifications(
+  barber,
+  clientName,
+  serviceName,
+  reservationDate,
+  timeSlot,
+) {
+  try {
+    const dateObj = new Date(reservationDate);
+    const dateStr = dateObj.toLocaleDateString("pt-PT", {
+      weekday: "short",
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
+    });
+
+    const notificationTitle = "🔔 Nova Marcação!";
+    const notificationBody = `${clientName} - ${serviceName} às ${timeSlot} (${dateStr})`;
+
+    // Log para dashboard (em produção seria enviada via web-push)
+    console.log(`📢 PUSH NOTIFICATION: ${notificationTitle}`);
+    console.log(`   Cliente: ${clientName}`);
+    console.log(`   Serviço: ${serviceName}`);
+    console.log(`   Data/Hora: ${dateStr} ${timeSlot}`);
+    console.log(`   Barbeiro: ${barber.name}`);
+
+    // Aqui seria integrado o node web-push package:
+    // const webpush = require('web-push');
+    // webpush.setVapidDetails(process.env.VAPID_PUBLIC_KEY, process.env.VAPID_PRIVATE_KEY, process.env.VAPID_SUBJECT);
+    // Depois fetch das subscriptions do barber na BD e enviar
+
+    return { success: true };
+  } catch (error) {
+    console.error("Erro ao processar push:", error);
+    throw error;
+  }
+}
 
 exports.getReservationsByBarber = async (req, res) => {
   try {
@@ -449,11 +522,9 @@ exports.addAbsence = async (req, res) => {
     }
 
     if (type === "specific" && (!startTime || !endTime)) {
-      return res
-        .status(400)
-        .json({
-          error: "startTime e endTime obrigatórios para tipo 'specific'",
-        });
+      return res.status(400).json({
+        error: "startTime e endTime obrigatórios para tipo 'specific'",
+      });
     }
 
     // Buscar barbeiro

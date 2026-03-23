@@ -1,0 +1,75 @@
+{
+  "name": "24.7 Barbearia - Painel de Administração",
+  "short_name": "24.7 Admin",
+  "description": "Painel de administração para gerenciar reservas, barbeiros e configurações da barbearia 24.7",
+  "start_url": "/admin/",
+  "display": "standalone",
+  "background_color": "#1a1a1a",
+  "theme_color": "#1a1a1a",
+  "orientation": "portrait-primary",
+  "scope": "/admin/",
+  "categories": ["business", "productivity"],
+  "screenshots": [
+    {
+      "src": "/images/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/images/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "icons": [
+    {
+      "src": "/images/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/images/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/images/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Minhas Reservas",
+      "short_name": "Reservas",
+      "description": "Acede rápido às tuas reservas",
+      "url": "/admin/?page=reservations",
+      "icons": [
+        {
+          "src": "/images/logo.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Minhas Ausências",
+      "short_name": "Ausências",
+      "description": "Gerir as tuas ausências",
+      "url": "/admin/?page=ausencias",
+      "icons": [
+        {
+          "src": "/images/logo.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "prefer_related_applications": false
+}

@@ -4,6 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1a1a1a">
+    <meta name="description"
+        content="Painel de administração da Barbearia 24.7 - Gerenciar reservas, barbeiros e configurações">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="24.7 Admin">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/png" href="/images/logo.png">
+    <link rel="apple-touch-icon" href="/images/logo.png">
     <title>Painel Admin - Barbearia 24.7</title>
     <style>
         * {
@@ -1725,13 +1734,15 @@
                 });
 
                 let html = '<div class="table-container"><table>';
-                html += '<thead><tr><th>Nome</th><th>Email</th><th>Role</th><th>Ações</th></tr></thead><tbody>';
+                html += '<thead><tr><th>Nome</th><th>Email</th><th>📧 Notificações</th><th>Role</th><th>Ações</th></tr></thead><tbody>';
 
                 barbers.forEach(barber => {
+                    const notifEmail = barber.notificationEmail ? `<span style="color: #28a745;">${barber.notificationEmail}</span>` : '<span style="color: #999;">—</span>';
                     html += `
                         <tr>
                             <td>${barber.name}</td>
                             <td>${barber.email}</td>
+                            <td>${notifEmail}</td>
                             <td><span class="badge ${barber.role === 'admin' ? 'badge-success' : 'badge-warning'}">${barber.role}</span></td>
                             <td>
                                 <button onclick="editBarber('${barber._id}')" style="background: #007bff; padding: 0.5rem 1rem; font-size: 0.9rem;">Editar</button>
@@ -3249,12 +3260,253 @@
             showLoginPage();
         }
 
+        async function editBarber(barberId) {
+            try {
+                // Buscar dados atuais do barbeiro
+                const barber = await fetchJson(`${API_URL}/admin/barbers/${barberId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                // Criar modal com form de edição
+                const modal = document.createElement('div');
+                modal.id = 'editBarberModal';
+                modal.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.7);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 10000;
+                `;
+
+                modal.innerHTML = `
+                    <div style="background: white; padding: 2rem; border-radius: 8px; max-width: 500px; width: 90%; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                        <h2 style="margin-top: 0; margin-bottom: 1.5rem; color: #1a1a1a;">Editar Barbeiro: ${barber.name}</h2>
+                        <form id="editBarberForm">
+                            <div class="form-group">
+                                <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Nome</label>
+                                <input type="text" id="editBarberName" value="${barber.name}" style="width: 100%; padding: 0.75rem; border: 1px solid #e0e0e0; border-radius: 4px; font-size: 1rem;">
+                            </div>
+
+                            <div class="form-group">
+                                <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Email Pessoal</label>
+                                <input type="email" id="editBarberEmail" value="${barber.email}" style="width: 100%; padding: 0.75rem; border: 1px solid #e0e0e0; border-radius: 4px; font-size: 1rem;">
+                            </div>
+
+                            <div class="form-group">
+                                <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">📧 Email para Notificações de Marcações</label>
+                                <input type="email" id="editBarberNotificationEmail" value="${barber.notificationEmail || ''}" placeholder="email@exemplo.com" style="width: 100%; padding: 0.75rem; border: 1px solid #e0e0e0; border-radius: 4px; font-size: 1rem;">
+                                <small style="color: #666; display: block; margin-top: 0.5rem;">Deixe em branco para não receber notificações de mails. Quando alguém marcar uma consulta com você, receberá um email automático neste endereço.</small>
+                            </div>
+
+                            <div class="form-group" style="display: flex; gap: 1rem; margin-top: 2rem;">
+                                <button type="button" onclick="saveEditBarber('${barberId}')" style="flex: 1; padding: 0.75rem; background: #007bff; color: white; border: none; border-radius: 4px; font-size: 1rem; cursor: pointer; font-weight: 600;">Guardar Alterações</button>
+                                <button type="button" onclick="document.getElementById('editBarberModal').remove()" style="flex: 1; padding: 0.75rem; background: #e0e0e0; color: #333; border: none; border-radius: 4px; font-size: 1rem; cursor: pointer; font-weight: 600;">Cancelar</button>
+                            </div>
+                        </form>
+                    </div>
+                `;
+
+                document.body.appendChild(modal);
+            } catch (error) {
+                showStatusModal('Erro ao carregar barbeiro: ' + error.message, 'error');
+            }
+        }
+
+        async function saveEditBarber(barberId) {
+            try {
+                const name = document.getElementById('editBarberName').value.trim();
+                const email = document.getElementById('editBarberEmail').value.trim();
+                const notificationEmail = document.getElementById('editBarberNotificationEmail').value.trim();
+
+                if (!name || !email) {
+                    showStatusModal('Por favor preencha nome e email', 'error');
+                    return;
+                }
+
+                // Validar email notification (se fornecido)
+                if (notificationEmail && !notificationEmail.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+                    showStatusModal('Email de notificação inválido', 'error');
+                    return;
+                }
+
+                const response = await fetch(`${API_URL}/admin/barbers/${barberId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name,
+                        email,
+                        notificationEmail: notificationEmail || null
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `Erro ao atualizar (${response.status})`);
+                }
+
+                showStatusModal('Barbeiro atualizado com sucesso!', 'success');
+                document.getElementById('editBarberModal').remove();
+                loadPage('barbers');
+            } catch (error) {
+                showStatusModal('Erro: ' + error.message, 'error');
+                console.error('Erro ao salvar barbeiro:', error);
+            }
+        }
+
         // ===== INICIALIZAÇÃO =====
         // Executar após todas as funções serem definidas
         if (!token) {
             showLoginPage();
         } else {
             showAdminPanel();
+        }
+
+        // ===== PWA & PUSH NOTIFICATIONS =====
+        // Registar Service Worker para PWA
+        async function registerServiceWorker() {
+            if (!('serviceWorker' in navigator)) {
+                console.log('Service Workers não suportados neste browser');
+                return;
+            }
+
+            try {
+                const reg = await navigator.serviceWorker.register('/sw.js', {
+                    scope: '/admin/'
+                });
+                console.log('Service Worker registado com sucesso:', reg);
+
+                // Pedir permissão para notificações push
+                requestNotificationPermission();
+            } catch (error) {
+                console.warn('Erro ao registar Service Worker:', error);
+                // Falha graciosa - não bloqueia a app
+            }
+        }
+
+        // Pedir permissão para notificações
+        async function requestNotificationPermission() {
+            if (!('Notification' in window)) {
+                console.log('Notificações não suportadas neste browser');
+                return;
+            }
+
+            if (Notification.permission === 'granted') {
+                // Já tem permissão, fazer subscribe
+                subscribeUserToPush();
+                return;
+            }
+
+            if (Notification.permission !== 'denied') {
+                // Ainda não respondeu, pedir
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    subscribeUserToPush();
+                }
+            }
+        }
+
+        // Fazer subscribe a notificações push
+        async function subscribeUserToPush() {
+            if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+                console.log('Push notifications não suportadas neste browser');
+                return;
+            }
+
+            try {
+                const registration = await navigator.serviceWorker.ready;
+
+                // Verificar se já tem subscription
+                let subscription = await registration.pushManager.getSubscription();
+
+                // Se não tem, tentar criar (nota: precisa de VAPID public key)
+                if (!subscription) {
+                    console.log('🔔 Criando nova push subscription...');
+                    // TODO: Descomentar quando VAPID keys forem configuradas
+                    // subscription = await registration.pushManager.subscribe({
+                    //     userVisibleOnly: true,
+                    //     applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+                    // });
+                }
+
+                // Enviar subscription para o backend
+                if (subscription) {
+                    const deviceType = getDeviceType();
+                    try {
+                        const response = await fetch(`${API_URL}/subscriptions`, {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                subscription: subscription.toJSON(),
+                                deviceType
+                            })
+                        });
+
+                        if (response.ok) {
+                            const data = await response.json();
+                            console.log('✅ Push subscription registada na BD:', data.subscriptionId);
+                            localStorage.setItem('pushSubscription', JSON.stringify(subscription));
+                            localStorage.setItem('pushSubscriptionId', data.subscriptionId);
+                        } else {
+                            console.warn('Erro ao registar subscription:', response.status);
+                        }
+                    } catch (error) {
+                        console.warn('Erro ao enviar subscription para backend:', error);
+                        // Falha graciosa - não bloqueia a app
+                    }
+                }
+
+                console.log('🔔 Push notifications ativas para este dispositivo');
+
+            } catch (error) {
+                console.warn('Erro ao fazer subscribe a push:', error);
+                // Falha graciosa - não afeta a app
+            }
+        }
+
+        // Detectar tipo de device
+        function getDeviceType() {
+            const ua = navigator.userAgent.toLowerCase();
+            if (/iphone|ipod|ipad|android/.test(ua)) {
+                return /ipad/.test(ua) ? 'tablet' : 'mobile';
+            }
+            return 'desktop';
+        }
+
+        // Converter VAPID public key de base64 para Uint8Array (quando pronto)
+        function urlBase64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding)
+                .replace(/\-/g, '+')
+                .replace(/_/g, '/');
+            const rawData = window.atob(base64);
+            const outputArray = new Uint8Array(rawData.length);
+            for (let i = 0; i < rawData.length; ++i) {
+                outputArray[i] = rawData.charCodeAt(i);
+            }
+            return outputArray;
+        }
+
+        // Registar service worker ao carregar a página
+        window.addEventListener('load', () => {
+            registerServiceWorker();
+        });
+
+        // Lidar com mensagens do Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.addEventListener('message', (event) => {
+                console.log('Mensagem do Service Worker:', event.data);
+            });
         }
     </script>
 </body>

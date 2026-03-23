@@ -7,13 +7,13 @@
 
 ## 🏗️ STACK & ARQUITECTURA
 
-| Componente | Tecnologia | Observações |
-|------------|-----------|-------------|
+| Componente   | Tecnologia          | Observações                 |
+| ------------ | ------------------- | --------------------------- |
 | **Frontend** | Vanilla HTML/CSS/JS | SPA, hosted em GitHub Pages |
-| **Backend** | Node.js + Express | Deployed em Render.com |
-| **Database** | MongoDB Atlas | Mongoose ODM |
-| **Email** | Resend + Twilio SMS | 3000 emails/mês (free tier) |
-| **Auth** | JWT (Bearer tokens) | Role-based (admin/barber) |
+| **Backend**  | Node.js + Express   | Deployed em Render.com      |
+| **Database** | MongoDB Atlas       | Mongoose ODM                |
+| **Email**    | Resend + Twilio SMS | 3000 emails/mês (free tier) |
+| **Auth**     | JWT (Bearer tokens) | Role-based (admin/barber)   |
 
 **Arquitetura:** Client envia requests → Backend Render valida/processa → MongoDB retorna dados → Response JSON
 
@@ -22,6 +22,7 @@
 ## 🗄️ MODELOS DATABASE
 
 ### **Service**
+
 - `_id`: ObjectId
 - `name`: String (ex: "Corte degradé")
 - `price`: Number (EUR, ex: 12)
@@ -31,6 +32,7 @@
 - `isActive`: Boolean
 
 ### **Barber**
+
 - `_id`: ObjectId
 - `name`: String
 - `email`: String (login)
@@ -47,6 +49,7 @@
 - `isActive`: Boolean
 
 ### **Reservation**
+
 - `_id`: ObjectId
 - `barberId`: ObjectId (ref Barber) ⚠️ OBRIGATÓRIO
 - `serviceId`: ObjectId (ref Service) ⚠️ OBRIGATÓRIO
@@ -61,14 +64,16 @@
 - `updatedAt`: Date
 
 ### **Review**
+
 - `_id`: ObjectId
 - `clientName`: String
-- `clientEmail**: String
+- `clientEmail\*\*: String
 - `rating`: Number (1-5)
 - `comment`: String
 - `source`: "google" | "manual"
 
 ### **SiteSettings**
+
 - `_id`: ObjectId
 - `hero`: Object (subtitle, cta text/link)
 - `about`: Object (title, description)
@@ -77,6 +82,7 @@
 - `barberCards`: Object (barber1/2 names, roles, images)
 
 ### **MonthlyStats**
+
 - `_id`: ObjectId
 - `month`: Number (1-12)
 - `year`: Number
@@ -92,68 +98,69 @@
 
 ### **PÚBLICOS** (sem autenticação)
 
-| Método | Rota | Propósito |
-|--------|------|-----------|
-| POST | `/reservations` | Criar reserva |
-| POST | `/reservations/cancel/:token` | Cancelar via email link |
-| GET | `/site-settings` | Dados dinâmicos (hero, about, etc) |
-| GET | `/reviews/random` | 3 avaliações aleatórias |
+| Método | Rota                          | Propósito                          |
+| ------ | ----------------------------- | ---------------------------------- |
+| POST   | `/reservations`               | Criar reserva                      |
+| POST   | `/reservations/cancel/:token` | Cancelar via email link            |
+| GET    | `/site-settings`              | Dados dinâmicos (hero, about, etc) |
+| GET    | `/reviews/random`             | 3 avaliações aleatórias            |
 
 ### **AUTENTICAÇÃO** (barber + admin)
 
-| Método | Rota | Quem | Retorna |
-|--------|------|------|---------|
-| POST | `/auth/login` | - | JWT token + barber data |
-| GET | `/auth/me` | Both | Perfil atual |
-| PUT | `/auth/change-password` | Both | Confirmação |
+| Método | Rota                    | Quem | Retorna                 |
+| ------ | ----------------------- | ---- | ----------------------- |
+| POST   | `/auth/login`           | -    | JWT token + barber data |
+| GET    | `/auth/me`              | Both | Perfil atual            |
+| PUT    | `/auth/change-password` | Both | Confirmação             |
 
 ### **BARBER** (acesso restrito ao próprio)
 
-| Método | Rota | Lógica |
-|--------|------|--------|
-| GET | `/barber/reservations` | Retorna só reservas com barberId === currentUser._id |
-| GET | `/barber/absences` | Seleciona absences do próprio Barber |
-| POST | `/barber/absences` | Adiciona absence (currentUser._id extraído do JWT) |
-| DELETE | `/barber/absences/:id` | Remove absence do próprio |
+| Método | Rota                   | Lógica                                                |
+| ------ | ---------------------- | ----------------------------------------------------- |
+| GET    | `/barber/reservations` | Retorna só reservas com barberId === currentUser.\_id |
+| GET    | `/barber/absences`     | Seleciona absences do próprio Barber                  |
+| POST   | `/barber/absences`     | Adiciona absence (currentUser.\_id extraído do JWT)   |
+| DELETE | `/barber/absences/:id` | Remove absence do próprio                             |
 
 ### **ADMIN** (acesso total)
 
-| Método | Rota | Função |
-|--------|------|--------|
-| GET | `/admin/barbers` | Lista todos barbers |
-| GET | `/admin/reservations` | Todas reservas (opcional filtro ?barberId) |
-| PATCH | `/admin/barbers/:id` | Update barber info |
-| POST | `/admin/barbers/:id/absences` | Add absence para qualquer barber |
-| DELETE | `/admin/barbers/:id/absences/:absenceId` | Remove absence |
-| GET | `/admin/services` | Lista services |
-| POST | `/admin/services` | Criar service |
-| PUT | `/admin/services/:id` | Update service |
-| DELETE | `/admin/services/:id` | Delete service |
-| POST | `/admin/services/:id/reorder` | Reorder (dir: "up"/"down") |
-| GET | `/admin/weekly-stats` | Breakdown semanal com real data |
-| GET | `/admin/site-settings` | Conteúdo dinâmico (editar) |
-| PUT | `/admin/site-settings` | Update hero/about/staff/contact |
-| GET | `/admin/reviews` | Todas reviews |
-| POST/PUT/DELETE | `/admin/reviews` | CRUD reviews |
+| Método          | Rota                                     | Função                                     |
+| --------------- | ---------------------------------------- | ------------------------------------------ |
+| GET             | `/admin/barbers`                         | Lista todos barbers                        |
+| GET             | `/admin/reservations`                    | Todas reservas (opcional filtro ?barberId) |
+| PATCH           | `/admin/barbers/:id`                     | Update barber info                         |
+| POST            | `/admin/barbers/:id/absences`            | Add absence para qualquer barber           |
+| DELETE          | `/admin/barbers/:id/absences/:absenceId` | Remove absence                             |
+| GET             | `/admin/services`                        | Lista services                             |
+| POST            | `/admin/services`                        | Criar service                              |
+| PUT             | `/admin/services/:id`                    | Update service                             |
+| DELETE          | `/admin/services/:id`                    | Delete service                             |
+| POST            | `/admin/services/:id/reorder`            | Reorder (dir: "up"/"down")                 |
+| GET             | `/admin/weekly-stats`                    | Breakdown semanal com real data            |
+| GET             | `/admin/site-settings`                   | Conteúdo dinâmico (editar)                 |
+| PUT             | `/admin/site-settings`                   | Update hero/about/staff/contact            |
+| GET             | `/admin/reviews`                         | Todas reviews                              |
+| POST/PUT/DELETE | `/admin/reviews`                         | CRUD reviews                               |
 
 ### **CRONJOBS** (público, para scheduler externo)
 
-| Rota | Ação |
-|------|------|
-| `/cron/aggregate` | Calcula monthly stats |
+| Rota                     | Ação                       |
+| ------------------------ | -------------------------- |
+| `/cron/aggregate`        | Calcula monthly stats      |
 | `/cron/clean-duplicates` | Remove reservas duplicadas |
-| `/cron/clear-old` | Apaga reservas > 1 ano |
+| `/cron/clear-old`        | Apaga reservas > 1 ano     |
 
 ---
 
 ## 🎯 REGRAS DE NEGÓCIO CRÍTICAS
 
 ### **Validação Reservas** (ordem obrigatória)
+
 1. Campos obrigatórios presentes? (service, barber, date, time, name, phone, email)
 2. Telefone PT válido? (regex: `^9\d{8}$`)
 3. Email real? (rejeita @test.com, @fake.com, etc)
 4. ObjectIds válidos? (barber + service)
-5. Barber existe e isActive? 
+5. Barber existe e isActive?
 6. Service existe e isActive?
 7. Barber trabalha este dia? (checkWorkingHours)
 8. Slot cabe antes do fecho? (newEnd <= closeTime)
@@ -161,12 +168,14 @@
 10. **OVERLAP com reservas existentes?** (A.start < B.end && B.start < A.end, usando `service.duration`)
 
 ### **Cálculo de Tempo**
+
 - Time slot sempre 60min intervals: `00:00, 01:00, 02:00...`
 - **Duração real = service.duration (MINUTOS) × 60000 (milliseconds)**
 - Exemplo: Corte 45min @ 09:00 → [09:00-09:45], não pode haver booking [09:30-...]
 - End time = `new Date(start + service.duration * 60000)`
 
 ### **Ausências** (tipos excludentes)
+
 - **full**: Dia todo (09:00-19:00 blocked)
 - **morning**: Antes do meio-dia (< 12:00)
 - **afternoon**: Depois do meio-dia (>= 12:00)
@@ -174,17 +183,20 @@
 - Rejeita duplicadas na mesma data
 
 ### **Revenue Split**
+
 - **revenuePast**: Reservas com date <= NOW (confirmadas/canceladas)
 - **revenueFuture**: Reservas com date > NOW
 - Totais recalculados via cron `/cron/aggregate` diariamente
 
 ### **Acesso & Autorização**
+
 - **Admin Barber1**: Vê tudo, gerencia todos
 - **Barber2**: Vê APENAS próprias reservas/absences (forçado no controller)
 - Endpoint `/barber/*` rejeita se `currentUser._id !== targetId`
 - Nunca inventar valores (duration, workingHours) → sempre da DB
 
 ### **Cancelamentos**
+
 - Cliente clica link email → POST `/reservations/cancel/:token`
 - Backend procura reservation por `cancelToken` match
 - Admin também pode cancelar via PATCH status
@@ -194,6 +206,7 @@
 ## 📂 FICHEIROS PRINCIPAIS
 
 ### **Frontend** (`admin/index.html`)
+
 ```
 admin/
 ├── index.html (4900 linhas - painel completo)
@@ -204,6 +217,7 @@ admin/
 ```
 
 **Modo Dual:**
+
 - **Admin** (role=admin): Vê dashboard semanal + todas reservas + edita serviços/ausências/config
 - **Barber** (role=barber): Vê apenas "Minhas Reservas" + "Minhas Ausências"
 
@@ -248,6 +262,7 @@ backend/
 ## 📊 FLUXOS PRINCIPAIS
 
 ### **Booking (Cliente)**
+
 1. Frontend: Preenche form (serviço, barbeiro, data, hora, dados pessoais)
 2. POST `/reservations` → Backend valida 10 steps → MongoDB insere
 3. Backend: Envia email Resend (cliente + admin)
@@ -255,6 +270,7 @@ backend/
 5. Cliente clica link email → POST `/reservations/cancel/:token` (cancelamento)
 
 ### **Admin Dashboard**
+
 1. Login: POST `/auth/login` (email + password) → JWT token
 2. GET `/admin/weekly-stats` → calcula per-week breakdown (revenuePast/revenueFuture)
 3. GET `/admin/services` → lista com ordem
@@ -263,6 +279,7 @@ backend/
 6. POST `/admin/barbers/:id/absences` → adiciona absence para qualquer barber
 
 ### **Barber Dashboard**
+
 1. Login: GET `/auth/me` → retorna barber com absences
 2. GET `/barber/reservations` → apenas do barbeiro (forçado)
 3. POST/DELETE `/barber/absences` → gerencia suas ausências
@@ -285,6 +302,7 @@ backend/
 ## 📈 ESTADO ATUAL
 
 ### ✅ Implementado
+
 - Dashboard semanal com real data (commit 6c228e4)
 - Service reordering (commit d21b8d0)
 - Booking system com 10-step validation (commit d067207)
@@ -294,10 +312,12 @@ backend/
 - 3D animations + carousel + mobile responsive
 
 ### 🔄 Em Rendering
+
 - Backend auto-redeploy do commit 3723c1c
 - GitHub Pages frontend auto-serve
 
 ### ⏳ Futuro
+
 - Admin upload direto de imagens (S3/Cloudinary)
 - SMS notifications via Twilio
 - Integração Google Calendar
@@ -307,11 +327,11 @@ backend/
 
 ## 🚀 DEPLOYMENT
 
-| Ambiente | URL | Trigger |
-|----------|-----|---------|
-| **Frontend** | https://247barbearia.pt | GitHub Pages (auto) |
-| **Backend** | https://two4-7-barbearia.onrender.com | Render (git push) |
-| **Database** | MongoDB Atlas | Cloud |
+| Ambiente     | URL                                   | Trigger             |
+| ------------ | ------------------------------------- | ------------------- |
+| **Frontend** | https://247barbearia.pt               | GitHub Pages (auto) |
+| **Backend**  | https://two4-7-barbearia.onrender.com | Render (git push)   |
+| **Database** | MongoDB Atlas                         | Cloud               |
 
 ---
 
@@ -333,4 +353,3 @@ backend/
 - **Barber**: Ricardo Silva - role="barber"
 - **Email fallback**: admin@247barbearia.pt (Resend)
 - **Dados de Teste**: Serviços reais (Corte €10-15, durações 25-45min)
-

@@ -343,7 +343,175 @@ async function sendAdminNotification({
   }
 }
 
+/**
+ * Envia notificação de nova reserva ao barbeiro
+ */
+async function sendBarberNotification({
+  barberEmail,
+  barberName,
+  clientName,
+  clientPhone,
+  serviceName,
+  reservationDate,
+  timeSlot,
+}) {
+  const client = getResendClient();
+  if (!client || !barberEmail) {
+    return { success: false, error: "Barber email não configurado" };
+  }
+
+  try {
+    const formattedDate = new Date(reservationDate).toLocaleDateString(
+      "pt-PT",
+      {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      },
+    );
+
+    const { data, error } = await client.emails.send({
+      from: "24.7 Barbearia <noreply@247barbearia.pt>",
+      to: [barberEmail],
+      subject: `📅 Nova Reserva - ${clientName} a ${reservationDate} às ${timeSlot}`,
+      html: `
+        <!DOCTYPE html>
+        <html lang="pt-PT">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <style>
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+              line-height: 1.6;
+              color: #333;
+              max-width: 600px;
+              margin: 0 auto;
+              padding: 20px;
+              background-color: #f5f5f5;
+            }
+            .container {
+              background-color: #ffffff;
+              border-radius: 12px;
+              padding: 40px;
+              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }
+            .header {
+              text-align: center;
+              margin-bottom: 30px;
+            }
+            .logo {
+              font-size: 32px;
+              font-weight: bold;
+              color: #1a1a1a;
+              margin-bottom: 10px;
+            }
+            h1 {
+              color: #1a1a1a;
+              font-size: 24px;
+              margin-bottom: 20px;
+            }
+            .alert {
+              background-color: #fff3cd;
+              border-left: 4px solid #ffc107;
+              padding: 20px;
+              margin: 30px 0;
+              border-radius: 4px;
+            }
+            .details {
+              background-color: #f9f8f7;
+              border-left: 4px solid #c9a961;
+              padding: 20px;
+              margin: 30px 0;
+              border-radius: 4px;
+            }
+            .detail-row {
+              display: flex;
+              padding: 8px 0;
+              border-bottom: 1px solid #e5e5e5;
+            }
+            .detail-row:last-child {
+              border-bottom: none;
+            }
+            .detail-label {
+              font-weight: bold;
+              color: #666;
+              min-width: 120px;
+            }
+            .detail-value {
+              color: #1a1a1a;
+            }
+            .footer {
+              margin-top: 40px;
+              padding-top: 20px;
+              border-top: 1px solid #e5e5e5;
+              text-align: center;
+              color: #777;
+              font-size: 14px;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <div class="logo">24•7 Barbearia</div>
+              <h1>🔔 Nova Reserva!</h1>
+            </div>
+
+            <div class="alert">
+              <strong>Olá ${barberName},</strong><br>
+              Uma nova marcação foi agendada para ti no painel.
+            </div>
+
+            <div class="details">
+              <div class="detail-row">
+                <span class="detail-label">👤 Cliente:</span>
+                <span class="detail-value">${clientName}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">📞 Telefone:</span>
+                <span class="detail-value">${clientPhone}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">✂️ Serviço:</span>
+                <span class="detail-value">${serviceName}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">📅 Data:</span>
+                <span class="detail-value">${formattedDate}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">⏰ Hora:</span>
+                <span class="detail-value">${timeSlot}</span>
+              </div>
+            </div>
+
+            <div class="footer">
+              Verifica o teu painel de administração para mais detalhes e confirmações.<br>
+              © 2026 24•7 Barbearia — Almada, Portugal
+            </div>
+          </div>
+        </body>
+        </html>
+      `,
+    });
+
+    if (error) {
+      console.error("Erro Resend ao enviar notificação barbeiro:", error);
+      return { success: false, error: error.message };
+    }
+
+    console.log("Email barbeiro enviado com sucesso:", data?.id);
+    return { success: true, data };
+  } catch (error) {
+    console.error("Erro ao enviar email barbeiro:", error);
+    return { success: false, error: error.message };
+  }
+}
+
 module.exports = {
   sendBookingConfirmation,
   sendAdminNotification,
+  sendBarberNotification,
 };

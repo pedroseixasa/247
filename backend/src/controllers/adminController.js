@@ -146,11 +146,39 @@ exports.getAllBarbers = async (req, res) => {
   }
 };
 
+exports.getBarberById = async (req, res) => {
+  try {
+    const { barberId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(barberId)) {
+      return res.status(400).json({ error: "ID inválido" });
+    }
+
+    const barber = await Barber.findById(barberId).select("-password");
+
+    if (!barber) {
+      return res.status(404).json({ error: "Barbeiro não encontrado" });
+    }
+
+    res.json(barber);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 exports.updateBarber = async (req, res) => {
   try {
     const { barberId } = req.params;
-    const { name, email, phone, avatar, bio, workingHours, isActive } =
-      req.body;
+    const {
+      name,
+      email,
+      phone,
+      notificationEmail,
+      avatar,
+      bio,
+      workingHours,
+      isActive,
+    } = req.body;
 
     let barberIdObj;
     try {
@@ -168,7 +196,16 @@ exports.updateBarber = async (req, res) => {
 
     const barber = await Barber.findByIdAndUpdate(
       barberIdObj,
-      { name, email, phone, avatar, bio, workingHours, isActive },
+      {
+        name,
+        email,
+        phone,
+        notificationEmail,
+        avatar,
+        bio,
+        workingHours,
+        isActive,
+      },
       { new: true },
     ).select("-password");
 

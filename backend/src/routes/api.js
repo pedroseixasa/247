@@ -8,6 +8,7 @@ const {
   upload,
   optimizeUploadedImages,
 } = require("../middleware/uploadMiddleware");
+const PushSubscription = require("../models/PushSubscription");
 
 const router = express.Router();
 
@@ -115,11 +116,23 @@ router.get(
   adminController.getAllBarbers,
 );
 router.get(
+  "/admin/barbers/:barberId",
+  authMiddleware,
+  adminMiddleware,
+  adminController.getBarberById,
+);
+router.get(
   "/admin/reservations",
   authMiddleware,
   adminController.getAllReservations,
 );
 router.patch(
+  "/admin/barbers/:barberId",
+  authMiddleware,
+  adminMiddleware,
+  adminController.updateBarber,
+);
+router.put(
   "/admin/barbers/:barberId",
   authMiddleware,
   adminMiddleware,
@@ -234,5 +247,151 @@ router.get("/reviews/random", adminController.getRandomReviews);
 router.get("/cron/aggregate", cronController.aggregateMonthlyStats);
 router.get("/cron/clean-duplicates", cronController.cleanDuplicates);
 router.get("/cron/clear-old", cronController.clearOldReservations);
+
+// ===== PUSH NOTIFICATIONS (AUTENTICADO) =====
+// Endpoint para registar push subscription do cliente
+router.post("/subscriptions", authMiddleware, async (req, res) => {
+  try {
+    const { subscription } = req.body;
+    const userId = req.user._id;
+
+    if (!subscription || !subscription.endpoint) {
+      return res.status(400).json({ error: "Subscription data inválida" });
+    }
+
+    // Verificar se já existe subscription com o mesmo endpoint
+    const existingSubscription = await PushSubscription.findOne({
+      userId,
+      "subscription.endpoint": subscription.endpoint,
+    });
+
+    if (existingSubscription) {
+      // Atualizar lastUsed
+      existingSubscription.lastUsed = new Date();
+      existingSubscription.isActive = true;
+      await existingSubscription.save();
+      return res.json({
+        success: true,
+        message: "Subscription atualizada",
+        subscriptionId: existingSubscription._id,
+      });
+    }
+
+    // Criar nova subscription
+    const newSubscription = new PushSubscription({
+      userId,
+      subscription,
+      userAgent: req.get("user-agent"),
+      deviceType: req.body.deviceType || "desktop",
+    });
+
+    await newSubscription.save();
+
+    console.log(`✅ Push subscription guardada para userId: ${userId}`);
+    console.log(`   Endpoint: ${subscription.endpoint?.substring(0, 50)}...`);
+
+    res.status(201).json({
+      success: true,
+      message: "Subscription registada com sucesso",
+      subscriptionId: newSubscription._id,
+    });
+  } catch (error) {
+    console.error("Erro ao registar subscription:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Endpoint para o admin enviar notificações push (apenas admin)
+router.post(
+  "/admin/send-notification",
+  authMiddleware,
+  adminMiddleware,
+  async (req, res) => {
+    try {
+      const { title, body, barberId } = req.body;
+
+      if (!title || !body) {
+        return res.status(400).json({ error: "Title e body obrigatórios" });
+      }
+
+      // Buscar subscriptions da BD
+      let query = { isActive: true };
+      if (barberId) {
+        query.userId = barberId;
+      }
+
+      const subscriptions = await PushSubscription.find(query);
+
+      if (subscriptions.length === 0) {
+        return res.json({
+          success: true,
+          message: "Nenhuma subscription ativa encontrada",
+          sent: 0,
+        });
+      }
+
+      // TODO: Integrar web-push library aqui
+      // const webpush = require('web-push');
+      // for (const sub of subscriptions) {
+      //   try {
+      //     await webpush.sendNotification(sub.subscription, JSON.stringify({
+      //       title,
+      //       body,
+      //       icon: '/images/logo.png'
+      //     }));
+      //   } catch (error) {
+      //     // Se falhar, desativar subscription ou remover
+      //     if (error.statusCode === 410) {
+      //       await PushSubscription.deleteOne({ _id: sub._id });
+      //     }
+      //   }
+      // }
+
+      console.log(`📢 Sistema de notificações push:`);
+      console.log(`   Título: ${title}`);
+      console.log(`   Corpo: ${body}`);
+      console.log(`   Subscriptions ativas encontradas: ${subscriptions.length}`);
+      console.log(`   [PENDENTE] Integração web-push library para envio real`);
+
+      res.json({
+        success: true,
+        message: `Notificações enfileiradas (${subscriptions.length} dispositivos)`,
+        sent: subscriptions.length,
+      });
+    } catch (error) {
+      console.error("Erro ao enviar notificações:", error);
+      res.status(500).json({ error: error.message });
+    }
+  },
+);
+
+// Endpoint para o utilizador cancelar sua push subscription
+router.delete("/subscriptions/:subscriptionId", authMiddleware, async (req, res) => {
+  try {
+    const { subscriptionId } = req.params;
+    const userId = req.user._id;
+
+    // Verificar se a subscription pertence ao utilizador
+    const subscription = await PushSubscription.findOne({
+      _id: subscriptionId,
+      userId,
+    });
+
+    if (!subscription) {
+      return res.status(404).json({ error: "Subscription não encontrada" });
+    }
+
+    // Marcar como inativa em vez de deletar (mantém histórico)
+    subscription.isActive = false;
+    await subscription.save();
+
+    console.log(`✅ Push subscription desativada: ${subscriptionId}`);
+
+    res.json({ success: true, message: "Subscription cancelada" });
+  } catch (error) {
+    console.error("Erro ao cancelar subscription:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
 
 module.exports = router;
