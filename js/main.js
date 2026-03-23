@@ -972,10 +972,20 @@ document.addEventListener("DOMContentLoaded", function () {
     "diogo-cunha": {
       id: "6998aaf59119a721cdc1e136",
       name: "Diogo Cunha",
+      lunchBreak: {
+        enabled: false,
+        startTime: "12:00",
+        endTime: "13:00"
+      }
     },
     "ricardo-silva": {
       id: "6998aaf59119a721cdc1e137",
       name: FILMING_MODE_ACTIVE ? "Miguel Ferreira" : "Ricardo Silva",
+      lunchBreak: {
+        enabled: false,
+        startTime: "12:00",
+        endTime: "13:00"
+      }
     },
   };
 
@@ -1017,6 +1027,12 @@ document.addEventListener("DOMContentLoaded", function () {
       const [endH, endM] = barberData.lunchBreak.endTime.split(":").map(Number);
       lunchStartMinutes = startH * 60 + startM;
       lunchEndMinutes = endH * 60 + endM;
+      
+      // DEBUG: Mostrar valores de pausa
+      console.log('🍽️ Lunch break enabled:', barberData.lunchBreak);
+      console.log('🍽️ Lunch minutes:', { lunchStartMinutes, lunchEndMinutes });
+    } else {
+      console.log('🍽️ Lunch break disabled or not configured');
     }
 
     for (
@@ -1028,6 +1044,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (lunchStartMinutes !== null && lunchEndMinutes !== null) {
         // Se o slot começa dentro ou após o início do almoço e antes do fim
         if (t >= lunchStartMinutes && t < lunchEndMinutes) {
+          console.log(`⏭️ Skipping slot ${formatTime(t)} (lunch break)`);
           continue; // Pular este slot
         }
       }
@@ -1054,6 +1071,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     if (barber1 && barberSettings.barber1LunchBreak) {
       barber1.lunchBreak = barberSettings.barber1LunchBreak;
+      console.log('✅ Updated barber1 lunch break:', barber1.lunchBreak);
     }
 
     const barber2 = barbers["ricardo-silva"];
@@ -1062,6 +1080,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     if (barber2 && barberSettings.barber2LunchBreak) {
       barber2.lunchBreak = barberSettings.barber2LunchBreak;
+      console.log('✅ Updated barber2 lunch break:', barber2.lunchBreak);
     }
 
     const barber1Card = document.querySelector(
@@ -1088,8 +1107,19 @@ document.addEventListener("DOMContentLoaded", function () {
       if (roleEl) roleEl.textContent = barberSettings.barber2Role;
     }
 
+    // Se o utilizador já selecionou um barbeiro, re-renderizar slots com dados atualizados
+    if (bookingState.barber && bookingState.date) {
+      console.log('🔄 Re-rendering time slots with updated lunch break data');
+      renderTimeSlots();
+    }
+
     // Keep booking card name synced with filming override
     applyFilmingStaffOverrides();
+
+    // Re-render time slots if barbier data was updated and user already selected
+    if (typeof window.reRenderTimeSlots === 'function') {
+      window.reRenderTimeSlots();
+    }
   };
 
   let bookedSlots = {}; // Será carregado da API
@@ -1501,11 +1531,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Obter dados do barbeiro (incluindo lunchBreak)
     const barberData = barbers[bookingState.barber];
+    
+    // DEBUG: Verificar se os dados da pausa estão a chegar
+    console.log('🍽️ Barber data:', barberData);
+    console.log('🍽️ Lunch break config:', barberData?.lunchBreak);
+    
     const barberHours = getTimeSlotsForDate(
       bookingState.date,
       bookingState.serviceDuration || 60,
       barberData,
     );
+    
+    // DEBUG: Mostrar slots após filtro de pausa
+    console.log('📅 Available hours after lunch break filter:', barberHours);
     const dayOfWeek = bookingState.date.getDay();
     const dayNames = [
       "Domingo",
@@ -1589,6 +1627,12 @@ document.addEventListener("DOMContentLoaded", function () {
   window.refreshBookingSchedule = function () {
     if (bookingState.currentStep === 2) {
       renderCalendar();
+      renderTimeSlots();
+    }
+  };
+
+  window.reRenderTimeSlots = function () {
+    if (bookingState.date && bookingState.barber) {
       renderTimeSlots();
     }
   };
