@@ -405,7 +405,9 @@ async function sendPushNotifications(
     });
 
     if (subscriptions.length === 0) {
-      console.log(`⚠️ Sem subscrições push ativas para barbeiro ${barber.name}`);
+      console.log(
+        `⚠️ Sem subscrições push ativas para barbeiro ${barber.name}`,
+      );
       return { success: true, sent: 0 };
     }
 
