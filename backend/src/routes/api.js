@@ -20,6 +20,8 @@ router.put(
   authMiddleware,
   authController.changePassword,
 );
+router.get("/auth/profile", authMiddleware, authController.getProfile);
+router.put("/auth/update-profile", authMiddleware, authController.updateProfile);
 
 // ===== RESERVAS =====
 router.post("/reservations", reservationController.createReservation);

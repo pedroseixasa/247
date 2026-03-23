@@ -1013,12 +1013,12 @@
                     <li><a href="#services" class="menu-link"><span class="emoji">✂️</span><span>Serviços</span></a></li>
                     <li><a href="#ausencias" class="menu-link"><span class="emoji">🚫</span><span>Ausências</span></a></li>
                     <li><a href="#settings" class="menu-link"><span class="emoji">⚙️</span><span>Config</span></a></li>
-                    <li><a href="#change-password" class="menu-link"><span class="emoji">🔐</span><span>Password</span></a></li>
+                    <li><a href="#profile" class="menu-link"><span class="emoji">👤</span><span>Perfil</span></a></li>
                 `
                 : `
                     <li><a href="#reservations" class="menu-link active"><span class="emoji">📅</span><span>Minhas Reservas</span></a></li>
                     <li><a href="#ausencias" class="menu-link"><span class="emoji">🚫</span><span>Minhas Ausências</span></a></li>
-                    <li><a href="#change-password" class="menu-link"><span class="emoji">🔐</span><span>Password</span></a></li>
+                    <li><a href="#profile" class="menu-link"><span class="emoji">👤</span><span>Perfil</span></a></li>
                 `;
 
             const panelTitle = isAdmin ? '24.7 Admin' : '24.7 Painel';
@@ -1108,7 +1108,7 @@
                 'services': '✂️ Serviços',
                 'ausencias': '🚫 Ausências dos Barbeiros',
                 'settings': '⚙️ Configurações',
-                'change-password': '🔐 Mudar Password'
+                'profile': '👤 Perfil'
             };
 
             document.getElementById('pageTitle').textContent = pageTitles[page] || page;
@@ -1134,8 +1134,8 @@
                 case 'settings':
                     loadSettings(content);
                     break;
-                case 'change-password':
-                    loadChangePassword(content);
+                case 'profile':
+                    loadProfile(content);
                     break;
             }
         }
@@ -2008,6 +2008,23 @@
                         </div>
                         
                         <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                <input type="checkbox" id="barber1LunchBreakEnabled" ${settings.barberCards?.barber1LunchBreak?.enabled ? 'checked' : ''}>
+                                <span>Barbeiro 1: Ativar intervalo de almoço</span>
+                            </label>
+                        </div>
+                        <div id="barber1LunchBreakTimes" style="display: ${settings.barberCards?.barber1LunchBreak?.enabled ? 'block' : 'none'}; margin-left: 1.5rem;">
+                            <div class="form-group">
+                                <label>Hora de início</label>
+                                <input type="time" id="barber1LunchStartTime" value="${settings.barberCards?.barber1LunchBreak?.startTime || '12:00'}">
+                            </div>
+                            <div class="form-group">
+                                <label>Hora de fim</label>
+                                <input type="time" id="barber1LunchEndTime" value="${settings.barberCards?.barber1LunchBreak?.endTime || '13:00'}">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
                             <label>Barbeiro 2: Nome</label>
                             <input type="text" id="barber2Name" value="${settings.barberCards?.barber2Name || ''}">
                         </div>
@@ -2027,6 +2044,23 @@
                             <small style="color: var(--text-light);">Selecione uma imagem (será otimizada e guardada na BD)</small>
                             ${settings.barberCards?.barber2CoverImage ? `<p style="margin-top: 0.5rem; color: var(--text-light); font-size: 0.9rem;">Imagem atual: <strong>${settings.barberCards.barber2CoverImage.split('/').pop()}</strong></p>` : ''}
                         </div>
+                        
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                <input type="checkbox" id="barber2LunchBreakEnabled" ${settings.barberCards?.barber2LunchBreak?.enabled ? 'checked' : ''}>
+                                <span>Barbeiro 2: Ativar intervalo de almoço</span>
+                            </label>
+                        </div>
+                        <div id="barber2LunchBreakTimes" style="display: ${settings.barberCards?.barber2LunchBreak?.enabled ? 'block' : 'none'}; margin-left: 1.5rem;">
+                            <div class="form-group">
+                                <label>Hora de início</label>
+                                <input type="time" id="barber2LunchStartTime" value="${settings.barberCards?.barber2LunchBreak?.startTime || '12:00'}">
+                            </div>
+                            <div class="form-group">
+                                <label>Hora de fim</label>
+                                <input type="time" id="barber2LunchEndTime" value="${settings.barberCards?.barber2LunchBreak?.endTime || '13:00'}">
+                            </div>
+                        </div>
 
                         <div class="form-group">
                             <label>Rodapé</label>
@@ -2045,6 +2079,24 @@
 
                 const settingsForm = document.getElementById('settingsForm');
                 const floatingSaveBtn = document.getElementById('floatingSaveBtn');
+                
+                // Event listeners for lunch break checkboxes
+                const barber1LunchCheckbox = document.getElementById('barber1LunchBreakEnabled');
+                const barber1LunchTimes = document.getElementById('barber1LunchBreakTimes');
+                if (barber1LunchCheckbox && barber1LunchTimes) {
+                    barber1LunchCheckbox.addEventListener('change', () => {
+                        barber1LunchTimes.style.display = barber1LunchCheckbox.checked ? 'block' : 'none';
+                    });
+                }
+
+                const barber2LunchCheckbox = document.getElementById('barber2LunchBreakEnabled');
+                const barber2LunchTimes = document.getElementById('barber2LunchBreakTimes');
+                if (barber2LunchCheckbox && barber2LunchTimes) {
+                    barber2LunchCheckbox.addEventListener('change', () => {
+                        barber2LunchTimes.style.display = barber2LunchCheckbox.checked ? 'block' : 'none';
+                    });
+                }
+                
                 if (floatingSaveBtn) {
                     floatingSaveBtn.addEventListener('click', () => {
                         if (settingsForm) {
@@ -2266,10 +2318,20 @@
                             barber1Description: document.getElementById('barber1Description').value,
                             barber1Image: settings.barberCards?.barber1Image || '',
                             barber1CoverImage: settings.barberCards?.barber1CoverImage || '',
+                            barber1LunchBreak: {
+                                enabled: document.getElementById('barber1LunchBreakEnabled').checked,
+                                startTime: document.getElementById('barber1LunchStartTime').value,
+                                endTime: document.getElementById('barber1LunchEndTime').value
+                            },
                             barber2Name: document.getElementById('barber2Name').value,
                             barber2Description: document.getElementById('barber2Description').value,
                             barber2Image: settings.barberCards?.barber2Image || '',
-                            barber2CoverImage: settings.barberCards?.barber2CoverImage || ''
+                            barber2CoverImage: settings.barberCards?.barber2CoverImage || '',
+                            barber2LunchBreak: {
+                                enabled: document.getElementById('barber2LunchBreakEnabled').checked,
+                                startTime: document.getElementById('barber2LunchStartTime').value,
+                                endTime: document.getElementById('barber2LunchEndTime').value
+                            }
                         },
                         showcase: {
                             cards: showcaseCards
@@ -3174,83 +3236,269 @@
             }
         }
 
-        function loadChangePassword(container) {
+        function loadProfile(container) {
             container.innerHTML = `
-                <div class="card" style="max-width: 600px; margin: 0 auto;">
-                    <h2 style="margin-top: 0; display: flex; align-items: center; gap: 0.5rem;">
-                        <span>🔐</span>
-                        <span>Mudar Password</span>
-                    </h2>
-                    <p style="color: var(--text-light); margin-bottom: 2rem;">
-                        Altere a sua password para manter a conta segura.
-                    </p>
-                    <form id="changePasswordForm">
-                        <div class="form-group">
-                            <label>Password Atual</label>
-                            <input type="password" id="currentPassword" required autocomplete="current-password" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 4px;">
+                <div style="max-width: 800px; margin: 0 auto;">
+                    <div class="card">
+                        <h2 style="margin-top: 0; display: flex; align-items: center; gap: 0.5rem;">
+                            <span>👤</span>
+                            <span>Meu Perfil</span>
+                        </h2>
+                        <p style="color: var(--text-light); margin-bottom: 2rem;">
+                            Gerencie suas informações de conta, notificações e preferências de trabalho.
+                        </p>
+
+                        <!-- Seção: Informações Pessoais -->
+                        <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid #e0e0e0;">
+                            <h3 style="margin-top: 0; color: #1a1a1a; display: flex; align-items: center; gap: 0.5rem;">
+                                <span>📧</span>
+                                <span>Informações de Contato</span>
+                            </h3>
+                            <form id="contactInfoForm">
+                                <div class="form-group">
+                                    <label style="font-weight: 600;">Email Pessoal para Notificações</label>
+                                    <input type="email" id="notificationEmail" placeholder="seu-email@exemplo.com" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 4px;" />
+                                    <small style="color: var(--text-light); display: block; margin-top: 0.5rem;">Você receberá notificações de novas marcações neste email</small>
+                                </div>
+                                <button type="submit" style="background: #007bff; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 4px; cursor: pointer; font-weight: 600;">
+                                    Guardar Email
+                                </button>
+                            </form>
                         </div>
-                        <div class="form-group">
-                            <label>Nova Password</label>
-                            <input type="password" id="newPassword" required autocomplete="new-password" minlength="6" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 4px;">
-                            <small style="color: var(--text-light); display: block; margin-top: 0.25rem;">Mínimo 6 caracteres</small>
+
+                        <!-- Seção: Intervalo de Almoço -->
+                        <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid #e0e0e0;">
+                            <h3 style="margin-top: 0; color: #1a1a1a; display: flex; align-items: center; gap: 0.5rem;">
+                                <span>🍽️</span>
+                                <span>Intervalo de Almoço</span>
+                            </h3>
+                            <form id="lunchBreakForm">
+                                <div class="form-group" style="margin-bottom: 1rem;">
+                                    <label style="font-weight: 600; display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                        <input type="checkbox" id="lunchBreakEnabled" />
+                                        <span>Ativar intervalo de almoço</span>
+                                    </label>
+                                    <small style="color: var(--text-light); display: block; margin-top: 0.5rem;">Quando ativado, estes horários ficam bloqueados para marcações</small>
+                                </div>
+
+                                <div id="lunchBreakTimes" style="display: none;">
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                        <div class="form-group">
+                                            <label style="font-weight: 600;">Início</label>
+                                            <input type="time" id="lunchStartTime" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 4px;" />
+                                        </div>
+                                        <div class="form-group">
+                                            <label style="font-weight: 600;">Fim</label>
+                                            <input type="time" id="lunchEndTime" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 4px;" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button type="submit" style="background: #28a745; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 4px; cursor: pointer; font-weight: 600; margin-top: 1rem;">
+                                    Guardar Intervalo
+                                </button>
+                            </form>
                         </div>
-                        <div class="form-group">
-                            <label>Confirmar Nova Password</label>
-                            <input type="password" id="confirmPassword" required autocomplete="new-password" minlength="6" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 4px;">
+
+                        <!-- Seção: Segurança -->
+                        <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; border: 1px solid #e0e0e0;">
+                            <h3 style="margin-top: 0; color: #1a1a1a; display: flex; align-items: center; gap: 0.5rem;">
+                                <span>🔐</span>
+                                <span>Segurança</span>
+                            </h3>
+                            <form id="changePasswordForm">
+                                <div class="form-group">
+                                    <label style="font-weight: 600;">Password Atual</label>
+                                    <input type="password" id="currentPassword" required autocomplete="current-password" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 4px;" />
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-weight: 600;">Nova Password</label>
+                                    <input type="password" id="newPassword" required autocomplete="new-password" minlength="6" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 4px;" />
+                                    <small style="color: var(--text-light); display: block; margin-top: 0.25rem;">Mínimo 6 caracteres</small>
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-weight: 600;">Confirmar Nova Password</label>
+                                    <input type="password" id="confirmPassword" required autocomplete="new-password" minlength="6" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 4px;" />
+                                </div>
+                                <button type="submit" style="background: var(--accent); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 4px; cursor: pointer; font-weight: 600;">
+                                    Alterar Password
+                                </button>
+                            </form>
                         </div>
-                        <button type="submit" style="background: var(--accent); color: white; border: none; padding: 0.75rem 2rem; border-radius: 4px; cursor: pointer; font-size: 1rem; font-weight: 600; transition: all 0.3s ease;" onmouseover="this.style.background='#e55a24'" onmouseout="this.style.background='var(--accent)'">
-                            Alterar Password
-                        </button>
-                    </form>
+                    </div>
                 </div>
             `;
 
-            setupChangePasswordForm();
+            setupProfileForms();
         }
 
-        async function setupChangePasswordForm() {
-            const form = document.getElementById('changePasswordForm');
-            if (!form) return;
+        function setupProfileForms() {
+            // Carregar dados atuais do perfil
+            loadProfileData();
 
-            form.addEventListener('submit', async (e) => {
-                e.preventDefault();
+            // Checkbox para mostrar/esconder times de almoço
+            const checkboxLunch = document.getElementById('lunchBreakEnabled');
+            const lunchTimes = document.getElementById('lunchBreakTimes');
+            
+            checkboxLunch.addEventListener('change', () => {
+                lunchTimes.style.display = checkboxLunch.checked ? 'block' : 'none';
+            });
 
-                const currentPassword = document.getElementById('currentPassword').value;
-                const newPassword = document.getElementById('newPassword').value;
-                const confirmPassword = document.getElementById('confirmPassword').value;
+            // Form: Email pessoal
+            const contactForm = document.getElementById('contactInfoForm');
+            if (contactForm) {
+                contactForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const notificationEmail = document.getElementById('notificationEmail').value.trim();
 
-                if (newPassword !== confirmPassword) {
-                    showStatusModal('As passwords não coincidem', 'error');
-                    return;
-                }
-
-                if (newPassword.length < 6) {
-                    showStatusModal('A password deve ter pelo menos 6 caracteres', 'error');
-                    return;
-                }
-
-                try {
-                    const response = await fetch(`${API_URL}/auth/change-password`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
-                        },
-                        body: JSON.stringify({ currentPassword, newPassword })
-                    });
-
-                    const data = await response.json();
-
-                    if (!response.ok) {
-                        throw new Error(data.error || 'Erro ao alterar password');
+                    if (notificationEmail && !notificationEmail.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+                        showStatusModal('Email inválido', 'error');
+                        return;
                     }
 
-                    showStatusModal('Password alterada com sucesso!', 'success');
-                    form.reset();
-                } catch (error) {
-                    showStatusModal(error.message, 'error');
+                    try {
+                        const response = await fetch(`${API_URL}/auth/update-profile`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({ notificationEmail: notificationEmail || null })
+                        });
+
+                        const data = await response.json();
+                        if (!response.ok) throw new Error(data.error);
+
+                        showStatusModal('Email guardado com sucesso!', 'success');
+                        currentUser.notificationEmail = notificationEmail;
+                    } catch (error) {
+                        showStatusModal(error.message, 'error');
+                    }
+                });
+            }
+
+            // Form: Intervalo de almoço
+            const lunchForm = document.getElementById('lunchBreakForm');
+            if (lunchForm) {
+                lunchForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const enabled = document.getElementById('lunchBreakEnabled').checked;
+                    const startTime = document.getElementById('lunchStartTime').value;
+                    const endTime = document.getElementById('lunchEndTime').value;
+
+                    if (enabled && (!startTime || !endTime)) {
+                        showStatusModal('Preencha os horários de almoço', 'error');
+                        return;
+                    }
+
+                    if (enabled && startTime >= endTime) {
+                        showStatusModal('A hora de fim deve ser após a hora de início', 'error');
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch(`${API_URL}/auth/update-profile`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({
+                                lunchBreak: {
+                                    enabled,
+                                    startTime: enabled ? startTime : null,
+                                    endTime: enabled ? endTime : null
+                                }
+                            })
+                        });
+
+                        const data = await response.json();
+                        if (!response.ok) throw new Error(data.error);
+
+                        showStatusModal('Intervalo de almoço guardado!', 'success');
+                        currentUser.lunchBreak = { enabled, startTime: enabled ? startTime : null, endTime: enabled ? endTime : null };
+                    } catch (error) {
+                        showStatusModal(error.message, 'error');
+                    }
+                });
+            }
+
+            // Form: Mudar password
+            const passwordForm = document.getElementById('changePasswordForm');
+            if (passwordForm) {
+                passwordForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+
+                    const currentPassword = document.getElementById('currentPassword').value;
+                    const newPassword = document.getElementById('newPassword').value;
+                    const confirmPassword = document.getElementById('confirmPassword').value;
+
+                    if (newPassword !== confirmPassword) {
+                        showStatusModal('As passwords não coincidem', 'error');
+                        return;
+                    }
+
+                    if (newPassword.length < 6) {
+                        showStatusModal('A password deve ter pelo menos 6 caracteres', 'error');
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch(`${API_URL}/auth/change-password`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({ currentPassword, newPassword })
+                        });
+
+                        const data = await response.json();
+
+                        if (!response.ok) {
+                            throw new Error(data.error || 'Erro ao alterar password');
+                        }
+
+                        showStatusModal('Password alterada com sucesso!', 'success');
+                        passwordForm.reset();
+                    } catch (error) {
+                        showStatusModal(error.message, 'error');
+                    }
+                });
+            }
+        }
+
+        async function loadProfileData() {
+            try {
+                const response = await fetch(`${API_URL}/auth/profile`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) return;
+
+                const barber = await response.json();
+
+                // Preencher email pessoal
+                const notificationEmailInput = document.getElementById('notificationEmail');
+                if (notificationEmailInput) {
+                    notificationEmailInput.value = barber.notificationEmail || '';
                 }
-            });
+
+                // Preencher intervalo de almoço
+                const lunchCheckbox = document.getElementById('lunchBreakEnabled');
+                const lunchStartInput = document.getElementById('lunchStartTime');
+                const lunchEndInput = document.getElementById('lunchEndTime');
+                const lunchTimes = document.getElementById('lunchBreakTimes');
+
+                if (lunchCheckbox && barber.lunchBreak) {
+                    lunchCheckbox.checked = barber.lunchBreak.enabled || false;
+                    if (lunchStartInput) lunchStartInput.value = barber.lunchBreak.startTime || '12:00';
+                    if (lunchEndInput) lunchEndInput.value = barber.lunchBreak.endTime || '13:00';
+                    if (lunchTimes) lunchTimes.style.display = (barber.lunchBreak.enabled ? 'block' : 'none');
+                }
+            } catch (error) {
+                console.warn('Erro ao carregar dados do perfil:', error);
+            }
         }
 
         function logout() {

@@ -112,3 +112,67 @@ exports.changePassword = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.getProfile = async (req, res) => {
+  try {
+    const barber = await Barber.findById(req.barberId).select("-password");
+    if (!barber) {
+      return res.status(404).json({ error: "Utilizador não encontrado" });
+    }
+    res.json(barber);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.updateProfile = async (req, res) => {
+  try {
+    const { notificationEmail, lunchBreak } = req.body;
+
+    if (!req.barberId) {
+      return res.status(401).json({ error: "Utilizador não autenticado" });
+    }
+
+    const barber = await Barber.findById(req.barberId);
+    if (!barber) {
+      return res.status(404).json({ error: "Utilizador não encontrado" });
+    }
+
+    // Atualizar email de notificação
+    if (notificationEmail !== undefined) {
+      if (notificationEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(notificationEmail)) {
+        return res.status(400).json({ error: "Email inválido" });
+      }
+      barber.notificationEmail = notificationEmail || null;
+    }
+
+    // Atualizar intervalo de almoço
+    if (lunchBreak !== undefined) {
+      if (lunchBreak && lunchBreak.enabled) {
+        if (!lunchBreak.startTime || !lunchBreak.endTime) {
+          return res.status(400).json({ error: "Horas de almoço obrigatórias" });
+        }
+        // Validar formato HH:mm
+        const timeRegex = /^([0-1][0-9]|2[0-3]):[0-5][0-9]$/;
+        if (!timeRegex.test(lunchBreak.startTime) || !timeRegex.test(lunchBreak.endTime)) {
+          return res.status(400).json({ error: "Formato de hora inválido (HH:mm)" });
+        }
+        // Comparar horários
+        if (lunchBreak.startTime >= lunchBreak.endTime) {
+          return res.status(400).json({ error: "Hora de início deve ser antes da hora de fim" });
+        }
+      }
+      barber.lunchBreak = lunchBreak;
+    }
+
+    await barber.save();
+
+    res.json({
+      success: true,
+      message: "Perfil atualizado com sucesso",
+      barber: await Barber.findById(req.barberId).select("-password"),
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

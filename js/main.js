@@ -992,7 +992,7 @@ document.addEventListener("DOMContentLoaded", function () {
     return `${h}:${m}`;
   }
 
-  function getTimeSlotsForDate(date, serviceDuration = 60) {
+  function getTimeSlotsForDate(date, serviceDuration = 60, barberData = null) {
     const schedule = getScheduleForDay(date.getDay());
     if (!schedule || !schedule.open) return [];
 
@@ -1003,11 +1003,28 @@ document.addEventListener("DOMContentLoaded", function () {
     // Ex: Fecho às 18:00 (1080 min), serviço de 90 min → último slot às 16:30 (990 min)
     const lastPossibleStartTime = schedule.closeMinutes - serviceDuration;
 
+    // Converter lunch break times para minutos se disponível
+    let lunchStartMinutes = null;
+    let lunchEndMinutes = null;
+    if (barberData?.lunchBreak?.enabled && barberData.lunchBreak.startTime && barberData.lunchBreak.endTime) {
+      const [startH, startM] = barberData.lunchBreak.startTime.split(":").map(Number);
+      const [endH, endM] = barberData.lunchBreak.endTime.split(":").map(Number);
+      lunchStartMinutes = startH * 60 + startM;
+      lunchEndMinutes = endH * 60 + endM;
+    }
+
     for (
       let t = schedule.openMinutes;
       t <= lastPossibleStartTime;
       t += slotMinutes
     ) {
+      // Verificar se o slot cai dentro do intervalo de almoço
+      if (lunchStartMinutes !== null && lunchEndMinutes !== null) {
+        // Se o slot começa dentro ou após o início do almoço e antes do fim
+        if (t >= lunchStartMinutes && t < lunchEndMinutes) {
+          continue; // Pular este slot
+        }
+      }
       slots.push(formatTime(t));
     }
 
@@ -1029,9 +1046,16 @@ document.addEventListener("DOMContentLoaded", function () {
     if (barber1 && barberSettings.barber1Name) {
       barber1.name = barberSettings.barber1Name;
     }
+    if (barber1 && barberSettings.barber1LunchBreak) {
+      barber1.lunchBreak = barberSettings.barber1LunchBreak;
+    }
+    
     const barber2 = barbers["ricardo-silva"];
     if (barber2 && barberSettings.barber2Name) {
       barber2.name = barberSettings.barber2Name;
+    }
+    if (barber2 && barberSettings.barber2LunchBreak) {
+      barber2.lunchBreak = barberSettings.barber2LunchBreak;
     }
 
     const barber1Card = document.querySelector(
@@ -1468,9 +1492,13 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     const dateKey = bookingState.date.toISOString().split("T")[0];
+    
+    // Obter dados do barbeiro (incluindo lunchBreak)
+    const barberData = barbers[bookingState.barber];
     const barberHours = getTimeSlotsForDate(
       bookingState.date,
       bookingState.serviceDuration || 60,
+      barberData,
     );
     const dayOfWeek = bookingState.date.getDay();
     const dayNames = [

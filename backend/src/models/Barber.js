@@ -19,6 +19,20 @@ const barberSchema = new mongoose.Schema({
     type: String,
     default: null, // Email pessoal para receber notificações de reservas
   },
+  lunchBreak: {
+    enabled: {
+      type: Boolean,
+      default: false, // Se tem intervalo de almoço
+    },
+    startTime: {
+      type: String, // HH:mm exemplo "12:00"
+      default: "12:00",
+    },
+    endTime: {
+      type: String, // HH:mm exemplo "13:00"
+      default: "13:00",
+    },
+  },
   password: {
     type: String,
     required: true,
