@@ -2008,23 +2008,6 @@
                         </div>
                         
                         <div class="form-group">
-                            <label style="display: flex; align-items: center; gap: 0.5rem;">
-                                <input type="checkbox" id="barber1LunchBreakEnabled" ${settings.barberCards?.barber1LunchBreak?.enabled ? 'checked' : ''}>
-                                <span>Barbeiro 1: Ativar intervalo de almoço</span>
-                            </label>
-                        </div>
-                        <div id="barber1LunchBreakTimes" style="display: ${settings.barberCards?.barber1LunchBreak?.enabled ? 'block' : 'none'}; margin-left: 1.5rem;">
-                            <div class="form-group">
-                                <label>Hora de início</label>
-                                <input type="time" id="barber1LunchStartTime" value="${settings.barberCards?.barber1LunchBreak?.startTime || '12:00'}">
-                            </div>
-                            <div class="form-group">
-                                <label>Hora de fim</label>
-                                <input type="time" id="barber1LunchEndTime" value="${settings.barberCards?.barber1LunchBreak?.endTime || '13:00'}">
-                            </div>
-                        </div>
-                        
-                        <div class="form-group">
                             <label>Barbeiro 2: Nome</label>
                             <input type="text" id="barber2Name" value="${settings.barberCards?.barber2Name || ''}">
                         </div>
@@ -2044,23 +2027,6 @@
                             <small style="color: var(--text-light);">Selecione uma imagem (será otimizada e guardada na BD)</small>
                             ${settings.barberCards?.barber2CoverImage ? `<p style="margin-top: 0.5rem; color: var(--text-light); font-size: 0.9rem;">Imagem atual: <strong>${settings.barberCards.barber2CoverImage.split('/').pop()}</strong></p>` : ''}
                         </div>
-                        
-                        <div class="form-group">
-                            <label style="display: flex; align-items: center; gap: 0.5rem;">
-                                <input type="checkbox" id="barber2LunchBreakEnabled" ${settings.barberCards?.barber2LunchBreak?.enabled ? 'checked' : ''}>
-                                <span>Barbeiro 2: Ativar intervalo de almoço</span>
-                            </label>
-                        </div>
-                        <div id="barber2LunchBreakTimes" style="display: ${settings.barberCards?.barber2LunchBreak?.enabled ? 'block' : 'none'}; margin-left: 1.5rem;">
-                            <div class="form-group">
-                                <label>Hora de início</label>
-                                <input type="time" id="barber2LunchStartTime" value="${settings.barberCards?.barber2LunchBreak?.startTime || '12:00'}">
-                            </div>
-                            <div class="form-group">
-                                <label>Hora de fim</label>
-                                <input type="time" id="barber2LunchEndTime" value="${settings.barberCards?.barber2LunchBreak?.endTime || '13:00'}">
-                            </div>
-                        </div>
 
                         <div class="form-group">
                             <label>Rodapé</label>
@@ -2079,24 +2045,7 @@
 
                 const settingsForm = document.getElementById('settingsForm');
                 const floatingSaveBtn = document.getElementById('floatingSaveBtn');
-
-                // Event listeners for lunch break checkboxes
-                const barber1LunchCheckbox = document.getElementById('barber1LunchBreakEnabled');
-                const barber1LunchTimes = document.getElementById('barber1LunchBreakTimes');
-                if (barber1LunchCheckbox && barber1LunchTimes) {
-                    barber1LunchCheckbox.addEventListener('change', () => {
-                        barber1LunchTimes.style.display = barber1LunchCheckbox.checked ? 'block' : 'none';
-                    });
-                }
-
-                const barber2LunchCheckbox = document.getElementById('barber2LunchBreakEnabled');
-                const barber2LunchTimes = document.getElementById('barber2LunchBreakTimes');
-                if (barber2LunchCheckbox && barber2LunchTimes) {
-                    barber2LunchCheckbox.addEventListener('change', () => {
-                        barber2LunchTimes.style.display = barber2LunchCheckbox.checked ? 'block' : 'none';
-                    });
-                }
-
+                
                 if (floatingSaveBtn) {
                     floatingSaveBtn.addEventListener('click', () => {
                         if (settingsForm) {
@@ -2318,20 +2267,10 @@
                             barber1Description: document.getElementById('barber1Description').value,
                             barber1Image: settings.barberCards?.barber1Image || '',
                             barber1CoverImage: settings.barberCards?.barber1CoverImage || '',
-                            barber1LunchBreak: {
-                                enabled: document.getElementById('barber1LunchBreakEnabled').checked,
-                                startTime: document.getElementById('barber1LunchStartTime').value,
-                                endTime: document.getElementById('barber1LunchEndTime').value
-                            },
                             barber2Name: document.getElementById('barber2Name').value,
                             barber2Description: document.getElementById('barber2Description').value,
                             barber2Image: settings.barberCards?.barber2Image || '',
-                            barber2CoverImage: settings.barberCards?.barber2CoverImage || '',
-                            barber2LunchBreak: {
-                                enabled: document.getElementById('barber2LunchBreakEnabled').checked,
-                                startTime: document.getElementById('barber2LunchStartTime').value,
-                                endTime: document.getElementById('barber2LunchEndTime').value
-                            }
+                            barber2CoverImage: settings.barberCards?.barber2CoverImage || ''
                         },
                         showcase: {
                             cards: showcaseCards

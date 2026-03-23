@@ -50,6 +50,23 @@ router.post(
   reservationController.cancelReservationByToken,
 );
 
+// ===== BARBERS - DADOS PÚBLICOS =====
+// Carregar dados públicos de um barbeiro (nome, lunchBreak, etc)
+router.get("/barbers/:barberId", async (req, res) => {
+  try {
+    const { barberId } = req.params;
+    const barber = await Barber.findById(barberId).select(
+      "name role lunchBreak avatar",
+    );
+    if (!barber) {
+      return res.status(404).json({ error: "Barbeiro não encontrado" });
+    }
+    res.json(barber);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // ===== BARBER (não-admin) - ACESSO RESTRITO =====
 // Barber vê suas próprias ausências
 router.get("/barber/absences", authMiddleware, async (req, res) => {

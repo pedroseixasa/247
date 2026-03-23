@@ -943,9 +943,42 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  async function loadBarberData() {
+    const API_BASE_URL = "https://two4-7-barbearia.onrender.com/api";
+    
+    // IDs dos barbeiros
+    const barberIds = [
+      "6998aaf59119a721cdc1e136", // Diogo Cunha
+      "6998aaf59119a721cdc1e137", // Ricardo Silva
+    ];
+    
+    const barberKeyMap = {
+      "6998aaf59119a721cdc1e136": "diogo-cunha",
+      "6998aaf59119a721cdc1e137": "ricardo-silva",
+    };
+    
+    for (const barberId of barberIds) {
+      try {
+        const response = await fetch(`${API_BASE_URL}/barbers/${barberId}`);
+        if (!response.ok) continue;
+        
+        const barberData = await response.json();
+        const barberKey = barberKeyMap[barberId];
+        
+        // Atualizar dados do barbeiro na memória (será usado pela seção de reservas)
+        if (window.updateBarberLunchBreak) {
+          window.updateBarberLunchBreak(barberKey, barberData.lunchBreak);
+        }
+      } catch (error) {
+        console.error(`Erro ao carregar dados do barbeiro ${barberId}:`, error);
+      }
+    }
+  }
+
   document.addEventListener("DOMContentLoaded", () => {
     loadSiteSettings();
     loadServices();
+    loadBarberData();
   });
 })();
 
@@ -1069,18 +1102,10 @@ document.addEventListener("DOMContentLoaded", function () {
     if (barber1 && barberSettings.barber1Name) {
       barber1.name = barberSettings.barber1Name;
     }
-    if (barber1 && barberSettings.barber1LunchBreak) {
-      barber1.lunchBreak = barberSettings.barber1LunchBreak;
-      console.log("✅ Updated barber1 lunch break:", barber1.lunchBreak);
-    }
 
     const barber2 = barbers["ricardo-silva"];
     if (barber2 && barberSettings.barber2Name) {
       barber2.name = barberSettings.barber2Name;
-    }
-    if (barber2 && barberSettings.barber2LunchBreak) {
-      barber2.lunchBreak = barberSettings.barber2LunchBreak;
-      console.log("✅ Updated barber2 lunch break:", barber2.lunchBreak);
     }
 
     const barber1Card = document.querySelector(
@@ -1107,18 +1132,28 @@ document.addEventListener("DOMContentLoaded", function () {
       if (roleEl) roleEl.textContent = barberSettings.barber2Role;
     }
 
-    // Se o utilizador já selecionou um barbeiro, re-renderizar slots com dados atualizados
-    if (bookingState.barber && bookingState.date) {
-      console.log("🔄 Re-rendering time slots with updated lunch break data");
-      renderTimeSlots();
-    }
-
     // Keep booking card name synced with filming override
     applyFilmingStaffOverrides();
+  };
 
-    // Re-render time slots if barbier data was updated and user already selected
-    if (typeof window.reRenderTimeSlots === "function") {
-      window.reRenderTimeSlots();
+  // Função para atualizar lunchBreak de um barbeiro (carregado do endpoint /api/barbers/:id)
+  window.updateBarberLunchBreak = function (barberKey, lunchBreak) {
+    if (!barberKey || !barbers[barberKey]) return;
+    
+    barbers[barberKey].lunchBreak = lunchBreak || {
+      enabled: false,
+      startTime: "12:00",
+      endTime: "13:00"
+    };
+    
+    console.log(`✅ Updated lunch break for ${barberKey}:`, barbers[barberKey].lunchBreak);
+    
+    // Re-render slots se o barbeiro tiver sido selecionado
+    if (bookingState.barber === barberKey && bookingState.date) {
+      console.log('🔄 Re-rendering time slots with updated lunch break');
+      if (typeof window.reRenderTimeSlots === 'function') {
+        window.reRenderTimeSlots();
+      }
     }
   };
 
