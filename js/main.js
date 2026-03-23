@@ -786,12 +786,14 @@ document.addEventListener("DOMContentLoaded", function () {
           let currentImageIndex = 0;
           const rotateImages = () => {
             const imgs = cardElement.querySelectorAll(".showcase-card-img");
-            const dots = cardElement.querySelectorAll(".showcase-card-indicators .dot");
-            
+            const dots = cardElement.querySelectorAll(
+              ".showcase-card-indicators .dot",
+            );
+
             // Remove active de todos
-            imgs.forEach(img => img.classList.remove("active"));
-            dots.forEach(dot => dot.classList.remove("active"));
-            
+            imgs.forEach((img) => img.classList.remove("active"));
+            dots.forEach((dot) => dot.classList.remove("active"));
+
             // Próxima imagem
             currentImageIndex = (currentImageIndex + 1) % images.length;
             imgs[currentImageIndex].classList.add("active");
@@ -799,36 +801,46 @@ document.addEventListener("DOMContentLoaded", function () {
           };
 
           // Auto-rotate a cada 4 segundos quando o card está visível
-          const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-              if (entry.isIntersecting) {
-                cardElement.rotationInterval = setInterval(rotateImages, 4000);
-              } else if (cardElement.rotationInterval) {
-                clearInterval(cardElement.rotationInterval);
-              }
-            });
-          }, { threshold: 0.5 });
+          const observer = new IntersectionObserver(
+            (entries) => {
+              entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                  cardElement.rotationInterval = setInterval(
+                    rotateImages,
+                    4000,
+                  );
+                } else if (cardElement.rotationInterval) {
+                  clearInterval(cardElement.rotationInterval);
+                }
+              });
+            },
+            { threshold: 0.5 },
+          );
 
           observer.observe(cardElement);
 
           // Click nos dots para mudar imagem manualmente
-          cardElement.querySelectorAll(".showcase-card-indicators .dot").forEach((dot, idx) => {
-            dot.addEventListener("click", () => {
-              clearInterval(cardElement.rotationInterval);
-              currentImageIndex = idx;
-              
-              const imgs = cardElement.querySelectorAll(".showcase-card-img");
-              const dots = cardElement.querySelectorAll(".showcase-card-indicators .dot");
-              imgs.forEach(img => img.classList.remove("active"));
-              dots.forEach(d => d.classList.remove("active"));
-              
-              if (imgs[idx]) imgs[idx].classList.add("active");
-              if (dots[idx]) dots[idx].classList.add("active");
-              
-              // Reiniciar rotação automática
-              cardElement.rotationInterval = setInterval(rotateImages, 4000);
+          cardElement
+            .querySelectorAll(".showcase-card-indicators .dot")
+            .forEach((dot, idx) => {
+              dot.addEventListener("click", () => {
+                clearInterval(cardElement.rotationInterval);
+                currentImageIndex = idx;
+
+                const imgs = cardElement.querySelectorAll(".showcase-card-img");
+                const dots = cardElement.querySelectorAll(
+                  ".showcase-card-indicators .dot",
+                );
+                imgs.forEach((img) => img.classList.remove("active"));
+                dots.forEach((d) => d.classList.remove("active"));
+
+                if (imgs[idx]) imgs[idx].classList.add("active");
+                if (dots[idx]) dots[idx].classList.add("active");
+
+                // Reiniciar rotação automática
+                cardElement.rotationInterval = setInterval(rotateImages, 4000);
+              });
             });
-          });
         }
       }
     });

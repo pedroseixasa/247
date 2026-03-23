@@ -986,7 +986,7 @@ exports.removeBarberAbsence = async (req, res) => {
 
     // Remover ausência por ID
     barber.absences = barber.absences.filter(
-      (absence) => absence._id.toString() !== absenceId
+      (absence) => absence._id.toString() !== absenceId,
     );
 
     await barber.save();

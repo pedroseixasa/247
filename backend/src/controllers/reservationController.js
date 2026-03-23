@@ -128,12 +128,14 @@ exports.createReservation = async (req, res) => {
 
     // Verificar se o barbeiro tem ausência nesta data
     const reservationDateTime = new Date(reservationDate);
-    const reservationDateOnly = new Date(reservationDateTime.setHours(0, 0, 0, 0));
-    
-    const barberAbsence = barber.absences?.find(absence => {
+    const reservationDateOnly = new Date(
+      reservationDateTime.setHours(0, 0, 0, 0),
+    );
+
+    const barberAbsence = barber.absences?.find((absence) => {
       const absenseDate = new Date(absence.date);
       const absenseDateOnly = new Date(absenseDate.setHours(0, 0, 0, 0));
-      
+
       if (absenseDateOnly.getTime() !== reservationDateOnly.getTime()) {
         return false;
       }
@@ -146,12 +148,16 @@ exports.createReservation = async (req, res) => {
       // Verificar se o timeslot cai dentro da ausência específica
       const [hours, minutes] = timeSlot.split(":").map(Number);
       const appointmentTime = hours * 60 + minutes;
-      
+
       if (absence.type === "morning") {
         return appointmentTime < 12 * 60; // Antes do meio-dia
       } else if (absence.type === "afternoon") {
         return appointmentTime >= 12 * 60; // A partir do meio-dia
-      } else if (absence.type === "specific" && absence.startTime && absence.endTime) {
+      } else if (
+        absence.type === "specific" &&
+        absence.startTime &&
+        absence.endTime
+      ) {
         const [sHours, sMinutes] = absence.startTime.split(":").map(Number);
         const [eHours, eMinutes] = absence.endTime.split(":").map(Number);
         const startTime = sHours * 60 + sMinutes;
@@ -163,7 +169,11 @@ exports.createReservation = async (req, res) => {
     });
 
     if (barberAbsence) {
-      return res.status(409).json({ error: "Barbeiro indisponível nesta data/hora. Marque outra data." });
+      return res
+        .status(409)
+        .json({
+          error: "Barbeiro indisponível nesta data/hora. Marque outra data.",
+        });
     }
 
     // Verificar se já existe reserva para esse barbeiro à essa hora
