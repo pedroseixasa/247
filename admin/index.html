@@ -1358,13 +1358,7 @@
                         <!-- Selector de Mês para Vista Semanal -->
                         <div class="weekly-selector" style="display: none; background: white; border: 1px solid #e0e0e0; border-top: none; border-radius: 0 0 6px 6px; padding: 1.5rem;">
                             <label style="font-weight: 600; margin-right: 1rem;">Filtrar semanas por mês:</label>
-                            <select id="monthForWeekly" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
-                                <option value="">Selecionar mês...</option>
-                                ${(() => {
-                                    const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-                                    return months.map((m, i) => `<option value="${i+1}">${m}</option>`).join('');
-                                })()}
-                            </select>
+                            <select id="monthForWeekly" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;"><option value="">Selecionar mês...</option>${(() => { const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']; return months.map((m, i) => `<option value="${i+1}">${m}</option>`).join(''); })()}</select>
                         </div>
                     `;
                 };
@@ -1457,18 +1451,14 @@
                         while (currentWeekStart <= lastDay) {
                             const weekEnd = new Date(currentWeekStart);
                             weekEnd.setDate(weekEnd.getDate() + 6);
-
                             const weekLabel = `${currentWeekStart.getDate()} - ${weekEnd.getDate()} de ${currentWeekStart.toLocaleDateString('pt-PT', { month: 'long' })}`;
-                            
                             weeks.push({
                                 start: new Date(currentWeekStart),
                                 end: new Date(weekEnd),
                                 label: weekLabel
                             });
-
                             currentWeekStart.setDate(currentWeekStart.getDate() + 7);
                         }
-
                         return weeks;
                     };
 
@@ -1501,16 +1491,9 @@
                             const weekReservas = idx === weeks.length - 1 ? (totalReservas - avgPerWeek * idx) : avgPerWeek;
                             const weekRevenuePast = idx === weeks.length - 1 ? (totalRevenuePast - avgRevenuePastPerWeek * idx) : avgRevenuePastPerWeek;
                             const weekRevenueFuture = idx === weeks.length - 1 ? (totalRevenueFuture - avgRevenueFuturePerWeek * idx) : avgRevenueFuturePerWeek;
+                            const weekRevenueTotal = weekRevenuePast + weekRevenueFuture;
 
-                            return `
-                                <tr style="border-bottom: 1px solid #e0e0e0; background: ${idx % 2 === 0 ? '#fff' : '#f8f9fa'};">
-                                    <td style="padding: 1rem; font-size: 0.9rem; color: #333; white-space: nowrap;"><strong>Semana ${idx + 1}</strong><br>${week.label}</td>
-                                    <td style="text-align: right; padding: 1rem; color: #666; white-space: nowrap;">${Math.round(weekReservas)}</td>
-                                    <td style="text-align: right; padding: 1rem; font-weight: 600; color: #27ae60; white-space: nowrap;">${formatCurrency(weekRevenuePast)}</td>
-                                    <td style="text-align: right; padding: 1rem; font-weight: 600; color: #3498db; white-space: nowrap;">${formatCurrency(weekRevenueFuture)}</td>
-                                    <td style="text-align: right; padding: 1rem; font-weight: 600; color: #2c3e50; white-space: nowrap;">${formatCurrency(weekRevenuePast)}</td>
-                                </tr>
-                            `;
+                            return `<tr style="border-bottom: 1px solid #e0e0e0; background: ${idx % 2 === 0 ? '#fff' : '#f8f9fa'};"><td style="padding: 1rem; font-size: 0.9rem; color: #333; white-space: nowrap;"><strong>Semana ${idx + 1}</strong><br>${week.label}</td><td style="text-align: right; padding: 1rem; color: #666; white-space: nowrap;">${Math.round(weekReservas)}</td><td style="text-align: right; padding: 1rem; font-weight: 600; color: #27ae60; white-space: nowrap;">${formatCurrency(weekRevenuePast)}</td><td style="text-align: right; padding: 1rem; font-weight: 600; color: #3498db; white-space: nowrap;">${formatCurrency(weekRevenueFuture)}</td><td style="text-align: right; padding: 1rem; font-weight: 600; color: #2c3e50; white-space: nowrap;">${formatCurrency(weekRevenueTotal)}</td></tr>`;
                         }).join('');
 
                         weeklyTableBody.innerHTML = weeksHtml || '<tr><td colspan="5" style="padding: 2rem; text-align: center; color: #999;">Sem dados para este mês</td></tr>';
