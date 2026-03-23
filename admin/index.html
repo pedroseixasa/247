@@ -1362,7 +1362,7 @@
                                 <option value="">Selecionar mês...</option>
                                 ${(() => {
                                     const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-                                    return months.map((m, i) => `<option value="\${i+1}">\${m}</option>`).join('');
+                                    return months.map((m, i) => `<option value="${i+1}">${m}</option>`).join('');
                                 })()}
                             </select>
                         </div>
@@ -1458,7 +1458,7 @@
                             const weekEnd = new Date(currentWeekStart);
                             weekEnd.setDate(weekEnd.getDate() + 6);
 
-                            const weekLabel = \`\${currentWeekStart.getDate()} - \${weekEnd.getDate()} de \${currentWeekStart.toLocaleDateString('pt-PT', { month: 'long' })}\`;
+                            const weekLabel = `${currentWeekStart.getDate()} - ${weekEnd.getDate()} de ${currentWeekStart.toLocaleDateString('pt-PT', { month: 'long' })}`;
                             
                             weeks.push({
                                 start: new Date(currentWeekStart),
@@ -1502,15 +1502,15 @@
                             const weekRevenuePast = idx === weeks.length - 1 ? (totalRevenuePast - avgRevenuePastPerWeek * idx) : avgRevenuePastPerWeek;
                             const weekRevenueFuture = idx === weeks.length - 1 ? (totalRevenueFuture - avgRevenueFuturePerWeek * idx) : avgRevenueFuturePerWeek;
 
-                            return \`
-                                <tr style="border-bottom: 1px solid #e0e0e0; background: \${idx % 2 === 0 ? '#fff' : '#f8f9fa'};">
-                                    <td style="padding: 1rem; font-size: 0.9rem; color: #333; white-space: nowrap;"><strong>Semana \${idx + 1}</strong><br>\${week.label}</td>
-                                    <td style="text-align: right; padding: 1rem; color: #666; white-space: nowrap;">\${Math.round(weekReservas)}</td>
-                                    <td style="text-align: right; padding: 1rem; font-weight: 600; color: #27ae60; white-space: nowrap;">\${formatCurrency(weekRevenuePast)}</td>
-                                    <td style="text-align: right; padding: 1rem; font-weight: 600; color: #3498db; white-space: nowrap;">\${formatCurrency(weekRevenueFuture)}</td>
-                                    <td style="text-align: right; padding: 1rem; font-weight: 600; color: #2c3e50; white-space: nowrap;">\${formatCurrency(weekRevenuePast)}</td>
+                            return `
+                                <tr style="border-bottom: 1px solid #e0e0e0; background: ${idx % 2 === 0 ? '#fff' : '#f8f9fa'};">
+                                    <td style="padding: 1rem; font-size: 0.9rem; color: #333; white-space: nowrap;"><strong>Semana ${idx + 1}</strong><br>${week.label}</td>
+                                    <td style="text-align: right; padding: 1rem; color: #666; white-space: nowrap;">${Math.round(weekReservas)}</td>
+                                    <td style="text-align: right; padding: 1rem; font-weight: 600; color: #27ae60; white-space: nowrap;">${formatCurrency(weekRevenuePast)}</td>
+                                    <td style="text-align: right; padding: 1rem; font-weight: 600; color: #3498db; white-space: nowrap;">${formatCurrency(weekRevenueFuture)}</td>
+                                    <td style="text-align: right; padding: 1rem; font-weight: 600; color: #2c3e50; white-space: nowrap;">${formatCurrency(weekRevenuePast)}</td>
                                 </tr>
-                            \`;
+                            `;
                         }).join('');
 
                         weeklyTableBody.innerHTML = weeksHtml || '<tr><td colspan="5" style="padding: 2rem; text-align: center; color: #999;">Sem dados para este mês</td></tr>';
