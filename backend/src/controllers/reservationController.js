@@ -127,7 +127,15 @@ exports.createReservation = async (req, res) => {
 
     // ========== VALIDAÇÃO 7: Barbeiro trabalha naquele dia (workingHours da DB) ==========
     const reservationDateTime = new Date(reservationDate);
-    const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+    const days = [
+      "sunday",
+      "monday",
+      "tuesday",
+      "wednesday",
+      "thursday",
+      "friday",
+      "saturday",
+    ];
     const dayKey = days[reservationDateTime.getDay()];
     const todayHours = barber.workingHours[dayKey];
 
@@ -151,9 +159,14 @@ exports.createReservation = async (req, res) => {
 
     if (newEnd > closeTime) {
       return res.status(400).json({
-        error: "O serviço excede o horário de funcionamento. Serviço termina às " +
-          new Date(newEnd).toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" }) +
-          ", mas a barbearia fecha às " + todayHours.end
+        error:
+          "O serviço excede o horário de funcionamento. Serviço termina às " +
+          new Date(newEnd).toLocaleTimeString("pt-PT", {
+            hour: "2-digit",
+            minute: "2-digit",
+          }) +
+          ", mas a barbearia fecha às " +
+          todayHours.end,
       });
     }
 
@@ -161,7 +174,7 @@ exports.createReservation = async (req, res) => {
     const hasAbsence = barber.absences?.some((absence) => {
       const absDate = new Date(absence.date).toDateString();
       const resDate = reservationDateTime.toDateString();
-      
+
       // Data não bate
       if (absDate !== resDate) {
         return false;
@@ -189,7 +202,7 @@ exports.createReservation = async (req, res) => {
 
         const absStart = new Date(reservationDateTime);
         absStart.setHours(absStartH, absStartM, 0, 0);
-        
+
         const absEnd = new Date(reservationDateTime);
         absEnd.setHours(absEndH, absEndM, 0, 0);
 
@@ -209,7 +222,7 @@ exports.createReservation = async (req, res) => {
     // ========== VALIDAÇÃO 10: Existe overlap com marcação existente? ==========
     const startOfDay = new Date(reservationDateTime);
     startOfDay.setHours(0, 0, 0, 0);
-    
+
     const endOfDay = new Date(reservationDateTime);
     endOfDay.setHours(23, 59, 59, 999);
 
@@ -224,7 +237,7 @@ exports.createReservation = async (req, res) => {
     const hasConflict = existingReservations.some((existing) => {
       const existStart = new Date(existing.reservationDate);
       const existEnd = new Date(
-        existStart.getTime() + existing.serviceId.duration * 60000
+        existStart.getTime() + existing.serviceId.duration * 60000,
       );
 
       // Regra de overlap: A.start < B.end && B.start < A.end
@@ -413,13 +426,16 @@ exports.cancelReservationByToken = async (req, res) => {
 exports.addAbsence = async (req, res) => {
   try {
     const { date, type, startTime, endTime, reason } = req.body;
-    
+
     // Se vem de admin (com params), se é barber (usa seu own ID)
     let targetBarberId = req.params.barberId || req.user._id;
 
     // Authorization: apenas o barbeiro dele mesmo ou admin
     const currentUser = req.user; // Vem do authMiddleware
-    if (currentUser.role !== "admin" && currentUser._id.toString() !== targetBarberId.toString()) {
+    if (
+      currentUser.role !== "admin" &&
+      currentUser._id.toString() !== targetBarberId.toString()
+    ) {
       return res.status(403).json({ error: "Sem permissão" });
     }
 
@@ -433,7 +449,11 @@ exports.addAbsence = async (req, res) => {
     }
 
     if (type === "specific" && (!startTime || !endTime)) {
-      return res.status(400).json({ error: "startTime e endTime obrigatórios para tipo 'specific'" });
+      return res
+        .status(400)
+        .json({
+          error: "startTime e endTime obrigatórios para tipo 'specific'",
+        });
     }
 
     // Buscar barbeiro
@@ -444,7 +464,8 @@ exports.addAbsence = async (req, res) => {
 
     // Verificar se já tem ausência nesta data
     const existingAbsence = barber.absences?.find(
-      (abs) => new Date(abs.date).toDateString() === new Date(date).toDateString()
+      (abs) =>
+        new Date(abs.date).toDateString() === new Date(date).toDateString(),
     );
 
     if (existingAbsence) {
@@ -480,7 +501,10 @@ exports.removeAbsence = async (req, res) => {
 
     // Authorization: apenas o barbeiro dele mesmo ou admin
     const currentUser = req.user;
-    if (currentUser.role !== "admin" && currentUser._id.toString() !== barberId) {
+    if (
+      currentUser.role !== "admin" &&
+      currentUser._id.toString() !== barberId
+    ) {
       return res.status(403).json({ error: "Sem permissão" });
     }
 
@@ -499,12 +523,14 @@ exports.removeAbsence = async (req, res) => {
         return res.status(400).json({ error: "ID de ausência inválido" });
       }
     } catch (err) {
-      return res.status(400).json({ error: "Erro ao processar ID: " + err.message });
+      return res
+        .status(400)
+        .json({ error: "Erro ao processar ID: " + err.message });
     }
 
     // Remover ausência
     const absenceIndex = barber.absences?.findIndex(
-      (abs) => abs._id?.toString() === absenceIdObj.toString()
+      (abs) => abs._id?.toString() === absenceIdObj.toString(),
     );
 
     if (absenceIndex === undefined || absenceIndex === -1) {

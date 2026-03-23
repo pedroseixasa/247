@@ -45,25 +45,21 @@ router.post(
 
 // ===== BARBER (não-admin) - ACESSO RESTRITO =====
 // Barber vê suas próprias ausências
-router.get(
-  "/barber/absences",
-  authMiddleware,
-  async (req, res) => {
-    try {
-      const barber = await Barber.findById(req.user._id).select("absences name");
-      if (!barber) {
-        return res.status(404).json({ error: "Perfil não encontrado" });
-      }
-      res.json({
-        barberId: req.user._id,
-        barberName: barber.name,
-        absences: barber.absences || [],
-      });
-    } catch (error) {
-      res.status(500).json({ error: error.message });
+router.get("/barber/absences", authMiddleware, async (req, res) => {
+  try {
+    const barber = await Barber.findById(req.user._id).select("absences name");
+    if (!barber) {
+      return res.status(404).json({ error: "Perfil não encontrado" });
     }
-  },
-);
+    res.json({
+      barberId: req.user._id,
+      barberName: barber.name,
+      absences: barber.absences || [],
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 // Barber adiciona sua própria ausência
 router.post(
@@ -87,7 +83,7 @@ router.delete(
       }
 
       const absenceIndex = barber.absences?.findIndex(
-        (abs) => abs._id?.toString() === absenceId
+        (abs) => abs._id?.toString() === absenceId,
       );
 
       if (absenceIndex === undefined || absenceIndex === -1) {

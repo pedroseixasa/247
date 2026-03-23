@@ -496,14 +496,15 @@ POST /api/reservations
 #### Scenario
 
 Barbeiro "Diogo Cunha" tem:
+
 ```javascript
 absences: [
   {
     date: "2026-04-16T00:00:00Z",
     type: "full",
-    reason: "Férias"
-  }
-]
+    reason: "Férias",
+  },
+];
 ```
 
 #### Request
@@ -663,26 +664,25 @@ class BookingAPI {
     const res = await fetch(`${this.api}/reservations`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
     });
     if (!res.ok) throw new Error((await res.json()).error);
     return res.json();
   }
 
   static async getBarberSlots(barberId, date) {
-    const dateStr = date.toISOString().split('T')[0];
+    const dateStr = date.toISOString().split("T")[0];
     const res = await fetch(
-      `${this.api}/reservations/barber/${barberId}?date=${dateStr}`
+      `${this.api}/reservations/barber/${barberId}?date=${dateStr}`,
     );
     if (!res.ok) throw new Error("Erro ao carregar slots");
     return res.json();
   }
 
   static async cancelByToken(token) {
-    const res = await fetch(
-      `${this.api}/reservations/cancel/${token}`,
-      { method: "POST" }
-    );
+    const res = await fetch(`${this.api}/reservations/cancel/${token}`, {
+      method: "POST",
+    });
     if (!res.ok) throw new Error("Erro ao cancelar");
     return res.json();
   }
@@ -692,7 +692,7 @@ class BookingAPI {
       ? `${this.api}/admin/reservations?barberId=${barberId}`
       : `${this.api}/admin/reservations`;
     const res = await fetch(url, {
-      headers: { "Authorization": `Bearer ${token}` }
+      headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) throw new Error("Erro ao carregar");
     return res.json();
@@ -708,7 +708,7 @@ try {
     clientPhone: "+351912345678",
     clientEmail: "joao@example.com",
     reservationDate: new Date().toISOString(),
-    timeSlot: "09:00"
+    timeSlot: "09:00",
   });
   console.log("✅ Reserva criada:", result);
 } catch (err) {

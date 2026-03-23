@@ -8,6 +8,7 @@
 ## 📊 ESTRUTURA DE DADOS
 
 ### Reservation (7 campos ativos)
+
 ```json
 {
   "_id": "ObjectId",
@@ -28,6 +29,7 @@
 ```
 
 ### Barber (com ausências)
+
 ```json
 {
   "_id": "ObjectId",
@@ -57,6 +59,7 @@
 ```
 
 ### Service
+
 ```json
 {
   "_id": "ObjectId",
@@ -75,6 +78,7 @@
 ## 🔌 API ENDPOINTS
 
 ### 1. CREATE Reservation
+
 ```
 POST /api/bookings
 Headers: Content-Type: application/json
@@ -132,6 +136,7 @@ ERRORS:
 ```
 
 ### 2. LIST Reservations (filtrado)
+
 ```
 GET /api/admin/reservations?month=3&year=2026&barberId=67a1b2c3d4e5f6g7h8i9j0k1&status=confirmed
 Headers: Authorization: Bearer <token>
@@ -167,6 +172,7 @@ ERRORS:
 ```
 
 ### 3. CANCEL Reservation (via token)
+
 ```
 DELETE /api/reservations/:reservationId
 Headers: Content-Type: application/json
@@ -201,9 +207,10 @@ ERRORS:
 ```
 
 ### 4. RESCHEDULE Reservation
+
 ```
 PATCH /api/reservations/:reservationId
-Headers: 
+Headers:
   Authorization: Bearer <token>
   Content-Type: application/json
 
@@ -229,6 +236,7 @@ ERRORS:
 ```
 
 ### 5. GET Time Slots (cálculo real)
+
 ```
 GET /api/barbers/:barberId/time-slots?date=2026-03-30
 Headers: Authorization: Bearer <token>
@@ -285,6 +293,7 @@ ERRORS:
 ```
 
 ### 6. GET Availabilty Calendar
+
 ```
 GET /api/barbers/:barberId/availability?month=3&year=2026
 
@@ -316,6 +325,7 @@ RESPONSE 200:
 ## 🎨 FRONTEND LOGIC (Booking Modal 3 Steps)
 
 ### Step 1: Selecionar Barbeiro
+
 ```javascript
 // HTML
 <div class="step-1">
@@ -328,7 +338,7 @@ RESPONSE 200:
       👨 Ricardo Silva
     </button>
   </div>
-</div>
+</div>;
 
 // JS
 async function selectBarber(barberId) {
@@ -336,13 +346,14 @@ async function selectBarber(barberId) {
   // Fetch calendário do barbeiro
   const calendar = await fetch(
     `/api/barbers/${barberId}/availability?month=${currentMonth}&year=${currentYear}`,
-    { headers: { 'Authorization': `Bearer ${token}` } }
-  ).then(r => r.json());
+    { headers: { Authorization: `Bearer ${token}` } },
+  ).then((r) => r.json());
   showStep2(calendar);
 }
 ```
 
 ### Step 2: Escolher Data + Hora
+
 ```javascript
 // HTML
 <div class="step-2">
@@ -357,7 +368,7 @@ async function loadTimeSlots(date) {
     `/api/barbers/${bookingData.barberId}/time-slots?date=${date}`,
     { headers: { 'Authorization': `Bearer ${token}` } }
   ).then(r => r.json());
-  
+
   renderSlots(slots.slots);
 }
 
@@ -369,6 +380,7 @@ function selectTimeSlot(time) {
 ```
 
 ### Step 3: Preencher Dados
+
 ```javascript
 // HTML
 <div class="step-3">
@@ -393,13 +405,13 @@ async function submitBooking() {
     timeSlot: bookingData.timeSlot,
     notes: ""
   };
-  
+
   const response = await fetch('/api/bookings', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   });
-  
+
   if (response.ok) {
     showSuccessModal("Marcação confirmada!");
   } else {
@@ -414,6 +426,7 @@ async function submitBooking() {
 ## 💌 EMAIL SYSTEM (Resend)
 
 ### Template 1: Confirmação Cliente
+
 ```html
 <h1>✅ Sua Marcação foi Confirmada!</h1>
 
@@ -429,14 +442,17 @@ async function submitBooking() {
   <p><strong>Preço:</strong> {{ servicePrice }}</p>
 </div>
 
-<p><a href="https://247barbearia.pt/cancel?token={{ cancelToken }}">
-  Cancelar Marcação
-</a></p>
+<p>
+  <a href="https://247barbearia.pt/cancel?token={{ cancelToken }}">
+    Cancelar Marcação
+  </a>
+</p>
 
 <p>Nos vemos em breve!</p>
 ```
 
 ### Template 2: Notificação Admin
+
 ```html
 <h1>📋 Nova Marcação Recebida</h1>
 
@@ -455,32 +471,33 @@ async function submitBooking() {
 ```
 
 ### Código de Envio (Backend)
+
 ```javascript
 // src/services/emailService.js
 async function sendBookingConfirmation(reservation, barber, service) {
   const cancelLink = `https://247barbearia.pt/cancel?token=${reservation.cancelToken}`;
-  
+
   await resend.emails.send({
-    from: 'noreply@247barbearia.pt',
+    from: "noreply@247barbearia.pt",
     to: reservation.clientEmail,
-    subject: '✅ Marcação confirmada - 24.7 Barbearia',
+    subject: "✅ Marcação confirmada - 24.7 Barbearia",
     html: fillTemplate(BOOKING_CLIENT_TEMPLATE, {
       clientName: reservation.clientName,
       barberName: barber.name,
       serviceName: service.name,
-      reservationDate: format(reservation.reservationDate, 'dd/MM/yyyy'),
+      reservationDate: format(reservation.reservationDate, "dd/MM/yyyy"),
       timeSlot: reservation.timeSlot,
       servicePrice: service.price,
       cancelToken: reservation.cancelToken,
-      cancelLink
-    })
+      cancelLink,
+    }),
   });
 }
 
 // Na controller (after save)
 await Promise.all([
   sendBookingConfirmation(reservation, barber, service),
-  sendAdminNotification(reservation, barber, service)
+  sendAdminNotification(reservation, barber, service),
 ]);
 ```
 
@@ -489,6 +506,7 @@ await Promise.all([
 ## 👨‍💼 ADMIN DASHBOARD
 
 ### Vista: Calendário Mensal
+
 ```
 ┌─────────────────────────────────────────┐
 │ MARÇO 2026 | Filtro Barbeiro: Todos    │
@@ -508,6 +526,7 @@ await Promise.all([
 ```
 
 ### Vista: Listagem Detalhada
+
 ```
 Date: 2026-03-23
 Barbeiro: Diogo Cunha
@@ -522,14 +541,15 @@ Barbeiro: Diogo Cunha
 ```
 
 ### Ações Admin
+
 ```javascript
 // Cancelar marcação
 async function cancelReservation(reservationId) {
-  const confirmed = await showModal('Tem certeza?');
+  const confirmed = await showModal("Tem certeza?");
   if (confirmed) {
     const response = await fetch(`/api/reservations/${reservationId}`, {
-      method: 'DELETE',
-      headers: { 'Authorization': `Bearer ${token}` }
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
     });
     if (response.ok) {
       reloadReservations();
@@ -540,7 +560,7 @@ async function cancelReservation(reservationId) {
 
 // Ver detalhes
 function viewDetails(reservationId) {
-  const res = allReservations.find(r => r._id === reservationId);
+  const res = allReservations.find((r) => r._id === reservationId);
   showModal(`
     Nome: ${res.clientName}
     Telefone: ${res.clientPhone}
@@ -557,6 +577,7 @@ function viewDetails(reservationId) {
 ## ✅ VALIDAÇÕES (CHECKLIST)
 
 ### Telefone Portugal
+
 ```regex
 ^(\+351\s?|00351\s?|0)?([2|9]\d{8})$
 Aceita: +351 912345678, 0912345678, 912345678
@@ -564,15 +585,17 @@ Rejeita: 808-123456 (números especiais), 123456789 (sem 2/9)
 ```
 
 ### Email Real
+
 ```javascript
 // Rejeita domínios fake
-const fakeEmails = ['test.com', 'fake.com', 'temp-mail.com', 'mail.tm'];
-if (fakeEmails.some(fake => email.includes(fake))) {
-  throw new Error('Email inválido para confirmação');
+const fakeEmails = ["test.com", "fake.com", "temp-mail.com", "mail.tm"];
+if (fakeEmails.some((fake) => email.includes(fake))) {
+  throw new Error("Email inválido para confirmação");
 }
 ```
 
 ### Data/Hora
+
 ```javascript
 ✓ Data no futuro (> now)
 ✓ Data é dia da semana trabalhando (Mon-Sat)
@@ -582,6 +605,7 @@ if (fakeEmails.some(fake => email.includes(fake))) {
 ```
 
 ### Time Slot
+
 ```javascript
 // Formato HH:MM
 // Intervalo 60 minutos (não 30)
@@ -642,21 +666,23 @@ CLIENTE                        BACKEND                        ADMIN
 ## 🔐 SEGURANÇA
 
 ### Cancel Token
+
 ```javascript
-const crypto = require('crypto');
+const crypto = require("crypto");
 
 // Gerado na criação da reserva
-const cancelToken = crypto.randomBytes(32).toString('hex');
+const cancelToken = crypto.randomBytes(32).toString("hex");
 // Resultado: "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t"
 
 // Armazenado em DB com sparse index
-index({ cancelToken: 1 }, { sparse: true })
+index({ cancelToken: 1 }, { sparse: true });
 
 // Compartilhado APENAS no email do cliente
 // Admin NÃO tem acesso direto (cancela via admin token)
 ```
 
 ### Backend Authority
+
 ```javascript
 // DELETE é feito via cancellToken do cliente OU admin token
 // Não há forma de cancelar sem token válido
@@ -675,67 +701,80 @@ Headers: Authorization: Bearer <admin-token>
 ## 🚨 DECISÕES ARQUITETURAIS (POR QUÊ)
 
 ### 1️⃣ Time Slots de 60 minutos (não 30)
+
 **Motivo:** Margem segurança entre serviços (Setup, cleanup, atraso)
 
 ### 2️⃣ Resend vs EmailJS
+
 **Motivo:** 3000 emails/mês grátis, backend authority, domínio custom
 
 ### 3️⃣ Ausências no Backend
+
 **Motivo:** Authority (servidor fonte verdade), não frontend
 
 ### 4️⃣ Hard Delete (não soft delete)
+
 **Motivo:** GDPR compliance, dados cliente não persistem indefinidamente
 
 ### 5️⃣ ISO 8601 + UTC
+
 **Motivo:** Standard internacional, sem ambiguidade timezone
 
 ### 6️⃣ Populate refs no email
+
 **Motivo:** Dados completos sem N+1 queries
 
 ### 7️⃣ Async email (Promise.all)
+
 **Motivo:** Não bloqueia resposta API
 
 ### 8️⃣ Sparse index cancelToken
+
 **Motivo:** Permite NULL, só indexa tokens reais
 
 ### 9️⃣ Status = confirmed (não pending)
+
 **Motivo:** UX simples (confirmação instantânea no modal)
 
 ---
 
 ## 📚 FICHEIROS BACKEND
 
-| Funcionalidade | Arquivo | Responsabilidade |
-|---|---|---|
-| Schema | `src/models/Reservation.js` | Definir estrutura |
-| Controller | `src/controllers/reservationController.js` | Endpoints + validação |
-| Email | `src/services/emailService.js` | Enviar via Resend |
-| Routes | `src/routes/api.js` | Bind endpoints |
-| Middleware | `src/middleware/auth.js` | JWT validation |
+| Funcionalidade | Arquivo                                    | Responsabilidade      |
+| -------------- | ------------------------------------------ | --------------------- |
+| Schema         | `src/models/Reservation.js`                | Definir estrutura     |
+| Controller     | `src/controllers/reservationController.js` | Endpoints + validação |
+| Email          | `src/services/emailService.js`             | Enviar via Resend     |
+| Routes         | `src/routes/api.js`                        | Bind endpoints        |
+| Middleware     | `src/middleware/auth.js`                   | JWT validation        |
 
 ---
 
 ## 🧪 CASOS DE TESTE
 
 ### TC-001: Criar marcação válida
+
 ```
 Input: { barberId, serviceId, clientName, clientPhone, clientEmail, date, timeSlot }
 Output: 201 Created + email enviado
 ```
 
 ### TC-002: Criar com conflito
+
 ```
 Input: Mesma data/hora/barbeiro segunda vez
 Output: 400 Bad Request "Slot não disponível"
 ```
 
 ### TC-003: Cancelar com token
+
 ```
 Input: DELETE /reservations/:id + { cancelToken }
 Output: 200 OK + status="cancelled" + email
 ```
 
 ### TC-004: Resgatar time slots
+
 ```
 Input: GET /time-slots?date=2026-03-30&barberId=X
 Output: Array com slots + available boolean
@@ -743,6 +782,7 @@ Algoritmo: Check workingHours → Check absences → Check conflicts
 ```
 
 ### TC-005: Admin cancela
+
 ```
 Input: DELETE /reservations/:id + { adminToken }
 Output: 200 OK + email ao cliente
@@ -753,21 +793,25 @@ Output: 200 OK + email ao cliente
 ## 🎓 PARA USAR ESTE PROMPT
 
 ### 1. Integração Nova Feature
+
 - Lê secção de **Validações**
 - Lê secção de **Decisões Arquiteturais**
 - Copia payload JSON de exemplo
 
 ### 2. Troublehooting Bug
+
 - Verifica **Fluxo Completo**
 - Testa **Casos de Teste**
 - Valida contra **Checklist Validações**
 
 ### 3. Apresentar Cliente
+
 - Usa **Diagrama de Fluxo**
 - Mostra **Exemplos JSON**
 - Explica **Templates Email**
 
 ### 4. Onboarding Dev Novo
+
 - Lê tudo sequencialmente
 - Testa TC-001, TC-002, TC-003
 - Lê código fonte real em `/backend/src/`

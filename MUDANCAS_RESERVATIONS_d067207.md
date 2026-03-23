@@ -9,16 +9,18 @@
 ## 🎯 PROBLEMA RESOLVIDO
 
 ### Antes (❌ Errado)
+
 ```javascript
 // Só verificava timeSlot exacto - ignorava duration
 Reservation.findOne({
   barberId,
-  timeSlot: "09:00",  // ❌ Cliente B com 09:30 passava!
-  status: { $ne: "cancelled" }
+  timeSlot: "09:00", // ❌ Cliente B com 09:30 passava!
+  status: { $ne: "cancelled" },
 });
 ```
 
 **Exemplo do bug:**
+
 ```
 Cliente A: 09:00 "Corte + Barba" (60 min) → ocupa até 10:00
 Cliente B: 09:30 "Corte Social" (30 min) → ocupa até 10:00
@@ -26,6 +28,7 @@ Cliente B: 09:30 "Corte Social" (30 min) → ocupa até 10:00
 ```
 
 ### Depois (✅ Correto)
+
 ```javascript
 // Verifica overlap REAL usando duration da DB
 const newStart = new Date(reservationDate);
@@ -34,7 +37,7 @@ const newEnd = new Date(newStart.getTime() + service.duration * 60000);
 const hasConflict = existingReservations.some((existing) => {
   const existStart = new Date(existing.reservationDate);
   const existEnd = new Date(
-    existStart.getTime() + existing.serviceId.duration * 60000
+    existStart.getTime() + existing.serviceId.duration * 60000,
   );
   // Regraoverlap: A.start < B.end && B.start < A.end
   return newStart < existEnd && existStart < newEnd;
@@ -42,6 +45,7 @@ const hasConflict = existingReservations.some((existing) => {
 ```
 
 **Resultado:**
+
 ```
 Cliente A: 09:00→10:00
 Cliente B: 09:30 → BLOQUEADO ✅ (overlap detectado)
@@ -52,6 +56,7 @@ Cliente B: 09:30 → BLOQUEADO ✅ (overlap detectado)
 ## 📝 VALIDAÇÕES (10 Obrigatórias)
 
 ### Ordem EXACTA (não trocar):
+
 ```
 1. ✓ Dados obrigatórios presentes?
 2. ✓ Formato telefone válido? (Portugal regex)
@@ -72,14 +77,15 @@ Cliente B: 09:30 → BLOQUEADO ✅ (overlap detectado)
 **NUNCA inventar valores. TUDO vem da DB.**
 
 ### Exemplos Correctos:
+
 ```javascript
 // ✅ Certo: pega da DB
-const duration = service.duration;  // DB
-const workingHours = barber.workingHours[dayKey];  // DB
+const duration = service.duration; // DB
+const workingHours = barber.workingHours[dayKey]; // DB
 
 // ❌ Errado: hardcode
-const duration = 30;  // Fixo!
-const workingHours = { start: "09:00", end: "18:00" };  // Fixo!
+const duration = 30; // Fixo!
+const workingHours = { start: "09:00", end: "18:00" }; // Fixo!
 ```
 
 ---
@@ -89,6 +95,7 @@ const workingHours = { start: "09:00", end: "18:00" };  // Fixo!
 ### Barber Não-Admin
 
 **Acesso RESTRITO:**
+
 ```
 - Vê APENAS suas próprias reservas
 - Backend filtra: query.barberId = req.user._id
@@ -97,6 +104,7 @@ const workingHours = { start: "09:00", end: "18:00" };  // Fixo!
 ```
 
 **Endpoints:**
+
 ```
 GET    /barber/absences              → Vê suas ausências
 POST   /barber/absences              → Adiciona ausência
@@ -107,6 +115,7 @@ GET    /barber/reservations          → Vê suas reservas (dashboard)
 ### Admin
 
 **Acesso COMPLETO:**
+
 ```
 - Vê TODAS as reservas
 - Pode filtrar por barbeiro (query param)
@@ -119,6 +128,7 @@ GET    /barber/reservations          → Vê suas reservas (dashboard)
 ## 🆕 NOVAS FUNÇÕES
 
 ### `addAbsence()`
+
 ```javascript
 // Funciona para barber (sem params) e admin (com params)
 POST /barber/absences
@@ -132,12 +142,14 @@ POST /barber/absences
 ```
 
 ### `removeAbsence()`
+
 ```javascript
 DELETE /barber/absences/:absenceId
 // Barber remove sua própria ausência
 ```
 
 ### `getReservationsForDashboard()`
+
 ```javascript
 GET /barber/reservations?month=3&year=2026
 // Barber vê suas reservas deste mês
@@ -157,13 +169,14 @@ GET /barber/reservations?month=3&year=2026
 ```
 
 **Lógica:**
+
 ```javascript
 if (absence.type === "specific" && absence.startTime && absence.endTime) {
   const absStart = new Date(reservationDate);
   absStart.setHours(absStartH, absStartM, 0, 0);
   const absEnd = new Date(reservationDate);
   absEnd.setHours(absEndH, absEndM, 0, 0);
-  
+
   // Overlap: A.start < B.end && B.start < A.end
   return newStart < absEnd && absStart < newEnd;
 }
@@ -174,6 +187,7 @@ if (absence.type === "specific" && absence.startTime && absence.endTime) {
 ## 📊 EXEMPLO REAL
 
 ### Cenário:
+
 ```
 Barber: Diogo Cunha
 Data: 30 Mar 2026
@@ -183,6 +197,7 @@ Serviços:
 ```
 
 ### Request 1 (OK):
+
 ```json
 POST /api/bookings
 {
@@ -197,6 +212,7 @@ POST /api/bookings
 ```
 
 ### Request 2 (CONFLITO):
+
 ```json
 POST /api/bookings
 {
@@ -210,6 +226,7 @@ POST /api/bookings
 ```
 
 **Por quê:**
+
 - Request 1: 09:00 + 60 min = até 10:00
 - Request 2: 09:30 + 30 min = até 10:00
 - Overlap: 09:30 ≤ 10:00 && 09:00 ≤ 10:00 ✓ CONFLITO

@@ -28,29 +28,29 @@
 ```javascript
 {
   _id: ObjectId,                    // MongoDB ID (gerado automaticamente)
-  
+
   // Relações
   barberId: ObjectId (ref: "Barber"),    // REF ao barbeiro
   serviceId: ObjectId (ref: "Service"),  // REF ao serviço
-  
+
   // Dados do Cliente
   clientName: String,               // OBRIGATÓRIO - Nome completo
   clientPhone: String,              // OPCIONAL - Telefone português
   clientEmail: String,              // OBRIGATÓRIO - Email válido
-  
+
   // Dados da Reserva
   reservationDate: Date,            // OBRIGATÓRIO - Data/hora ISO
   timeSlot: String,                 // OBRIGATÓRIO - Formato "HH:MM" (ex: "09:30")
   status: String,                   // enum: ["confirmed", "pending", "cancelled", "completed"]
                                     // default: "confirmed"
   notes: String,                    // OPCIONAL - Notas internas
-  
+
   // Sistema de Cancelamento
   cancelToken: String,              // Unique + sparse - Token para email
-  
+
   // Reminders
   reminderSent: Boolean,            // default: false
-  
+
   // Timestamps
   createdAt: Date,                  // default: Date.now()
 }
@@ -103,7 +103,7 @@ confirmed ◄────────────────┐
   role: String (enum: ["admin", "barber"]),
   avatar: String,
   bio: String,
-  
+
   // ⭐ Horários de Funcionamento
   workingHours: {
     monday: { start: "09:00", end: "18:00" },
@@ -114,7 +114,7 @@ confirmed ◄────────────────┐
     saturday: { start: "10:00", end: "16:00" },
     sunday: { start: null, end: null },  // Fechado
   },
-  
+
   // ⭐ Ausências/Folgas
   absences: [
     {
@@ -125,7 +125,7 @@ confirmed ◄────────────────┐
       reason: String,
     }
   ],
-  
+
   isActive: Boolean,
   createdAt: Date,
 }
@@ -161,6 +161,7 @@ type: "specific"    → Entre startTime e endTime (ex: 09:00-11:30)
 ## 2. API Endpoints
 
 ### Base URL Produção
+
 ```
 https://two4-7-barbearia.onrender.com/api
 ```
@@ -272,6 +273,7 @@ https://two4-7-barbearia.onrender.com/api
 **Efeitos Colaterais (após sucesso):**
 
 1. SMS via Twilio (se configurado)
+
    ```
    "Olá João Silva! Sua reserva na barbearia 247 está confirmada para 15/04/2026 às 09:00. Serviço: Corte Clássico. Obrigado!"
    ```
@@ -453,14 +455,14 @@ GET /admin/reservations?barberId=6998aaf59119a721cdc1e136
 
 ```javascript
 const bookingState = {
-  currentStep: 1,              // 1 | 2 | 3
-  service: null,              // Nome do serviço
-  serviceId: null,            // ObjectId
-  servicePrice: null,         // String (ex: "15€")
-  barber: null,               // "diogo-cunha" | "ricardo-silva"
-  barberId: null,             // ObjectId (preenchido via `barbers` lookup table)
-  date: null,                 // Date object
-  time: null,                 // String "09:00"
+  currentStep: 1, // 1 | 2 | 3
+  service: null, // Nome do serviço
+  serviceId: null, // ObjectId
+  servicePrice: null, // String (ex: "15€")
+  barber: null, // "diogo-cunha" | "ricardo-silva"
+  barberId: null, // ObjectId (preenchido via `barbers` lookup table)
+  date: null, // Date object
+  time: null, // String "09:00"
   selectedMonth: new Date().getMonth(),
   selectedYear: new Date().getFullYear(),
 };
@@ -507,7 +509,7 @@ const barbers = {
 ```html
 <div class="booking-step-content active" id="step2">
   <h3>Escolha Data e Horário</h3>
-  
+
   <!-- Mini Calendário -->
   <div class="mini-calendar">
     <div class="calendar-header">
@@ -519,7 +521,7 @@ const barbers = {
       <!-- Dias dinâmicos aqui -->
     </div>
   </div>
-  
+
   <!-- Time Slots -->
   <div class="time-slots-container" id="timeSlots">
     <!-- Botões de horário aqui -->
@@ -534,19 +536,19 @@ function renderCalendar() {
   // 1. Obter primeiro e último dia do mês
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
-  
+
   // 2. Filtrar dias de trabalho (baseado em siteSchedule)
   const barberWorkDays = [0, 1, 2, 3, 4, 5, 6].filter((day) => {
     const schedule = getScheduleForDay(day);
     return schedule && schedule.open;
   });
-  
+
   // 3. Para cada dia do mês:
   for (let day = 1; day <= lastDay.getDate(); day++) {
     const date = new Date(year, month, day);
     const isPast = date < today;
     const isWorkDay = barberWorkDays.includes(date.getDay());
-    
+
     // Se é passado ou não é dia de trabalho → disabled
     // Caso contrário → clicável
   }
@@ -559,42 +561,46 @@ function renderCalendar() {
 function getTimeSlotsForDate(date) {
   const schedule = siteSchedule[date.getDay()];
   if (!schedule || !schedule.open) return [];
-  
+
   const slots = [];
-  const slotMinutes = 60;  // Slots de 60 em 60 minutos
-  
-  for (let t = schedule.openMinutes; 
-       t + slotMinutes <= schedule.closeMinutes; 
-       t += slotMinutes) {
-    slots.push(formatTime(t));  // "09:00", "10:00", etc
+  const slotMinutes = 60; // Slots de 60 em 60 minutos
+
+  for (
+    let t = schedule.openMinutes;
+    t + slotMinutes <= schedule.closeMinutes;
+    t += slotMinutes
+  ) {
+    slots.push(formatTime(t)); // "09:00", "10:00", etc
   }
-  
+
   return slots;
 }
 
 function renderTimeSlots() {
   const availableSlots = getTimeSlotsForDate(bookingState.date);
-  
+
   // Se for hoje, filtrar horários que já passaram
   if (isToday) {
     availableSlots = availableSlots.filter((time) => {
       const [slotHour, slotMinute] = time.split(":").map(Number);
       const currentHour = now.getHours();
       const currentMinute = now.getMinutes();
-      
-      return slotHour > currentHour || 
-             (slotHour === currentHour && slotMinute > currentMinute);
+
+      return (
+        slotHour > currentHour ||
+        (slotHour === currentHour && slotMinute > currentMinute)
+      );
     });
   }
-  
+
   // Carregar slots reservados da API
   reloadTimeSlots();
-  
+
   // Renderizar slots (marcando como "booked" se necessário)
   availableSlots.forEach((time) => {
     const slotKey = `${bookingState.barber}-${dateKey}-${time}`;
     const isBooked = bookedSlots[slotKey];
-    
+
     const button = document.createElement("button");
     button.textContent = time;
     button.disabled = isBooked;
@@ -613,11 +619,11 @@ function reloadTimeSlots() {
   // Obter todas as reservas do barbeiro para a data
   const barberId = barbers[bookingState.barber].id;
   const dateKey = bookingState.date.toISOString().split("T")[0];
-  
+
   fetch(`${API_BASE_URL}/reservations/barber/${barberId}?date=${dateKey}`)
-    .then(res => res.json())
-    .then(reservations => {
-      reservations.forEach(res => {
+    .then((res) => res.json())
+    .then((reservations) => {
+      reservations.forEach((res) => {
         const slotKey = `${bookingState.barber}-${dateKey}-${res.timeSlot}`;
         bookedSlots[slotKey] = true;
       });
@@ -635,7 +641,7 @@ function reloadTimeSlots() {
 ```html
 <div class="booking-step-content" id="step3">
   <h3>Confirme seus Dados</h3>
-  
+
   <!-- Resumo -->
   <div class="booking-summary">
     <div>📅 <span id="summaryDate">15/04/2026</span></div>
@@ -644,29 +650,19 @@ function reloadTimeSlots() {
     <div>💈 <span id="summaryBarber">Diogo Cunha</span></div>
     <div>💰 <span id="summaryPrice">15€</span></div>
   </div>
-  
+
   <!-- Formulário -->
   <form id="bookingForm">
-    <input 
-      id="clientName"
-      type="text"
-      placeholder="Nome Completo"
-      required
-    />
-    <input 
+    <input id="clientName" type="text" placeholder="Nome Completo" required />
+    <input
       id="clientPhone"
       type="tel"
       placeholder="+351 912 345 678"
       pattern="^(\+351)?[29]\d{8}$"
     />
-    <input 
-      id="clientEmail"
-      type="email"
-      placeholder="seu@email.com"
-      required
-    />
+    <input id="clientEmail" type="email" placeholder="seu@email.com" required />
   </form>
-  
+
   <div id="bookingError" style="color: red; display: none;"></div>
 </div>
 ```
@@ -693,26 +689,26 @@ function submitBooking() {
     clientEmail: document.getElementById("clientEmail").value,
     reservationDate: bookingState.date.toISOString(),
     timeSlot: bookingState.time,
-    notes: document.getElementById("bookingNotes")?.value || ""
+    notes: document.getElementById("bookingNotes")?.value || "",
   };
 
   fetch(`${API_BASE_URL}/reservations`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
+    body: JSON.stringify(payload),
   })
-  .then(res => res.json())
-  .then(data => {
-    if (data.reservation) {
-      // Mostrar modal de sucesso
-      showSuccessModal(data.reservation);
-      // Recarregar slots para outros utilizadores
-      reloadTimeSlots();
-    } else if (data.error) {
-      showBookingError(data.error);
-    }
-  })
-  .catch(err => showBookingError("Erro ao criar reserva: " + err.message));
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.reservation) {
+        // Mostrar modal de sucesso
+        showSuccessModal(data.reservation);
+        // Recarregar slots para outros utilizadores
+        reloadTimeSlots();
+      } else if (data.error) {
+        showBookingError(data.error);
+      }
+    })
+    .catch((err) => showBookingError("Erro ao criar reserva: " + err.message));
 }
 ```
 
@@ -729,7 +725,10 @@ function submitBooking() {
       <p>Barbeiro: <strong id="successBarber">Diogo Cunha</strong></p>
       <p>Data: <strong id="successDate">15/04/2026</strong></p>
       <p>Hora: <strong id="successTime">09:00</strong></p>
-      <p>Confirmação foi enviada para: <strong id="successEmail">joao@example.com</strong></p>
+      <p>
+        Confirmação foi enviada para:
+        <strong id="successEmail">joao@example.com</strong>
+      </p>
     </div>
     <p class="success-note">Pode cancelar até 24h antes pelo link no email.</p>
     <button id="closeSuccessModal">Fechar</button>
@@ -769,60 +768,95 @@ async function sendBookingConfirmation({
 ```html
 <!DOCTYPE html>
 <html lang="pt-PT">
-<head>
-  <meta charset="UTF-8">
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-    .container { background: #fff; padding: 40px; border-radius: 12px; }
-    .logo { font-size: 32px; font-weight: bold; color: #1a1a1a; }
-    .success-icon { font-size: 64px; text-align: center; }
-    .details { background: #f9f8f7; border-left: 4px solid #c9a961; padding: 20px; }
-    .detail-row { display: flex; padding: 8px 0; border-bottom: 1px solid #e5e5e5; }
-    .cancel-link { display: inline-block; padding: 12px 24px; background: #f5f5f5; text-decoration: none; border-radius: 6px; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="logo">24•7 Barbearia</div>
-    <div class="success-icon">✅</div>
-    <h1>Reserva Confirmada!</h1>
-    
-    <p>Olá <strong>${clientName}</strong>,</p>
-    <p>A sua reserva na 24.7 Barbearia foi confirmada com sucesso!</p>
-    
-    <div class="details">
-      <div class="detail-row">
-        <span><strong>📅 Data:</strong> ${formattedDate}</span>
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      .container {
+        background: #fff;
+        padding: 40px;
+        border-radius: 12px;
+      }
+      .logo {
+        font-size: 32px;
+        font-weight: bold;
+        color: #1a1a1a;
+      }
+      .success-icon {
+        font-size: 64px;
+        text-align: center;
+      }
+      .details {
+        background: #f9f8f7;
+        border-left: 4px solid #c9a961;
+        padding: 20px;
+      }
+      .detail-row {
+        display: flex;
+        padding: 8px 0;
+        border-bottom: 1px solid #e5e5e5;
+      }
+      .cancel-link {
+        display: inline-block;
+        padding: 12px 24px;
+        background: #f5f5f5;
+        text-decoration: none;
+        border-radius: 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="logo">24•7 Barbearia</div>
+      <div class="success-icon">✅</div>
+      <h1>Reserva Confirmada!</h1>
+
+      <p>Olá <strong>${clientName}</strong>,</p>
+      <p>A sua reserva na 24.7 Barbearia foi confirmada com sucesso!</p>
+
+      <div class="details">
+        <div class="detail-row">
+          <span><strong>📅 Data:</strong> ${formattedDate}</span>
+        </div>
+        <div class="detail-row">
+          <span><strong>🕐 Hora:</strong> ${timeSlot}</span>
+        </div>
+        <div class="detail-row">
+          <span><strong>✂️ Serviço:</strong> ${serviceName}</span>
+        </div>
+        <div class="detail-row">
+          <span><strong>💈 Barbeiro:</strong> ${barberName}</span>
+        </div>
       </div>
-      <div class="detail-row">
-        <span><strong>🕐 Hora:</strong> ${timeSlot}</span>
-      </div>
-      <div class="detail-row">
-        <span><strong>✂️ Serviço:</strong> ${serviceName}</span>
-      </div>
-      <div class="detail-row">
-        <span><strong>💈 Barbeiro:</strong> ${barberName}</span>
+
+      <p><strong>O que deve saber:</strong></p>
+      <ul>
+        <li>Por favor, chegue 5 minutos antes da hora marcada</li>
+        <li>
+          Em caso de atraso superior a 15 minutos, a reserva poderá ser
+          cancelada
+        </li>
+        <li>Para cancelar, utilize o link abaixo até 24h antes da marcação</li>
+      </ul>
+
+      <a
+        href="https://247barbearia.pt/cancel.html?token=${cancelToken}"
+        class="cancel-link"
+      >
+        🗑️ Cancelar Reserva
+      </a>
+
+      <div
+        style="margin-top: 40px; border-top: 1px solid #e5e5e5; padding-top: 20px; text-align: center; color: #777; font-size: 14px;"
+      >
+        <p><strong>24.7 Barbearia</strong></p>
+        <p>📍 Rua Exemplo, 123 - Almada, Portugal</p>
+        <p>📞 +351 912 345 678</p>
       </div>
     </div>
-    
-    <p><strong>O que deve saber:</strong></p>
-    <ul>
-      <li>Por favor, chegue 5 minutos antes da hora marcada</li>
-      <li>Em caso de atraso superior a 15 minutos, a reserva poderá ser cancelada</li>
-      <li>Para cancelar, utilize o link abaixo até 24h antes da marcação</li>
-    </ul>
-    
-    <a href="https://247barbearia.pt/cancel.html?token=${cancelToken}" class="cancel-link">
-      🗑️ Cancelar Reserva
-    </a>
-    
-    <div style="margin-top: 40px; border-top: 1px solid #e5e5e5; padding-top: 20px; text-align: center; color: #777; font-size: 14px;">
-      <p><strong>24.7 Barbearia</strong></p>
-      <p>📍 Rua Exemplo, 123 - Almada, Portugal</p>
-      <p>📞 +351 912 345 678</p>
-    </div>
-  </div>
-</body>
+  </body>
 </html>
 ```
 
@@ -861,27 +895,15 @@ async function sendAdminNotification({
 </div>
 
 <div class="details">
-  <div class="detail-row">
-    <strong>👤 Cliente:</strong> ${clientName}
-  </div>
-  <div class="detail-row">
-    <strong>📧 Email:</strong> ${clientEmail}
-  </div>
+  <div class="detail-row"><strong>👤 Cliente:</strong> ${clientName}</div>
+  <div class="detail-row"><strong>📧 Email:</strong> ${clientEmail}</div>
   <div class="detail-row">
     <strong>📞 Telefone:</strong> ${clientPhone || "Não fornecido"}
   </div>
-  <div class="detail-row">
-    <strong>📅 Data:</strong> ${formattedDate}
-  </div>
-  <div class="detail-row">
-    <strong>🕐 Hora:</strong> ${timeSlot}
-  </div>
-  <div class="detail-row">
-    <strong>✂️ Serviço:</strong> ${serviceName}
-  </div>
-  <div class="detail-row">
-    <strong>💈 Barbeiro:</strong> ${barberName}
-  </div>
+  <div class="detail-row"><strong>📅 Data:</strong> ${formattedDate}</div>
+  <div class="detail-row"><strong>🕐 Hora:</strong> ${timeSlot}</div>
+  <div class="detail-row"><strong>✂️ Serviço:</strong> ${serviceName}</div>
+  <div class="detail-row"><strong>💈 Barbeiro:</strong> ${barberName}</div>
 </div>
 
 <p><strong>Próximos passos:</strong></p>
@@ -900,7 +922,7 @@ async function sendAdminNotification({
 // Ao criar reserva, se Twilio configurado:
 const twilioClient = twilio(
   process.env.TWILIO_ACCOUNT_SID,
-  process.env.TWILIO_AUTH_TOKEN
+  process.env.TWILIO_AUTH_TOKEN,
 );
 
 await twilioClient.messages.create({
@@ -946,6 +968,7 @@ Promise.all([
 ```
 
 **Características:**
+
 - ✅ Execução assíncrona (não bloqueia resposta HTTP)
 - ✅ Promessas paralelas (ambos os emails enviam simultaneamente)
 - ✅ Falhas de email não cancelam a reserva
@@ -963,42 +986,42 @@ Promise.all([
 async function loadReservations(container) {
   // 1. Carregar barbeiros (se admin)
   const barbers = currentUser.role === 'admin' ? await fetchBarbers() : [];
-  
+
   // 2. Construir URL com filtro (opcional)
   const defaultBarberId = getDefaultBarberId();
   const reservationsUrl = defaultBarberId
     ? `${API_URL}/admin/reservations?barberId=${defaultBarberId}`
     : `${API_URL}/admin/reservations`;
-  
+
   // 3. Fetch com auth token
   const reservations = await fetchJson(reservationsUrl, {
     headers: { 'Authorization': `Bearer ${token}` }
   });
-  
+
   // 4. Filtrar apenas futuras (date > now)
-  const futureReservations = reservations.filter(res => 
+  const futureReservations = reservations.filter(res =>
     new Date(res.reservationDate) > new Date()
   );
-  
+
   // 5. Agrupar por mês
   const groupedByMonth = {};
   futureReservations.forEach((reservation) => {
     const monthKey = formatMonthKey(reservation.reservationDate);
-    
+
     if (!groupedByMonth[monthKey]) {
-      groupedByMonth[monthKey] = { 
+      groupedByMonth[monthKey] = {
         date: new Date(...),
         reservations: {}
       };
     }
-    
+
     const dayKey = new Date(reservation.reservationDate).getDate();
     if (!groupedByMonth[monthKey].reservations[dayKey]) {
       groupedByMonth[monthKey].reservations[dayKey] = [];
     }
     groupedByMonth[monthKey].reservations[dayKey].push(reservation);
   });
-  
+
   // 6. Renderizar calendários mensais com reservas
 }
 ```
@@ -1057,10 +1080,10 @@ async function loadReservations(container) {
 async function cancelReservation(reservationId) {
   // DELETE /reservations/:id
   const response = await fetch(`${API_URL}/reservations/${reservationId}`, {
-    method: 'DELETE',
-    headers: { 'Authorization': `Bearer ${token}` }
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
   });
-  
+
   if (response.ok) {
     // Recarregar listagem
     loadReservations(container);
@@ -1071,17 +1094,17 @@ async function cancelReservation(reservationId) {
 #### Filtrar por Barbeiro
 
 ```javascript
-const filterSelect = document.getElementById('reservationsBarberFilter');
-const applyBtn = document.getElementById('reservationsApply');
+const filterSelect = document.getElementById("reservationsBarberFilter");
+const applyBtn = document.getElementById("reservationsApply");
 
-applyBtn.addEventListener('click', async () => {
+applyBtn.addEventListener("click", async () => {
   const selectedBarberId = filterSelect.value;
-  
+
   // Reconstructed URL with filter
-  const url = selectedBarberId 
+  const url = selectedBarberId
     ? `${API_URL}/admin/reservations?barberId=${selectedBarberId}`
     : `${API_URL}/admin/reservations`;
-  
+
   // Reload with new filter
   loadReservations(container);
 });
@@ -1092,12 +1115,11 @@ applyBtn.addEventListener('click', async () => {
 ### 5.6 Diferença entre Admin e Barber
 
 ```javascript
-if (currentUser.role === 'admin') {
+if (currentUser.role === "admin") {
   // Vê TODAS as reservas
   // Pode filtrar por barbeiro
   // Acesso ao endpoint: GET /admin/reservations (sem barberId)
-  
-} else if (currentUser.role === 'barber') {
+} else if (currentUser.role === "barber") {
   // Vê SUAS reservas (seu ID)
   // Sem filtro de barbeiro
   // Título: "📅 Minhas Reservas"
@@ -1361,19 +1383,19 @@ Normalization: remove spaces
 ```javascript
 // Ao marcar:
 1. Verificar se barbeiro tem ausência NESTA DATA
-   
+
    if (absence.type === "full") {
      → Dia inteiro indisponível
    }
-   
+
    if (absence.type === "morning") {
      → Indisponível até meio-dia (00:00-11:59)
    }
-   
+
    if (absence.type === "afternoon") {
      → Indisponível a partir do meio-dia (12:00-23:59)
    }
-   
+
    if (absence.type === "specific") {
      → Indisponível entre startTime e endTime
    }
@@ -1614,27 +1636,27 @@ reservationDate: "2026-04-15T08:00:00Z"  // Backend (UTC)
 
 ## 📊 Resumo de Fluxos
 
-| Fluxo | Ator | Início | Fim | Status |
-|-------|------|--------|-----|--------|
-| Criar Reserva | Cliente | Click "Marcar" | Email + Modal sucesso | ✅ |
-| Cancelar Email | Cliente | Click link no email | Confirmação cancelada | ✅ |
-| Cancelar Admin | Admin | Click botão | Reserva deletada | ✅ |
-| Listar Reservas | Admin | Click "Reservas" | Calendário mês | ✅ |
-| Filtrar Barbeiro | Admin | Change select | Recarrega calendar | ✅ |
+| Fluxo            | Ator    | Início              | Fim                   | Status |
+| ---------------- | ------- | ------------------- | --------------------- | ------ |
+| Criar Reserva    | Cliente | Click "Marcar"      | Email + Modal sucesso | ✅     |
+| Cancelar Email   | Cliente | Click link no email | Confirmação cancelada | ✅     |
+| Cancelar Admin   | Admin   | Click botão         | Reserva deletada      | ✅     |
+| Listar Reservas  | Admin   | Click "Reservas"    | Calendário mês        | ✅     |
+| Filtrar Barbeiro | Admin   | Change select       | Recarrega calendar    | ✅     |
 
 ---
 
 ## 🔗 Referências de Ficheiros
 
-| Funcionalidade | Arquivo | Linhas |
-|---|---|---|
-| Modelo Reservation | `backend/src/models/Reservation.js` | 1-50 |
-| Modelo Barber | `backend/src/models/Barber.js` | 1-70 |
-| Controller Reservas | `backend/src/controllers/reservationController.js` | 1-500+ |
-| Serviço Email | `backend/src/services/emailService.js` | 1-350+ |
-| Routes API | `backend/src/routes/api.js` | 1-150+ |
-| Frontend Booking | `js/main.js` | ~900-1573 |
-| Admin Dashboard | `admin/index.html` | ~1486-1700+ |
+| Funcionalidade      | Arquivo                                            | Linhas      |
+| ------------------- | -------------------------------------------------- | ----------- |
+| Modelo Reservation  | `backend/src/models/Reservation.js`                | 1-50        |
+| Modelo Barber       | `backend/src/models/Barber.js`                     | 1-70        |
+| Controller Reservas | `backend/src/controllers/reservationController.js` | 1-500+      |
+| Serviço Email       | `backend/src/services/emailService.js`             | 1-350+      |
+| Routes API          | `backend/src/routes/api.js`                        | 1-150+      |
+| Frontend Booking    | `js/main.js`                                       | ~900-1573   |
+| Admin Dashboard     | `admin/index.html`                                 | ~1486-1700+ |
 
 ---
 
