@@ -98,6 +98,12 @@ router.delete(
   adminMiddleware,
   adminController.deleteService,
 );
+router.post(
+  "/admin/services/:serviceId/reorder",
+  authMiddleware,
+  adminMiddleware,
+  adminController.reorderService,
+);
 
 // ===== ADMIN - SITE =====
 router.get(

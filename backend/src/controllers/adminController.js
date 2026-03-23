@@ -314,6 +314,53 @@ exports.deleteService = async (req, res) => {
   }
 };
 
+exports.reorderService = async (req, res) => {
+  try {
+    const { serviceId } = req.params;
+    const { direction } = req.body; // 'up' ou 'down'
+
+    if (!['up', 'down'].includes(direction)) {
+      return res.status(400).json({ error: "Direção inválida. Use 'up' ou 'down'" });
+    }
+
+    // Obter todos os serviços ordenados
+    const services = await Service.find().sort({ order: 1 });
+
+    // Encontrar o índice do serviço atual
+    const currentIndex = services.findIndex(s => s._id.toString() === serviceId);
+
+    if (currentIndex === -1) {
+      return res.status(404).json({ error: "Serviço não encontrado" });
+    }
+
+    // Calcular o índice do serviço a trocar
+    const swapIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+
+    // Verificar limites
+    if (swapIndex < 0 || swapIndex >= services.length) {
+      return res.status(400).json({ error: `Não é possível mover ${direction}` });
+    }
+
+    // Trocar as ordens
+    const currentService = services[currentIndex];
+    const swapService = services[swapIndex];
+
+    const tempOrder = currentService.order;
+    currentService.order = swapService.order;
+    swapService.order = tempOrder;
+
+    // Atualizar na BD
+    await Service.findByIdAndUpdate(currentService._id, { order: currentService.order });
+    await Service.findByIdAndUpdate(swapService._id, { order: swapService.order });
+
+    // Retornar a lista atualizada
+    const updatedServices = await Service.find().sort({ order: 1 });
+    res.json(updatedServices);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 exports.syncServiceToIndexClean = async (req, res) => {
   try {
     const fs = require("fs").promises;
