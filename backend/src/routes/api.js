@@ -366,7 +366,9 @@ router.post("/subscriptions-public", async (req, res) => {
 
     await newSubscription.save();
 
-    console.log(`✅ Push subscription pública registada para deviceId: ${deviceId}`);
+    console.log(
+      `✅ Push subscription pública registada para deviceId: ${deviceId}`,
+    );
     console.log(`   Endpoint: ${subscription.endpoint?.substring(0, 50)}...`);
 
     res.status(201).json({
@@ -376,11 +378,6 @@ router.post("/subscriptions-public", async (req, res) => {
     });
   } catch (error) {
     console.error("Erro ao guardar subscription pública:", error);
-    res.status(500).json({ error: error.message });
-  }
-});
-  } catch (error) {
-    console.error("Erro ao registar subscription:", error);
     res.status(500).json({ error: error.message });
   }
 });
