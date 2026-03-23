@@ -940,12 +940,8 @@
         let token = localStorage.getItem('admin_token');
         let currentUser = JSON.parse(localStorage.getItem('admin_user') || '{}');
 
-        // Login
-        if (!token) {
-            showLoginPage();
-        } else {
-            showAdminPanel();
-        }
+        // Funções serão definidas abaixo...
+        // Inicialização movida para o final do script
 
         function showLoginPage() {
             document.getElementById('app').innerHTML = `
@@ -1358,7 +1354,7 @@
                         <!-- Selector de Mês para Vista Semanal -->
                         <div class="weekly-selector" style="display: none; background: white; border: 1px solid #e0e0e0; border-top: none; border-radius: 0 0 6px 6px; padding: 1.5rem;">
                             <label style="font-weight: 600; margin-right: 1rem;">Filtrar semanas por mês:</label>
-                            <select id="monthForWeekly" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;"><option value="">Selecionar mês...</option>${(() => { const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']; return months.map((m, i) => `<option value="${i+1}">${m}</option>`).join(''); })()}</select>
+                            <select id="monthForWeekly" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;"><option value="">Selecionar mês...</option></select>
                         </div>
                     `;
                 };
@@ -1437,6 +1433,10 @@
                     const monthSelect = document.getElementById('monthForWeekly');
                     if (!monthSelect) return;
 
+                    // Popular os meses no select
+                    const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+                    monthSelect.innerHTML = '<option value="">Selecionar mês...</option>' + months.map((m, i) => `<option value="${i+1}">${m}</option>`).join('');
+
                     const generateWeeksForMonth = (month, year) => {
                         const firstDay = new Date(year, month - 1, 1);
                         const lastDay = new Date(year, month, 0);
@@ -1474,7 +1474,7 @@
                         // Em produção, isto viria do backend
                         const monthlyBreakdown = stats.monthlyBreakdown || [];
                         const selectedMonthData = monthlyBreakdown.find(m => {
-                            const mIndex = m.label.match(/\\d+/) ? 0 : new Date(\`\${m.label} 1\`).getMonth();
+                            const mIndex = m.label.match(/\d+/) ? 0 : new Date(`${m.label} 1`).getMonth();
                             return mIndex === selectedMonth - 1;
                         });
 
@@ -3215,6 +3215,14 @@
             token = null;
             currentUser = {};
             showLoginPage();
+        }
+
+        // ===== INICIALIZAÇÃO =====
+        // Executar após todas as funções serem definidas
+        if (!token) {
+            showLoginPage();
+        } else {
+            showAdminPanel();
         }
     </script>
 </body>
