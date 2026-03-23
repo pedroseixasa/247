@@ -1007,7 +1007,8 @@
                     <li><a href="#change-password" class="menu-link"><span class="emoji">🔐</span><span>Password</span></a></li>
                 `
                 : `
-                    <li><a href="#reservations" class="menu-link active"><span class="emoji">📅</span><span>Reservas</span></a></li>
+                    <li><a href="#reservations" class="menu-link active"><span class="emoji">📅</span><span>Minhas Reservas</span></a></li>
+                    <li><a href="#ausencias" class="menu-link"><span class="emoji">🚫</span><span>Minhas Ausências</span></a></li>
                     <li><a href="#change-password" class="menu-link"><span class="emoji">🔐</span><span>Password</span></a></li>
                 `;
 
@@ -1493,9 +1494,16 @@
                     ? buildBarberOptions(barbers, defaultBarberId)
                     : '';
 
-                const reservationsUrl = defaultBarberId
-                    ? `${API_URL}/admin/reservations?barberId=${defaultBarberId}`
-                    : `${API_URL}/admin/reservations`;
+                let reservationsUrl;
+                if (currentUser.role === 'barber') {
+                    // Barber sees only own reservations
+                    reservationsUrl = `${API_URL}/barber/reservations`;
+                } else {
+                    // Admin can filter by barber or see all
+                    reservationsUrl = defaultBarberId
+                        ? `${API_URL}/admin/reservations?barberId=${defaultBarberId}`
+                        : `${API_URL}/admin/reservations`;
+                }
 
                 const reservations = await fetchJson(reservationsUrl, {
                     headers: { 'Authorization': `Bearer ${token}` }
@@ -2927,9 +2935,17 @@
             try {
                 container.innerHTML = '<p>A carregar ausências...</p>';
 
-                const barbers = await fetchJson(`${API_URL}/admin/barbers`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
+                let barbers;
+                
+                if (currentUser.role === 'barber') {
+                    // Barber sees only their own absences
+                    barbers = [currentUser];
+                } else {
+                    // Admin sees all barbers' absences
+                    barbers = await fetchJson(`${API_URL}/admin/barbers`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                }
 
                 if (!barbers || barbers.length === 0) {
                     container.innerHTML = '<div class="alert alert-info">Nenhum barbeiro encontrado.</div>';
@@ -3081,7 +3097,16 @@
                                 ...(type === 'specific' && { startTime, endTime })
                             };
 
-                            const response = await fetchJson(`${API_URL}/admin/barbers/${barberId}/absences`, {
+                            let absenceUrl;
+                            if (currentUser.role === 'barber') {
+                                // Barber adds their own absence
+                                absenceUrl = `${API_URL}/barber/absences`;
+                            } else {
+                                // Admin adds absence for any barber
+                                absenceUrl = `${API_URL}/admin/barbers/${barberId}/absences`;
+                            }
+
+                            const response = await fetchJson(absenceUrl, {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
@@ -3111,7 +3136,16 @@
                         if (!confirmed) return;
 
                         try {
-                            await fetchJson(`${API_URL}/admin/barbers/${barberId}/absences/${absenceId}`, {
+                            let deleteUrl;
+                            if (currentUser.role === 'barber') {
+                                // Barber removes their own absence
+                                deleteUrl = `${API_URL}/barber/absences/${absenceId}`;
+                            } else {
+                                // Admin removes any barber's absence
+                                deleteUrl = `${API_URL}/admin/barbers/${barberId}/absences/${absenceId}`;
+                            }
+
+                            await fetchJson(deleteUrl, {
                                 method: 'DELETE',
                                 headers: { 'Authorization': `Bearer ${token}` }
                             });
