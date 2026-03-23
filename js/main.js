@@ -998,11 +998,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const slots = [];
     const slotMinutes = 60; // sempre 60 minutos entre slots
-    
+
     // Último slot deve permitir que o serviço termine antes do fecho
     // Ex: Fecho às 18:00 (1080 min), serviço de 90 min → último slot às 16:30 (990 min)
     const lastPossibleStartTime = schedule.closeMinutes - serviceDuration;
-    
+
     for (
       let t = schedule.openMinutes;
       t <= lastPossibleStartTime;
@@ -1080,7 +1080,10 @@ document.addEventListener("DOMContentLoaded", function () {
       bookingState.service = nameEl ? nameEl.textContent : "Serviço";
       bookingState.servicePrice = priceEl ? priceEl.textContent : "";
       bookingState.serviceId = card.getAttribute("data-service-id");
-      bookingState.serviceDuration = parseInt(card.getAttribute("data-duration") || "60", 10);
+      bookingState.serviceDuration = parseInt(
+        card.getAttribute("data-duration") || "60",
+        10,
+      );
 
       const selectedServiceEl = document.getElementById("selectedService");
       if (selectedServiceEl) {
@@ -1465,7 +1468,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     const dateKey = bookingState.date.toISOString().split("T")[0];
-    const barberHours = getTimeSlotsForDate(bookingState.date, bookingState.serviceDuration || 60);
+    const barberHours = getTimeSlotsForDate(
+      bookingState.date,
+      bookingState.serviceDuration || 60,
+    );
     const dayOfWeek = bookingState.date.getDay();
     const dayNames = [
       "Domingo",
