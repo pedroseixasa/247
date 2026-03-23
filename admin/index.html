@@ -1443,66 +1443,30 @@
                     const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
                     monthSelect.innerHTML = '<option value="">Selecionar mês...</option>' + months.map((m, i) => `<option value="${i + 1}">${m}</option>`).join('');
 
-                    const generateWeeksForMonth = (month, year) => {
-                        const firstDay = new Date(year, month - 1, 1);
-                        const lastDay = new Date(year, month, 0);
-                        const weeks = [];
-                        let currentWeekStart = new Date(firstDay);
-
-                        // Ajustar para segunda-feira se necessário
-                        const dayOfWeek = currentWeekStart.getDay();
-                        const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-                        currentWeekStart.setDate(currentWeekStart.getDate() - daysToMonday);
-
-                        while (currentWeekStart <= lastDay) {
-                            const weekEnd = new Date(currentWeekStart);
-                            weekEnd.setDate(weekEnd.getDate() + 6);
-                            const weekLabel = `${currentWeekStart.getDate()} - ${weekEnd.getDate()} de ${currentWeekStart.toLocaleDateString('pt-PT', { month: 'long' })}`;
-                            weeks.push({
-                                start: new Date(currentWeekStart),
-                                end: new Date(weekEnd),
-                                label: weekLabel
-                            });
-                            currentWeekStart.setDate(currentWeekStart.getDate() + 7);
-                        }
-                        return weeks;
-                    };
-
-                    monthSelect.addEventListener('change', (e) => {
+                    monthSelect.addEventListener('change', async (e) => {
                         const selectedMonth = parseInt(e.target.value) || new Date().getMonth() + 1;
                         const year = parseInt(stats.selectedYear) || new Date().getFullYear();
-                        const weeks = generateWeeksForMonth(selectedMonth, year);
+                        const barberId = document.getElementById('dashboardBarberFilter')?.value || '';
 
                         const weeklyTableBody = document.getElementById('weeklyTableBody');
-                        if (!weeklyTableBody || !weeks.length) return;
+                        if (!weeklyTableBody) return;
 
-                        // Para esta demonstração, vamos criar dados simulados baseados no quebra-cabezas mensal
-                        // Em produção, isto viria do backend
-                        const monthlyBreakdown = stats.monthlyBreakdown || [];
-                        const selectedMonthData = monthlyBreakdown.find(m => {
-                            const mIndex = m.label.match(/\d+/) ? 0 : new Date(`${m.label} 1`).getMonth();
-                            return mIndex === selectedMonth - 1;
-                        });
+                        try {
+                            // Carregar dados reais do backend
+                            const url = `${API_URL}/admin/weekly-stats?month=${selectedMonth}&year=${year}${barberId ? '&barberId=' + barberId : ''}`;
+                            const weeklyStats = await fetchJson(url, {
+                                headers: { 'Authorization': `Bearer ${token}` }
+                            });
 
-                        const totalReservas = selectedMonthData?.count || 0;
-                        const totalRevenuePast = selectedMonthData?.revenuePast || 0;
-                        const totalRevenueFuture = selectedMonthData?.revenueFuture || 0;
+                            // Renderizar tabela com dados reais
+                            const weeksHtml = weeklyStats.weeks.map((week, idx) => {
+                                return `<tr style="border-bottom: 1px solid #e0e0e0; background: ${idx % 2 === 0 ? '#fff' : '#f8f9fa'};"><td style="padding: 1rem; font-size: 0.9rem; color: #333; white-space: nowrap;"><strong>${week.week}</strong></td><td style="text-align: right; padding: 1rem; color: #666; white-space: nowrap;">${week.count}</td><td style="text-align: right; padding: 1rem; font-weight: 600; color: #27ae60; white-space: nowrap;">${formatCurrency(week.revenuePast)}</td><td style="text-align: right; padding: 1rem; font-weight: 600; color: #3498db; white-space: nowrap;">${formatCurrency(week.revenueFuture)}</td><td style="text-align: right; padding: 1rem; font-weight: 600; color: #2c3e50; white-space: nowrap;">${formatCurrency(week.revenueTotal)}</td></tr>`;
+                            }).join('');
 
-                        const avgPerWeek = weeks.length > 0 ? Math.ceil(totalReservas / weeks.length) : 0;
-                        const avgRevenuePastPerWeek = weeks.length > 0 ? (totalRevenuePast / weeks.length) : 0;
-                        const avgRevenueFuturePerWeek = weeks.length > 0 ? (totalRevenueFuture / weeks.length) : 0;
-
-                        const weeksHtml = weeks.map((week, idx) => {
-                            // Distribuir dados de forma aproximadamente igual
-                            const weekReservas = idx === weeks.length - 1 ? (totalReservas - avgPerWeek * idx) : avgPerWeek;
-                            const weekRevenuePast = idx === weeks.length - 1 ? (totalRevenuePast - avgRevenuePastPerWeek * idx) : avgRevenuePastPerWeek;
-                            const weekRevenueFuture = idx === weeks.length - 1 ? (totalRevenueFuture - avgRevenueFuturePerWeek * idx) : avgRevenueFuturePerWeek;
-                            const weekRevenueTotal = weekRevenuePast + weekRevenueFuture;
-
-                            return `<tr style="border-bottom: 1px solid #e0e0e0; background: ${idx % 2 === 0 ? '#fff' : '#f8f9fa'};"><td style="padding: 1rem; font-size: 0.9rem; color: #333; white-space: nowrap;"><strong>Semana ${idx + 1}</strong><br>${week.label}</td><td style="text-align: right; padding: 1rem; color: #666; white-space: nowrap;">${Math.round(weekReservas)}</td><td style="text-align: right; padding: 1rem; font-weight: 600; color: #27ae60; white-space: nowrap;">${formatCurrency(weekRevenuePast)}</td><td style="text-align: right; padding: 1rem; font-weight: 600; color: #3498db; white-space: nowrap;">${formatCurrency(weekRevenueFuture)}</td><td style="text-align: right; padding: 1rem; font-weight: 600; color: #2c3e50; white-space: nowrap;">${formatCurrency(weekRevenueTotal)}</td></tr>`;
-                        }).join('');
-
-                        weeklyTableBody.innerHTML = weeksHtml || '<tr><td colspan="5" style="padding: 2rem; text-align: center; color: #999;">Sem dados para este mês</td></tr>';
+                            weeklyTableBody.innerHTML = weeksHtml || '<tr><td colspan="5" style="padding: 2rem; text-align: center; color: #999;">Sem dados para este mês</td></tr>';
+                        } catch (error) {
+                            weeklyTableBody.innerHTML = `<tr><td colspan="5" style="padding: 2rem; text-align: center; color: red;">Erro ao carregar dados: ${error.message}</td></tr>`;
+                        }
                     });
 
                     // Trigger inicial

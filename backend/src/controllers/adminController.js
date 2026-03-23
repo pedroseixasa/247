@@ -681,6 +681,117 @@ exports.getSiteSettings = async (req, res) => {
   }
 };
 
+// ===== OBTER DADOS SEMANAIS PARA UM MÊS ESPECÍFICO =====
+exports.getWeeklyStats = async (req, res) => {
+  try {
+    const { month, year, barberId } = req.query;
+    
+    if (!month || !year) {
+      return res.status(400).json({ error: "Month and year are required" });
+    }
+
+    const selectedMonth = parseInt(month);
+    const selectedYear = parseInt(year);
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+
+    // Estabelecer barberId filter
+    let barbIdFilter = {};
+    if (barberId && barberId !== "undefined" && barberId !== "") {
+      barbIdFilter = { barberId };
+    }
+
+    // Gerar semanas para o mês selecionado (segunda-feira é o início)
+    const firstDay = new Date(selectedYear, selectedMonth - 1, 1);
+    const lastDay = new Date(selectedYear, selectedMonth, 0);
+    const weeks = [];
+    let currentWeekStart = new Date(firstDay);
+
+    // Ajustar para segunda-feira se necessário
+    const dayOfWeek = currentWeekStart.getDay();
+    const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+    currentWeekStart.setDate(currentWeekStart.getDate() - daysToMonday);
+
+    while (currentWeekStart <= lastDay) {
+      const weekEnd = new Date(currentWeekStart);
+      weekEnd.setDate(weekEnd.getDate() + 6);
+      
+      const weekLabel = `${currentWeekStart.getDate()} - ${weekEnd.getDate()} de ${currentWeekStart.toLocaleDateString('pt-PT', { month: 'long' })}`;
+      weeks.push({
+        start: new Date(currentWeekStart),
+        end: new Date(weekEnd),
+        label: weekLabel
+      });
+      
+      currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+    }
+
+    // Para cada semana, contar reservas e somar receitas
+    const confirmedFilter = { status: "confirmed" };
+    
+    const weeklyData = await Promise.all(weeks.map(async (week) => {
+      const weekStart = new Date(week.start);
+      weekStart.setHours(0, 0, 0, 0);
+      const weekEnd = new Date(week.end);
+      weekEnd.setHours(23, 59, 59, 999);
+
+      // Contar reservas
+      const count = await Reservation.countDocuments({
+        ...confirmedFilter,
+        ...barbIdFilter,
+        reservationDate: { $gte: weekStart, $lte: weekEnd }
+      });
+
+      // Calcular receitas (realizada vs prevista)
+      let revenuePast = 0;
+      let revenueFuture = 0;
+
+      // Receita realizada (reservas que já passaram)
+      const pastReservations = await Reservation.find({
+        ...confirmedFilter,
+        ...barbIdFilter,
+        reservationDate: { $gte: weekStart, $lte: Math.min(weekEnd, now - 1) }
+      }).populate('serviceId');
+
+      revenuePast = pastReservations.reduce((sum, res) => {
+        const price = res.serviceId?.price || 0;
+        const numPrice = typeof price === 'number' ? price : parseFloat(price) || 0;
+        return sum + numPrice;
+      }, 0);
+
+      // Receita prevista (reservas futuras dentro da semana)
+      const futureReservations = await Reservation.find({
+        ...confirmedFilter,
+        ...barbIdFilter,
+        reservationDate: { $gt: now, $lte: weekEnd }
+      }).populate('serviceId');
+
+      revenueFuture = futureReservations.reduce((sum, res) => {
+        const price = res.serviceId?.price || 0;
+        const numPrice = typeof price === 'number' ? price : parseFloat(price) || 0;
+        return sum + numPrice;
+      }, 0);
+
+      return {
+        week: week.label,
+        weekNum: weeks.indexOf(week) + 1,
+        count,
+        revenuePast: Math.round(revenuePast * 100) / 100,
+        revenueFuture: Math.round(revenueFuture * 100) / 100,
+        revenueTotal: Math.round((revenuePast + revenueFuture) * 100) / 100
+      };
+    }));
+
+    res.json({
+      month: selectedMonth,
+      year: selectedYear,
+      weeks: weeklyData
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // ===== GERENCIAR CONTEÚDO DO SITE =====
 exports.getSiteContent = async (req, res) => {
   try {

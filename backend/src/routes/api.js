@@ -107,6 +107,12 @@ router.get(
   adminController.getSiteSettings,
 );
 router.get(
+  "/admin/weekly-stats",
+  authMiddleware,
+  adminMiddleware,
+  adminController.getWeeklyStats,
+);
+router.get(
   "/admin/site-settings",
   authMiddleware,
   adminMiddleware,
