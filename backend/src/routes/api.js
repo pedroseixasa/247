@@ -43,6 +43,74 @@ router.post(
   reservationController.cancelReservationByToken,
 );
 
+// ===== BARBER (não-admin) - ACESSO RESTRITO =====
+// Barber vê suas próprias ausências
+router.get(
+  "/barber/absences",
+  authMiddleware,
+  async (req, res) => {
+    try {
+      const barber = await Barber.findById(req.user._id).select("absences name");
+      if (!barber) {
+        return res.status(404).json({ error: "Perfil não encontrado" });
+      }
+      res.json({
+        barberId: req.user._id,
+        barberName: barber.name,
+        absences: barber.absences || [],
+      });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+);
+
+// Barber adiciona sua própria ausência
+router.post(
+  "/barber/absences",
+  authMiddleware,
+  reservationController.addAbsence,
+);
+
+// Barber remove sua própria ausência (PATCH na rota, mas lógica é DELETE no controller)
+router.delete(
+  "/barber/absences/:absenceId",
+  authMiddleware,
+  async (req, res) => {
+    try {
+      const { absenceId } = req.params;
+      const barberId = req.user._id;
+
+      const barber = await Barber.findById(barberId);
+      if (!barber) {
+        return res.status(404).json({ error: "Barbeiro não encontrado" });
+      }
+
+      const absenceIndex = barber.absences?.findIndex(
+        (abs) => abs._id?.toString() === absenceId
+      );
+
+      if (absenceIndex === undefined || absenceIndex === -1) {
+        return res.status(404).json({ error: "Ausência não encontrada" });
+      }
+
+      barber.absences.splice(absenceIndex, 1);
+      await barber.save();
+
+      res.json({ message: "Ausência removida com sucesso" });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+);
+
+// Barber vê suas próprias reservas (dashboard)
+router.get(
+  "/barber/reservations",
+  authMiddleware,
+  reservationController.getReservationsForDashboard,
+);
+
 // ===== ADMIN - BARBEIROS =====
 router.get(
   "/admin/barbers",
