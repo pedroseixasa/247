@@ -41,6 +41,21 @@ const barberSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
+  // Ausências/Faltas do barbeiro
+  absences: [{
+    date: {
+      type: Date,
+      required: true,
+    },
+    type: {
+      type: String,
+      enum: ["morning", "afternoon", "full", "specific"],
+      default: "full",
+    },
+    startTime: String, // HH:mm para tipo "specific"
+    endTime: String,   // HH:mm para tipo "specific"
+    reason: String,
+  }],
   createdAt: {
     type: Date,
     default: Date.now,

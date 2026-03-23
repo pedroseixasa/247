@@ -937,3 +937,62 @@ exports.deleteReview = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// ===== ABSENCE MANAGEMENT =====
+
+exports.addBarberAbsence = async (req, res) => {
+  try {
+    const { barberId } = req.params;
+    const { date, type, startTime, endTime, reason } = req.body;
+
+    if (!date || !type) {
+      return res.status(400).json({ error: "Data e tipo são obrigatórios" });
+    }
+
+    const barber = await Barber.findById(barberId);
+    if (!barber) {
+      return res.status(404).json({ error: "Barbeiro não encontrado" });
+    }
+
+    if (!barber.absences) {
+      barber.absences = [];
+    }
+
+    // Adicionar nova ausência
+    barber.absences.push({
+      date: new Date(date),
+      type,
+      startTime: type === "specific" ? startTime : undefined,
+      endTime: type === "specific" ? endTime : undefined,
+      reason,
+    });
+
+    await barber.save();
+    res.json(barber);
+  } catch (error) {
+    console.error("Erro ao adicionar ausência:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.removeBarberAbsence = async (req, res) => {
+  try {
+    const { barberId, absenceId } = req.params;
+
+    const barber = await Barber.findById(barberId);
+    if (!barber) {
+      return res.status(404).json({ error: "Barbeiro não encontrado" });
+    }
+
+    // Remover ausência por ID
+    barber.absences = barber.absences.filter(
+      (absence) => absence._id.toString() !== absenceId
+    );
+
+    await barber.save();
+    res.json(barber);
+  } catch (error) {
+    console.error("Erro ao remover ausência:", error);
+    res.status(500).json({ error: error.message });
+  }
+};

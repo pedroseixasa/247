@@ -61,6 +61,18 @@ router.patch(
   adminMiddleware,
   adminController.updateBarber,
 );
+router.post(
+  "/admin/barbers/:barberId/absences",
+  authMiddleware,
+  adminMiddleware,
+  adminController.addBarberAbsence,
+);
+router.delete(
+  "/admin/barbers/:barberId/absences/:absenceId",
+  authMiddleware,
+  adminMiddleware,
+  adminController.removeBarberAbsence,
+);
 
 // ===== ADMIN - SERVIÇOS =====
 router.get("/admin/services", adminController.getAllServices);

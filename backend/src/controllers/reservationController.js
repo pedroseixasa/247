@@ -126,6 +126,46 @@ exports.createReservation = async (req, res) => {
       return res.status(404).json({ error: "Serviço não encontrado" });
     }
 
+    // Verificar se o barbeiro tem ausência nesta data
+    const reservationDateTime = new Date(reservationDate);
+    const reservationDateOnly = new Date(reservationDateTime.setHours(0, 0, 0, 0));
+    
+    const barberAbsence = barber.absences?.find(absence => {
+      const absenseDate = new Date(absence.date);
+      const absenseDateOnly = new Date(absenseDate.setHours(0, 0, 0, 0));
+      
+      if (absenseDateOnly.getTime() !== reservationDateOnly.getTime()) {
+        return false;
+      }
+
+      // Se é ausência de dia inteiro
+      if (absence.type === "full") {
+        return true;
+      }
+
+      // Verificar se o timeslot cai dentro da ausência específica
+      const [hours, minutes] = timeSlot.split(":").map(Number);
+      const appointmentTime = hours * 60 + minutes;
+      
+      if (absence.type === "morning") {
+        return appointmentTime < 12 * 60; // Antes do meio-dia
+      } else if (absence.type === "afternoon") {
+        return appointmentTime >= 12 * 60; // A partir do meio-dia
+      } else if (absence.type === "specific" && absence.startTime && absence.endTime) {
+        const [sHours, sMinutes] = absence.startTime.split(":").map(Number);
+        const [eHours, eMinutes] = absence.endTime.split(":").map(Number);
+        const startTime = sHours * 60 + sMinutes;
+        const endTime = eHours * 60 + eMinutes;
+        return appointmentTime >= startTime && appointmentTime < endTime;
+      }
+
+      return false;
+    });
+
+    if (barberAbsence) {
+      return res.status(409).json({ error: "Barbeiro indisponível nesta data/hora. Marque outra data." });
+    }
+
     // Verificar se já existe reserva para esse barbeiro à essa hora
     const existingReservation = await Reservation.findOne({
       barberId: barberIdObj,
