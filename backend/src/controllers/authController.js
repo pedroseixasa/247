@@ -140,7 +140,10 @@ exports.updateProfile = async (req, res) => {
 
     // Atualizar email de notificação
     if (notificationEmail !== undefined) {
-      if (notificationEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(notificationEmail)) {
+      if (
+        notificationEmail &&
+        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(notificationEmail)
+      ) {
         return res.status(400).json({ error: "Email inválido" });
       }
       barber.notificationEmail = notificationEmail || null;
@@ -150,16 +153,25 @@ exports.updateProfile = async (req, res) => {
     if (lunchBreak !== undefined) {
       if (lunchBreak && lunchBreak.enabled) {
         if (!lunchBreak.startTime || !lunchBreak.endTime) {
-          return res.status(400).json({ error: "Horas de almoço obrigatórias" });
+          return res
+            .status(400)
+            .json({ error: "Horas de almoço obrigatórias" });
         }
         // Validar formato HH:mm
         const timeRegex = /^([0-1][0-9]|2[0-3]):[0-5][0-9]$/;
-        if (!timeRegex.test(lunchBreak.startTime) || !timeRegex.test(lunchBreak.endTime)) {
-          return res.status(400).json({ error: "Formato de hora inválido (HH:mm)" });
+        if (
+          !timeRegex.test(lunchBreak.startTime) ||
+          !timeRegex.test(lunchBreak.endTime)
+        ) {
+          return res
+            .status(400)
+            .json({ error: "Formato de hora inválido (HH:mm)" });
         }
         // Comparar horários
         if (lunchBreak.startTime >= lunchBreak.endTime) {
-          return res.status(400).json({ error: "Hora de início deve ser antes da hora de fim" });
+          return res
+            .status(400)
+            .json({ error: "Hora de início deve ser antes da hora de fim" });
         }
       }
       barber.lunchBreak = lunchBreak;

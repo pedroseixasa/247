@@ -1006,8 +1006,14 @@ document.addEventListener("DOMContentLoaded", function () {
     // Converter lunch break times para minutos se disponível
     let lunchStartMinutes = null;
     let lunchEndMinutes = null;
-    if (barberData?.lunchBreak?.enabled && barberData.lunchBreak.startTime && barberData.lunchBreak.endTime) {
-      const [startH, startM] = barberData.lunchBreak.startTime.split(":").map(Number);
+    if (
+      barberData?.lunchBreak?.enabled &&
+      barberData.lunchBreak.startTime &&
+      barberData.lunchBreak.endTime
+    ) {
+      const [startH, startM] = barberData.lunchBreak.startTime
+        .split(":")
+        .map(Number);
       const [endH, endM] = barberData.lunchBreak.endTime.split(":").map(Number);
       lunchStartMinutes = startH * 60 + startM;
       lunchEndMinutes = endH * 60 + endM;
@@ -1049,7 +1055,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (barber1 && barberSettings.barber1LunchBreak) {
       barber1.lunchBreak = barberSettings.barber1LunchBreak;
     }
-    
+
     const barber2 = barbers["ricardo-silva"];
     if (barber2 && barberSettings.barber2Name) {
       barber2.name = barberSettings.barber2Name;
@@ -1492,7 +1498,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     const dateKey = bookingState.date.toISOString().split("T")[0];
-    
+
     // Obter dados do barbeiro (incluindo lunchBreak)
     const barberData = barbers[bookingState.barber];
     const barberHours = getTimeSlotsForDate(

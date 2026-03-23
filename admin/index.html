@@ -2079,7 +2079,7 @@
 
                 const settingsForm = document.getElementById('settingsForm');
                 const floatingSaveBtn = document.getElementById('floatingSaveBtn');
-                
+
                 // Event listeners for lunch break checkboxes
                 const barber1LunchCheckbox = document.getElementById('barber1LunchBreakEnabled');
                 const barber1LunchTimes = document.getElementById('barber1LunchBreakTimes');
@@ -2096,7 +2096,7 @@
                         barber2LunchTimes.style.display = barber2LunchCheckbox.checked ? 'block' : 'none';
                     });
                 }
-                
+
                 if (floatingSaveBtn) {
                     floatingSaveBtn.addEventListener('click', () => {
                         if (settingsForm) {
@@ -3339,7 +3339,7 @@
             // Checkbox para mostrar/esconder times de almoço
             const checkboxLunch = document.getElementById('lunchBreakEnabled');
             const lunchTimes = document.getElementById('lunchBreakTimes');
-            
+
             checkboxLunch.addEventListener('change', () => {
                 lunchTimes.style.display = checkboxLunch.checked ? 'block' : 'none';
             });
