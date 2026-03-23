@@ -349,7 +349,7 @@ exports.createReservation = async (req, res) => {
 
 /**
  * Função auxiliar para enviar push notifications
- * (Implementação básica - seria expandida com real web-push)
+ * Envia notificações para todos os dispositivos inscritos do barbeiro
  */
 async function sendPushNotifications(
   barber,
@@ -359,6 +359,16 @@ async function sendPushNotifications(
   timeSlot,
 ) {
   try {
+    const webpush = require("web-push");
+    const PushSubscription = require("../models/PushSubscription");
+
+    // Configurar VAPID details
+    webpush.setVapidDetails(
+      process.env.VAPID_SUBJECT || "mailto:admin@247barbearia.pt",
+      process.env.VAPID_PUBLIC_KEY,
+      process.env.VAPID_PRIVATE_KEY,
+    );
+
     const dateObj = new Date(reservationDate);
     const dateStr = dateObj.toLocaleDateString("pt-PT", {
       weekday: "short",
@@ -368,24 +378,85 @@ async function sendPushNotifications(
     });
 
     const notificationTitle = "🔔 Nova Marcação!";
-    const notificationBody = `${clientName} - ${serviceName} às ${timeSlot} (${dateStr})`;
+    const notificationBody = `${clientName} - ${serviceName} às ${timeSlot}`;
+    const notificationTag = `reservation-${barber._id}`;
 
-    // Log para dashboard (em produção seria enviada via web-push)
-    console.log(`📢 PUSH NOTIFICATION: ${notificationTitle}`);
+    const notificationPayload = {
+      title: notificationTitle,
+      body: notificationBody,
+      icon: process.env.NOTIFICATION_ICON || "/images/logo.png",
+      badge: "/images/badge-192x192.png",
+      tag: notificationTag,
+      data: {
+        dateCreated: new Date().getTime(),
+        dateTime: `${dateStr} ${timeSlot}`,
+        clientName: clientName,
+        serviceName: serviceName,
+        barberId: barber._id.toString(),
+      },
+    };
+
+    // Buscar subscrições ativas do barbeiro
+    const subscriptions = await PushSubscription.find({
+      $or: [
+        { userId: barber._id, isActive: true },
+        { isPublic: true, isActive: true }, // Also send to public app users
+      ],
+    });
+
+    if (subscriptions.length === 0) {
+      console.log(`⚠️ Sem subscrições push ativas para barbeiro ${barber.name}`);
+      return { success: true, sent: 0 };
+    }
+
+    let successCount = 0;
+    let failureCount = 0;
+
+    // Enviar para cada subscrição
+    for (const sub of subscriptions) {
+      try {
+        await webpush.sendNotification(
+          sub.subscription,
+          JSON.stringify(notificationPayload),
+        );
+        successCount++;
+        console.log(
+          `✅ Push enviada com sucesso para ${sub.deviceType || "desktop"} (${sub._id})`,
+        );
+      } catch (error) {
+        failureCount++;
+        console.warn(
+          `⚠️ Erro ao enviar push para ${sub._id}:`,
+          error.statusCode || error.message,
+        );
+
+        // Se subscription expirou (410), marcar como inativa
+        if (error.statusCode === 410) {
+          sub.isActive = false;
+          await sub.save();
+          console.log(`🗑️ Subscription ${sub._id} marcada como inativa`);
+        }
+      }
+    }
+
+    console.log(
+      `📢 PUSH NOTIFICATIONS: ${notificationTitle} (${successCount}/${subscriptions.length} entregues)`,
+    );
     console.log(`   Cliente: ${clientName}`);
     console.log(`   Serviço: ${serviceName}`);
     console.log(`   Data/Hora: ${dateStr} ${timeSlot}`);
     console.log(`   Barbeiro: ${barber.name}`);
 
-    // Aqui seria integrado o node web-push package:
-    // const webpush = require('web-push');
-    // webpush.setVapidDetails(process.env.VAPID_PUBLIC_KEY, process.env.VAPID_PRIVATE_KEY, process.env.VAPID_SUBJECT);
-    // Depois fetch das subscriptions do barber na BD e enviar
-
-    return { success: true };
+    return {
+      success: successCount > 0,
+      sent: successCount,
+      failed: failureCount,
+      total: subscriptions.length,
+    };
   } catch (error) {
-    console.error("Erro ao processar push:", error);
-    throw error;
+    console.error("❌ Erro ao enviar push notifications:", error);
+    // Não lançar erro - fallback gracioso
+    return { success: false, error: error.message };
   }
 }
 

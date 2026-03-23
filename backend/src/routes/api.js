@@ -319,6 +319,67 @@ router.post("/subscriptions", authMiddleware, async (req, res) => {
       subscriptionId: newSubscription._id,
     });
   } catch (error) {
+    console.error("Erro ao guardar subscription:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Endpoint público para registar subscriptions (PWA app pública)
+router.post("/subscriptions-public", async (req, res) => {
+  try {
+    const { subscription, deviceId, deviceType } = req.body;
+
+    if (!subscription || !subscription.endpoint) {
+      return res.status(400).json({ error: "Subscription data inválida" });
+    }
+
+    if (!deviceId) {
+      return res.status(400).json({ error: "Device ID obrigatório" });
+    }
+
+    // Verificar se já existe subscription com o mesmo endpoint
+    const existingSubscription = await PushSubscription.findOne({
+      deviceId,
+      "subscription.endpoint": subscription.endpoint,
+    });
+
+    if (existingSubscription) {
+      // Atualizar lastUsed
+      existingSubscription.lastUsed = new Date();
+      existingSubscription.isActive = true;
+      await existingSubscription.save();
+      return res.json({
+        success: true,
+        message: "Subscription atualizada",
+        subscriptionId: existingSubscription._id,
+      });
+    }
+
+    // Criar nova subscription pública (sem userId)
+    const newSubscription = new PushSubscription({
+      deviceId,
+      subscription,
+      userAgent: req.get("user-agent"),
+      deviceType: deviceType || "mobile",
+      isPublic: true,
+    });
+
+    await newSubscription.save();
+
+    console.log(`✅ Push subscription pública registada para deviceId: ${deviceId}`);
+    console.log(`   Endpoint: ${subscription.endpoint?.substring(0, 50)}...`);
+
+    res.status(201).json({
+      success: true,
+      message: "Subscription registada com sucesso",
+      subscriptionId: newSubscription._id,
+    });
+  } catch (error) {
+    console.error("Erro ao guardar subscription pública:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+  } catch (error) {
     console.error("Erro ao registar subscription:", error);
     res.status(500).json({ error: error.message });
   }

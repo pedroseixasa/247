@@ -5165,6 +5165,152 @@
         });
     </script>
 
+    <!-- ===== PWA & PUSH NOTIFICATIONS ===== -->
+    <script>
+        // VAPID Public Key para Web Push
+        const VAPID_PUBLIC_KEY = "BF2pkMaAAfT_oKcpwyxP0i7UlMOKCGMJp_hpVhQ_JmL9Xb8ogf9J8yfJ6Y0ReZa123vUIV4NoN3rmahTu4v4R7Q";
+        const API_BASE_URL = "https://two4-7-barbearia.onrender.com/api";
+
+        // Gerar ou recuperar um ID único do dispositivo
+        function getOrCreateDeviceId() {
+            let deviceId = localStorage.getItem('deviceId');
+            if (!deviceId) {
+                deviceId = 'device_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('deviceId', deviceId);
+            }
+            return deviceId;
+        }
+
+        // Registar Service Worker para PWA e notificações push
+        async function registerServiceWorkerForPush() {
+            if (!('serviceWorker' in navigator)) {
+                console.log('Service Workers não suportados neste browser');
+                return;
+            }
+
+            try {
+                const reg = await navigator.serviceWorker.register('/sw.js', {
+                    scope: '/'
+                });
+                console.log('✅ Service Worker registado com sucesso para push notifications');
+
+                // Pedir permissão para notificações push
+                requestNotificationPermission();
+            } catch (error) {
+                console.warn('Erro ao registar Service Worker:', error);
+            }
+        }
+
+        // Pedir permissão para notificações
+        async function requestNotificationPermission() {
+            if (!('Notification' in window)) {
+                console.log('Notificações não suportadas neste browser');
+                return;
+            }
+
+            if (Notification.permission === 'granted') {
+                // Já tem permissão, fazer subscribe
+                subscribeUserToPush();
+                return;
+            }
+
+            if (Notification.permission !== 'denied') {
+                // Ainda não respondeu, pedir
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    subscribeUserToPush();
+                }
+            }
+        }
+
+        // Fazer subscribe a notificações push
+        async function subscribeUserToPush() {
+            if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+                console.log('Push notifications não suportadas neste browser');
+                return;
+            }
+
+            try {
+                const registration = await navigator.serviceWorker.ready;
+
+                // Verificar se já tem subscription
+                let subscription = await registration.pushManager.getSubscription();
+
+                // Se não tem, tentar criar com VAPID public key
+                if (!subscription) {
+                    console.log('🔔 Criando nova push subscription...');
+                    subscription = await registration.pushManager.subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+                    });
+                    console.log('✅ Push subscription criada:', subscription);
+                }
+
+                // Enviar subscription para o backend
+                if (subscription) {
+                    try {
+                        const deviceId = getOrCreateDeviceId();
+                        const response = await fetch(`${API_BASE_URL}/subscriptions-public`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                subscription: subscription.toJSON(),
+                                deviceId: deviceId,
+                                deviceType: getDeviceType()
+                            })
+                        });
+
+                        if (response.ok) {
+                            const data = await response.json();
+                            console.log('✅ Push subscription registada no backend:', data.subscriptionId);
+                            localStorage.setItem('pushSubscription', JSON.stringify(subscription));
+                            localStorage.setItem('pushSubscriptionId', data.subscriptionId);
+                        } else {
+                            console.warn('Erro ao registar subscription no backend:', response.status);
+                        }
+                    } catch (error) {
+                        console.error('Erro ao enviar subscription para backend:', error);
+                    }
+                }
+            } catch (error) {
+                console.warn('Erro ao fazer subscribe a push notifications:', error);
+            }
+        }
+
+        // Converter VAPID public key de base64 para Uint8Array
+        function urlBase64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding)
+                .replace(/\-/g, '+')
+                .replace(/_/g, '/');
+            const rawData = window.atob(base64);
+            const outputArray = new Uint8Array(rawData.length);
+            for (let i = 0; i < rawData.length; ++i) {
+                outputArray[i] = rawData.charCodeAt(i);
+            }
+            return outputArray;
+        }
+
+        // Detectar tipo de dispositivo
+        function getDeviceType() {
+            const ua = navigator.userAgent;
+            if (/mobile|android|iphone|ipad|phone/i.test(ua)) return 'mobile';
+            if (/tablet|ipad/i.test(ua)) return 'tablet';
+            return 'desktop';
+        }
+
+        // Registar service worker e solicitar permissão ao carregar a página
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', registerServiceWorkerForPush);
+        } else {
+            registerServiceWorkerForPush();
+        }
+
+        // Também tentar registar após 2 segundos para dar tempo ao browser
+        setTimeout(registerServiceWorkerForPush, 2000);
+    </script>
 
 </body>
 
