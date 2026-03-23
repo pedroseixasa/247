@@ -290,6 +290,7 @@ ADMIN_EMAIL=admin@247barbearia.pt        # Email que recebe notificações
 ## 🧹 Limpeza & Refactoring (23 Mar 2026)
 
 **Consolidação de Scripts Backend:**
+
 - ✅ 18+ scripts soltos no `/backend` → consolidados em `package.json` npm scripts
 - ✅ Novos comandos:
   ```bash
@@ -306,6 +307,7 @@ ADMIN_EMAIL=admin@247barbearia.pt        # Email que recebe notificações
   ```
 
 **CSS/JS Duplicados Identificados (para remoção futura):**
+
 - ❌ `css/all.css` - Font Awesome completo (substituir por ícones necessários)
 - ❌ `css/site-enhancements.css` - Estilos antigos (lógica em main.js)
 - ❌ `css/87030a3a16187aa4.css` - Build artifact obsoleto
@@ -313,6 +315,7 @@ ADMIN_EMAIL=admin@247barbearia.pt        # Email que recebe notificações
 - ❌ `js/site-enhancements.js` - Duplica lógica em main.js
 
 **Ficheiros HTML Antigos:**
+
 - ⚠️ `test-admin.html`, `imagens-servicos.html`, `cancel.html` - Não em uso
 - 📝 Substituir por testes unitários em `/backend` se necessário
 
