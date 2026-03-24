@@ -127,7 +127,7 @@ exports.createReservation = async (req, res) => {
       return res.status(404).json({ error: "Serviço não encontrado" });
     }
 
-    // ========== VALIDAÇÃO 7: Barbeiro trabalha naquele dia (workingHours da DB) ==========
+    // ========== VALIDAÇÃO 7: Horários de funcionamento (sempre de SiteSettings) ==========
     const reservationDateTime = new Date(reservationDate);
     const days = [
       "sunday",
@@ -139,38 +139,34 @@ exports.createReservation = async (req, res) => {
       "saturday",
     ];
     const dayKey = days[reservationDateTime.getDay()];
-    let todayHours = barber.workingHours[dayKey];
 
-    // Se barbeiro não tiver horários customizados para o dia, usar horários globais do SiteSettings
-    if (!todayHours || !todayHours.start || !todayHours.end) {
-      const siteSettings = await SiteSettings.findOne();
-      if (
-        siteSettings &&
-        siteSettings.hoursRows &&
-        siteSettings.hoursRows.length > 0
-      ) {
-        // Encontrar o dia na configuração global
-        const dayName = [
-          "Domingo",
-          "Segunda",
-          "Terça",
-          "Quarta",
-          "Quinta",
-          "Sexta",
-          "Sábado",
-        ][reservationDateTime.getDay()];
-        const globalHours = siteSettings.hoursRows.find(
-          (row) => row.day === dayName || row.day === dayKey,
-        );
+    // SEMPRE usar SiteSettings como source of truth para horários de funcionamento
+    const siteSettings = await SiteSettings.findOne();
+    let todayHours = null;
 
-        if (globalHours && globalHours.start && globalHours.end) {
-          todayHours = { start: globalHours.start, end: globalHours.end };
-        }
+    if (siteSettings && siteSettings.hoursRows && siteSettings.hoursRows.length > 0) {
+      const dayName = [
+        "Domingo",
+        "Segunda",
+        "Terça",
+        "Quarta",
+        "Quinta",
+        "Sexta",
+        "Sábado",
+      ][reservationDateTime.getDay()];
+      const globalHours = siteSettings.hoursRows.find(
+        (row) => row.day === dayName || row.day === dayKey,
+      );
+
+      if (globalHours && globalHours.start && globalHours.end) {
+        todayHours = { start: globalHours.start, end: globalHours.end };
       }
     }
 
     if (!todayHours || !todayHours.start || !todayHours.end) {
-      return res.status(400).json({ error: "Barbeiro não trabalha neste dia" });
+      return res.status(400).json({
+        error: "Horários de funcionamento não definidos para este dia",
+      });
     }
 
     // ========== VALIDAÇÃO 8: Serviço cabe no horário de fecho ==========
