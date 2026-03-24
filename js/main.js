@@ -960,10 +960,18 @@ document.addEventListener("DOMContentLoaded", function () {
     for (const barberId of barberIds) {
       try {
         const response = await fetch(`${API_BASE_URL}/barbers/${barberId}`);
-        if (!response.ok) continue;
+        if (!response.ok) {
+          console.warn(`Falha ao carregar barbeiro ${barberId}:`, response.status);
+          continue;
+        }
 
         const barberData = await response.json();
         const barberKey = barberKeyMap[barberId];
+
+        console.log(`📥 Dados do barbeiro ${barberKey} carregados:`, {
+          name: barberData.name,
+          lunchBreak: barberData.lunchBreak,
+        });
 
         // Atualizar dados do barbeiro na memória (será usado pela seção de reservas)
         if (window.updateBarberLunchBreak) {
@@ -1006,7 +1014,7 @@ document.addEventListener("DOMContentLoaded", function () {
       id: "6998aaf59119a721cdc1e136",
       name: "Diogo Cunha",
       lunchBreak: {
-        enabled: false,
+        enabled: undefined,
         startTime: "12:00",
         endTime: "13:00",
       },
@@ -1015,7 +1023,7 @@ document.addEventListener("DOMContentLoaded", function () {
       id: "6998aaf59119a721cdc1e137",
       name: FILMING_MODE_ACTIVE ? "Miguel Ferreira" : "Ricardo Silva",
       lunchBreak: {
-        enabled: false,
+        enabled: undefined,
         startTime: "12:00",
         endTime: "13:00",
       },
@@ -1138,18 +1146,29 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Função para atualizar lunchBreak de um barbeiro (carregado do endpoint /api/barbers/:id)
   window.updateBarberLunchBreak = function (barberKey, lunchBreak) {
-    if (!barberKey || !barbers[barberKey]) return;
-
-    barbers[barberKey].lunchBreak = lunchBreak || {
-      enabled: false,
-      startTime: "12:00",
-      endTime: "13:00",
-    };
+    if (!barberKey || !barbers[barberKey]) {
+      console.warn(`❌ Invalid barberKey or barber not found:`, barberKey);
+      return;
+    }
 
     console.log(
-      `✅ Updated lunch break for ${barberKey}:`,
-      barbers[barberKey].lunchBreak,
+      `🔧 updateBarberLunchBreak called with:`,
+      { barberKey, lunchBreak, type: typeof lunchBreak },
     );
+    console.log(
+      `🔧 Detailed lunchBreak structure:`,
+      { enabled: lunchBreak?.enabled, startTime: lunchBreak?.startTime, endTime: lunchBreak?.endTime },
+    );
+
+    if (lunchBreak && typeof lunchBreak === "object") {
+      barbers[barberKey].lunchBreak = lunchBreak;
+      console.log(
+        `✅ Lunch break atualizado para ${barberKey}. Novo valor em memória:`,
+        barbers[barberKey].lunchBreak,
+      );
+    } else {
+      console.warn(`⚠️ Sem dados válidos de lunch break para ${barberKey}. Recebido:`, lunchBreak);
+    }
 
     // Re-render slots se o barbeiro tiver sido selecionado
     if (bookingState.barber === barberKey && bookingState.date) {
