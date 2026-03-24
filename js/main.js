@@ -1877,9 +1877,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const bookedIntervals = reservations
         .filter((r) => r.status !== "cancelled")
         .map((reservation) => {
-          const [hour, minute] = reservation.timeSlot
-            .split(":")
-            .map(Number);
+          const [hour, minute] = reservation.timeSlot.split(":").map(Number);
           const reservaStartMinutes = hour * 60 + minute;
           const reservaDuration =
             reservation.serviceId?.duration ||
