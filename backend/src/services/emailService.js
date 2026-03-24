@@ -145,7 +145,6 @@ async function sendBookingConfirmation({
           <div class="container">
             <div class="header">
               <div class="logo">24•7 Barbearia</div>
-              <div class="success-icon">✅</div>
               <h1>Reserva Confirmada!</h1>
             </div>
             
@@ -186,8 +185,8 @@ async function sendBookingConfirmation({
             
             <div class="footer">
               <p><strong>24.7 Barbearia</strong></p>
-              <p class="address">📍 Rua Exemplo, 123 - Almada, Portugal</p>
-              <p>📞 +351 912 345 678</p>
+              <p class="address">📍 R. Cap. Leitão 84B, 2800-133 Almada, Portugal</p>
+              <p>📞 +351 963 988 807</p>
               <p>Este email foi enviado automaticamente. Por favor não responda.</p>
             </div>
           </div>
