@@ -1061,9 +1061,9 @@ document.addEventListener("DOMContentLoaded", function () {
     let lunchStartMinutes = null;
     let lunchEndMinutes = null;
     if (
-      barberData?.lunchBreak?.enabled &&
-      barberData.lunchBreak.startTime &&
-      barberData.lunchBreak.endTime
+      barberData?.lunchBreak?.startTime &&
+      barberData?.lunchBreak?.endTime &&
+      barberData?.lunchBreak?.enabled !== false
     ) {
       const [startH, startM] = barberData.lunchBreak.startTime
         .split(":")
