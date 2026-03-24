@@ -1051,7 +1051,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!schedule || !schedule.open) return [];
 
     const slots = [];
-    const slotMinutes = 60; // sempre 60 minutos entre slots
+    const slotMinutes = serviceDuration; // Intervalo entre slots = duração do serviço
 
     // Último slot deve permitir que o serviço termine antes do fecho
     // Ex: Fecho às 18:00 (1080 min), serviço de 90 min → último slot às 16:30 (990 min)
@@ -1873,37 +1873,55 @@ document.addEventListener("DOMContentLoaded", function () {
 
       const reservations = await response.json();
 
-      // Construir mapa de slots ocupados (considerando duração do serviço)
-      bookedSlots = {};
-      reservations.forEach((reservation) => {
-        if (reservation.status !== "cancelled") {
-          // Marcar o slot inicial como ocupado
-          const key = `${bookingState.barber}-${dateStr}-${reservation.timeSlot}`;
-          bookedSlots[key] = true;
-
-          // Se a reserva tem duração, marcar também os próximos slots
-          // A duração vem via populate de serviceId.duration
-          const serviceDuration =
+      // Construir lista de intervalos ocupados (reservações existentes)
+      const bookedIntervals = reservations
+        .filter((r) => r.status !== "cancelled")
+        .map((reservation) => {
+          const [hour, minute] = reservation.timeSlot
+            .split(":")
+            .map(Number);
+          const reservaStartMinutes = hour * 60 + minute;
+          const reservaDuration =
             reservation.serviceId?.duration ||
             reservation.serviceDuration ||
             60;
-          if (serviceDuration > 60) {
-            const [slotHour, slotMinute] = reservation.timeSlot
-              .split(":")
-              .map(Number);
-            let currentMinutes = slotHour * 60 + slotMinute;
-            const endMinutes = currentMinutes + serviceDuration;
+          const reservaEndMinutes = reservaStartMinutes + reservaDuration;
 
-            // Marcar cada slot de 60 minutos durante a duração
-            while (currentMinutes + 60 <= endMinutes) {
-              currentMinutes += 60;
-              const nextSlotTime = formatTime(currentMinutes);
-              const nextKey = `${bookingState.barber}-${dateStr}-${nextSlotTime}`;
-              bookedSlots[nextKey] = true;
-            }
+          return { start: reservaStartMinutes, end: reservaEndMinutes };
+        });
+
+      // Verificar cada slot gerado se sobrepõe com alguma reserva existente
+      // Um slot está ocupado se: slotStart < reservaFim && slotFim > reservaInício
+      bookedSlots = {};
+      const currentServiceDuration = bookingState.serviceDuration || 60;
+      const schedule = getScheduleForDay(
+        bookingState.date ? bookingState.date.getDay() : 0,
+      );
+
+      if (schedule && schedule.open) {
+        // Iterar por cada slot possível com intervalo = duração do serviço
+        for (
+          let slotMinutes = schedule.openMinutes;
+          slotMinutes <= schedule.closeMinutes - currentServiceDuration;
+          slotMinutes += currentServiceDuration
+        ) {
+          const slotStartMinutes = slotMinutes;
+          const slotEndMinutes = slotMinutes + currentServiceDuration;
+          const slotTime = formatTime(slotMinutes);
+
+          // Verificar se este slot sobrepõe com alguma reserva existente
+          const isConflict = bookedIntervals.some(
+            (reservation) =>
+              slotStartMinutes < reservation.end &&
+              slotEndMinutes > reservation.start,
+          );
+
+          if (isConflict) {
+            const key = `${bookingState.barber}-${dateStr}-${slotTime}`;
+            bookedSlots[key] = true;
           }
         }
-      });
+      }
 
       renderTimeSlots();
     } catch (error) {
