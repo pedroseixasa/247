@@ -1521,7 +1521,7 @@
         async function loadReservations(container) {
             try {
                 // Verificar se currentUser está autenticado
-                if (!currentUser || !currentUser.role) {
+                if (!currentUser || typeof currentUser !== 'object' || !currentUser.role) {
                     container.innerHTML = '<div class="alert alert-error">Erro: Utilizador não autenticado. Por favor, faça login novamente.</div>';
                     return;
                 }
@@ -3593,7 +3593,7 @@
             // Se não há token ou currentUser é inválido, mostrar login
             localStorage.clear();
             token = null;
-            currentUser = {};
+            currentUser = { role: null };
             showLoginPage();
         } else {
             // Token válido e currentUser completo

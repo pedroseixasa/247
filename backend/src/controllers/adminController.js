@@ -223,7 +223,12 @@ exports.updateBarber = async (req, res) => {
 exports.getAllServices = async (req, res) => {
   try {
     const services = await Service.find().sort({ order: 1 });
-    res.json(services);
+    // Garantir que todos os serviços têm uma duração válida
+    const servicesWithDuration = services.map((service) => ({
+      ...service.toObject(),
+      duration: service.duration || 30, // Padrão de 30 minutos se não definido
+    }));
+    res.json(servicesWithDuration);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

@@ -1201,14 +1201,29 @@ document.addEventListener("DOMContentLoaded", function () {
 
       const nameEl = card.querySelector(".service-name");
       const priceEl = card.querySelector(".service-price");
-
+      const durationAttr = card.getAttribute("data-duration");
+      
       bookingState.service = nameEl ? nameEl.textContent : "Serviço";
       bookingState.servicePrice = priceEl ? priceEl.textContent : "";
       bookingState.serviceId = card.getAttribute("data-service-id");
-      bookingState.serviceDuration = parseInt(
-        card.getAttribute("data-duration") || "60",
-        10,
-      );
+      
+      // DEBUG: Log dos valores
+      console.log("📋 Service card data:", {
+        name: bookingState.service,
+        price: bookingState.servicePrice,
+        id: bookingState.serviceId,
+        durationAttr: durationAttr,
+      });
+      
+      bookingState.serviceDuration = parseInt(durationAttr || "60", 10);
+      
+      // Se duração é inválida, tenta busc ar da API
+      if (!durationAttr || isNaN(bookingState.serviceDuration) || bookingState.serviceDuration <= 0) {
+        console.warn("⚠️ Duração inválida no card, usando padrão 30 minutos");
+        bookingState.serviceDuration = 30;
+      }
+      
+      console.log("⏱️ Service duration:", bookingState.serviceDuration, "minutos");
 
       const selectedServiceEl = document.getElementById("selectedService");
       if (selectedServiceEl) {
@@ -1601,9 +1616,22 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("🍽️ Barber data:", barberData);
     console.log("🍽️ Lunch break config:", barberData?.lunchBreak);
 
+    // PROTEÇÃO: Garantir que temos duração válida
+    if (!bookingState.serviceDuration || bookingState.serviceDuration <= 0) {
+      console.error("❌ ERRO CRÍTICO: serviceDuration inválida!", {
+        serviceDuration: bookingState.serviceDuration,
+        booking State: bookingState
+      });
+      timeSlotsContainer.innerHTML =
+        '<p class="time-slots-empty"><strong>ERRO:</strong> Nenhum serviço selecionado. Por favor, volte e selecione um serviço.</p>';
+      return;
+    }
+
+    console.log("⏱️ Usando duração:", bookingState.serviceDuration, "minutos");
+
     const barberHours = getTimeSlotsForDate(
       bookingState.date,
-      bookingState.serviceDuration || 60,
+      bookingState.serviceDuration,
       barberData,
     );
 
