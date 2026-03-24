@@ -144,7 +144,11 @@ exports.createReservation = async (req, res) => {
     // Se barbeiro não tiver horários customizados para o dia, usar horários globais do SiteSettings
     if (!todayHours || !todayHours.start || !todayHours.end) {
       const siteSettings = await SiteSettings.findOne();
-      if (siteSettings && siteSettings.hoursRows && siteSettings.hoursRows.length > 0) {
+      if (
+        siteSettings &&
+        siteSettings.hoursRows &&
+        siteSettings.hoursRows.length > 0
+      ) {
         // Encontrar o dia na configuração global
         const dayName = [
           "Domingo",
