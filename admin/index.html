@@ -3460,7 +3460,7 @@
         function logout() {
             localStorage.clear();
             token = null;
-            currentUser = {};
+            currentUser = { role: null };
             showLoginPage();
         }
 
@@ -3567,9 +3567,15 @@
 
         // ===== INICIALIZAÇÃO =====
         // Executar após todas as funções serem definidas
-        if (!token) {
+        // Validar se token existe e currentUser é válido
+        if (!token || !currentUser.role) {
+            // Se não há token ou currentUser é inválido, mostrar login
+            localStorage.clear();
+            token = null;
+            currentUser = {};
             showLoginPage();
         } else {
+            // Token válido e currentUser completo
             showAdminPanel();
         }
 
