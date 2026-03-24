@@ -155,24 +155,26 @@ exports.createReservation = async (req, res) => {
         let globalHours = siteSettings.hoursRows.find(
           (row) =>
             row.day === dayKey ||
-            row.day === [
-              "Domingo",
-              "Segunda",
-              "Terça",
-              "Quarta",
-              "Quinta",
-              "Sexta",
-              "Sábado",
-            ][reservationDateTime.getDay()] ||
-            row.day === [
-              "Sunday",
-              "Monday",
-              "Tuesday",
-              "Wednesday",
-              "Thursday",
-              "Friday",
-              "Saturday",
-            ][reservationDateTime.getDay()],
+            row.day ===
+              [
+                "Domingo",
+                "Segunda",
+                "Terça",
+                "Quarta",
+                "Quinta",
+                "Sexta",
+                "Sábado",
+              ][reservationDateTime.getDay()] ||
+            row.day ===
+              [
+                "Sunday",
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+              ][reservationDateTime.getDay()],
         );
 
         if (globalHours && globalHours.start && globalHours.end) {
