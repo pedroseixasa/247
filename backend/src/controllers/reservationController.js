@@ -127,7 +127,7 @@ exports.createReservation = async (req, res) => {
       return res.status(404).json({ error: "Serviço não encontrado" });
     }
 
-    // ========== VALIDAÇÃO 7: Horários de funcionamento (sempre de SiteSettings) ==========
+    // ========== VALIDAÇÃO 7: Horários de funcionamento ==========
     const reservationDateTime = new Date(reservationDate);
     const days = [
       "sunday",
@@ -140,36 +140,60 @@ exports.createReservation = async (req, res) => {
     ];
     const dayKey = days[reservationDateTime.getDay()];
 
-    // SEMPRE usar SiteSettings como source of truth para horários de funcionamento
-    const siteSettings = await SiteSettings.findOne();
-    let todayHours = null;
+    // Tentar usar horários do barbeiro PRIMEIRO
+    let todayHours = barber.workingHours[dayKey];
 
-    if (
-      siteSettings &&
-      siteSettings.hoursRows &&
-      siteSettings.hoursRows.length > 0
-    ) {
-      const dayName = [
-        "Domingo",
-        "Segunda",
-        "Terça",
-        "Quarta",
-        "Quinta",
-        "Sexta",
-        "Sábado",
-      ][reservationDateTime.getDay()];
-      const globalHours = siteSettings.hoursRows.find(
-        (row) => row.day === dayName || row.day === dayKey,
-      );
+    // Se o barbeiro não tiver horários para este dia, usar SiteSettings
+    if (!todayHours || !todayHours.start || !todayHours.end) {
+      const siteSettings = await SiteSettings.findOne();
+      if (
+        siteSettings &&
+        siteSettings.hoursRows &&
+        siteSettings.hoursRows.length > 0
+      ) {
+        // Procurar por day, dayKey, ou por índice numérico
+        let globalHours = siteSettings.hoursRows.find(
+          (row) =>
+            row.day === dayKey ||
+            row.day === [
+              "Domingo",
+              "Segunda",
+              "Terça",
+              "Quarta",
+              "Quinta",
+              "Sexta",
+              "Sábado",
+            ][reservationDateTime.getDay()] ||
+            row.day === [
+              "Sunday",
+              "Monday",
+              "Tuesday",
+              "Wednesday",
+              "Thursday",
+              "Friday",
+              "Saturday",
+            ][reservationDateTime.getDay()],
+        );
 
-      if (globalHours && globalHours.start && globalHours.end) {
-        todayHours = { start: globalHours.start, end: globalHours.end };
+        if (globalHours && globalHours.start && globalHours.end) {
+          todayHours = { start: globalHours.start, end: globalHours.end };
+        }
       }
     }
 
     if (!todayHours || !todayHours.start || !todayHours.end) {
       return res.status(400).json({
-        error: "Horários de funcionamento não definidos para este dia",
+        error: `Horários de funcionamento não definidos para ${
+          [
+            "Domingo",
+            "Segunda",
+            "Terça",
+            "Quarta",
+            "Quinta",
+            "Sexta",
+            "Sábado",
+          ][reservationDateTime.getDay()]
+        }`,
       });
     }
 
