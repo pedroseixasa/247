@@ -947,11 +947,22 @@
     <script>
         const API_URL = "https://two4-7-barbearia.onrender.com/api";
         let token = localStorage.getItem('admin_token');
-        let currentUser = JSON.parse(localStorage.getItem('admin_user') || '{}');
 
-        // Garantir que currentUser tem role definido
-        if (!currentUser.role) {
-            currentUser.role = null;
+        function normalizeCurrentUser(user) {
+            if (!user || typeof user !== 'object') {
+                return { role: null };
+            }
+            return {
+                ...user,
+                role: user.role || null
+            };
+        }
+
+        let currentUser;
+        try {
+            currentUser = normalizeCurrentUser(JSON.parse(localStorage.getItem('admin_user') || '{}'));
+        } catch (error) {
+            currentUser = { role: null };
         }
 
         // Função auxiliar: garante que token está carregado do localStorage
@@ -1006,7 +1017,7 @@
                     }
 
                     token = data.token;
-                    currentUser = data.barber;
+                    currentUser = normalizeCurrentUser(data.barber || data.user);
                     localStorage.setItem('admin_token', token);
                     localStorage.setItem('admin_user', JSON.stringify(currentUser));
 
@@ -1521,7 +1532,8 @@
         async function loadReservations(container) {
             try {
                 // Verificar se currentUser está autenticado
-                if (!currentUser || typeof currentUser !== 'object' || !currentUser.role) {
+                const userRole = currentUser && typeof currentUser === 'object' ? currentUser.role : null;
+                if (!userRole) {
                     container.innerHTML = '<div class="alert alert-error">Erro: Utilizador não autenticado. Por favor, faça login novamente.</div>';
                     return;
                 }
@@ -1535,14 +1547,14 @@
 
                 container.innerHTML = '<p>A carregar reservas...</p>';
 
-                const barbers = currentUser.role === 'admin' ? await fetchBarbers() : [];
-                const defaultBarberId = currentUser.role === 'admin' ? getDefaultBarberId() : '';
-                const barberOptions = currentUser.role === 'admin'
+                const barbers = userRole === 'admin' ? await fetchBarbers() : [];
+                const defaultBarberId = userRole === 'admin' ? getDefaultBarberId() : '';
+                const barberOptions = userRole === 'admin'
                     ? buildBarberOptions(barbers, defaultBarberId)
                     : '';
 
                 let reservationsUrl;
-                if (currentUser.role === 'barber') {
+                if (userRole === 'barber') {
                     // Barber sees only own reservations
                     reservationsUrl = `${API_URL}/barber/reservations`;
                 } else {
@@ -1568,7 +1580,7 @@
                     let html = `
                         <div class="reservations-toolbar">
                             <span><strong>Total:</strong> ${futureReservations.length}</span>
-                            ${currentUser.role === 'admin' ? `
+                            ${userRole === 'admin' ? `
                                 <div style="display:flex; gap:0.75rem; flex-wrap: wrap;">
                                     <select id="reservationsBarberFilter">${barberOptions}</select>
                                     <button id="reservationsApply">Filtrar</button>
@@ -1701,7 +1713,7 @@
                 }
 
                 const attachReservationsFilter = () => {
-                    if (currentUser.role !== 'admin') return;
+                    if (userRole !== 'admin') return;
                     const applyButton = document.getElementById('reservationsApply');
                     if (!applyButton) return;
 
