@@ -948,7 +948,7 @@
         const API_URL = "https://two4-7-barbearia.onrender.com/api";
         let token = localStorage.getItem('admin_token');
         let currentUser = JSON.parse(localStorage.getItem('admin_user') || '{}');
-        
+
         // Garantir que currentUser tem role definido
         if (!currentUser.role) {
             currentUser.role = null;
@@ -1015,7 +1015,7 @@
                 showLoginPage();
                 return;
             }
-            
+
             const isAdmin = currentUser.role === 'admin';
             const menuItems = isAdmin
                 ? `
@@ -1511,7 +1511,7 @@
                     container.innerHTML = '<div class="alert alert-error">Erro: Utilizador não autenticado. Por favor, faça login novamente.</div>';
                     return;
                 }
-                
+
                 container.innerHTML = '<p>A carregar reservas...</p>';
 
                 const barbers = currentUser.role === 'admin' ? await fetchBarbers() : [];
