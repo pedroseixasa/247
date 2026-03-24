@@ -1564,9 +1564,13 @@
                         : `${API_URL}/admin/reservations`;
                 }
 
-                const reservations = await fetchJson(reservationsUrl, {
+                const reservationsResponse = await fetchJson(reservationsUrl, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
+
+                const reservations = Array.isArray(reservationsResponse)
+                    ? reservationsResponse
+                    : (Array.isArray(reservationsResponse?.reservations) ? reservationsResponse.reservations : []);
 
                 const buildReservationsHtml = (items) => {
                     const now = new Date();
@@ -1723,9 +1727,13 @@
                             ? `${API_URL}/admin/reservations?barberId=${barberId}`
                             : `${API_URL}/admin/reservations`;
 
-                        const refreshData = await fetchJson(url, {
+                        const refreshResponse = await fetchJson(url, {
                             headers: { 'Authorization': `Bearer ${token}` }
                         });
+
+                        const refreshData = Array.isArray(refreshResponse)
+                            ? refreshResponse
+                            : (Array.isArray(refreshResponse?.reservations) ? refreshResponse.reservations : []);
 
                         const updatedOptions = buildBarberOptions(barbers, barberId);
                         container.innerHTML = buildReservationsHtml(refreshData);

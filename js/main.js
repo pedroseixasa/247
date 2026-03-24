@@ -980,6 +980,9 @@ document.addEventListener("DOMContentLoaded", function () {
         if (window.updateBarberLunchBreak) {
           window.updateBarberLunchBreak(barberKey, barberData.lunchBreak);
         }
+        if (window.updateBarberWorkingHours) {
+          window.updateBarberWorkingHours(barberKey, barberData.workingHours);
+        }
       } catch (error) {
         console.error(`Erro ao carregar dados do barbeiro ${barberId}:`, error);
       }
@@ -1016,6 +1019,7 @@ document.addEventListener("DOMContentLoaded", function () {
     "diogo-cunha": {
       id: "6998aaf59119a721cdc1e136",
       name: "Diogo Cunha",
+      workingHours: null,
       lunchBreak: {
         enabled: undefined,
         startTime: "12:00",
@@ -1025,6 +1029,7 @@ document.addEventListener("DOMContentLoaded", function () {
     "ricardo-silva": {
       id: "6998aaf59119a721cdc1e137",
       name: FILMING_MODE_ACTIVE ? "Miguel Ferreira" : "Ricardo Silva",
+      workingHours: null,
       lunchBreak: {
         enabled: undefined,
         startTime: "12:00",
@@ -1047,7 +1052,38 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function getTimeSlotsForDate(date, serviceDuration = 60, barberData = null) {
-    const schedule = getScheduleForDay(date.getDay());
+    const dayNames = [
+      "sunday",
+      "monday",
+      "tuesday",
+      "wednesday",
+      "thursday",
+      "friday",
+      "saturday",
+    ];
+    const dayKey = dayNames[date.getDay()];
+
+    // Prioridade: workingHours do barbeiro (backend) para manter regra idêntica ao servidor
+    let schedule = null;
+    const barberWorkingHours = barberData?.workingHours?.[dayKey];
+    if (
+      barberWorkingHours &&
+      barberWorkingHours.start &&
+      barberWorkingHours.end &&
+      barberWorkingHours.start !== "closed" &&
+      barberWorkingHours.end !== "closed"
+    ) {
+      const [openH, openM] = barberWorkingHours.start.split(":").map(Number);
+      const [closeH, closeM] = barberWorkingHours.end.split(":").map(Number);
+      schedule = {
+        open: true,
+        openMinutes: openH * 60 + openM,
+        closeMinutes: closeH * 60 + closeM,
+      };
+    } else {
+      schedule = getScheduleForDay(date.getDay());
+    }
+
     if (!schedule || !schedule.open) return [];
 
     const slots = [];
@@ -1181,6 +1217,23 @@ document.addEventListener("DOMContentLoaded", function () {
     // Re-render slots se o barbeiro tiver sido selecionado
     if (bookingState.barber === barberKey && bookingState.date) {
       console.log("🔄 Re-rendering time slots with updated lunch break");
+      if (typeof window.reRenderTimeSlots === "function") {
+        window.reRenderTimeSlots();
+      }
+    }
+  };
+
+  // Função para atualizar workingHours de um barbeiro (carregado do endpoint /api/barbers/:id)
+  window.updateBarberWorkingHours = function (barberKey, workingHours) {
+    if (!barberKey || !barbers[barberKey]) {
+      return;
+    }
+
+    if (workingHours && typeof workingHours === "object") {
+      barbers[barberKey].workingHours = workingHours;
+    }
+
+    if (bookingState.barber === barberKey && bookingState.date) {
       if (typeof window.reRenderTimeSlots === "function") {
         window.reRenderTimeSlots();
       }
@@ -1928,34 +1981,29 @@ document.addEventListener("DOMContentLoaded", function () {
       // Um slot está ocupado se: slotStart < reservaFim && slotFim > reservaInício
       bookedSlots = {};
       const currentServiceDuration = bookingState.serviceDuration || 60;
-      const schedule = getScheduleForDay(
-        bookingState.date ? bookingState.date.getDay() : 0,
+      const barberData = barbers[bookingState.barber];
+      const generatedSlots = getTimeSlotsForDate(
+        bookingState.date,
+        currentServiceDuration,
+        barberData,
       );
 
-      if (schedule && schedule.open) {
-        // Iterar por cada slot possível com intervalo = duração do serviço
-        for (
-          let slotMinutes = schedule.openMinutes;
-          slotMinutes <= schedule.closeMinutes - currentServiceDuration;
-          slotMinutes += currentServiceDuration
-        ) {
-          const slotStartMinutes = slotMinutes;
-          const slotEndMinutes = slotMinutes + currentServiceDuration;
-          const slotTime = formatTime(slotMinutes);
+      generatedSlots.forEach((slotTime) => {
+        const [slotHour, slotMinute] = slotTime.split(":").map(Number);
+        const slotStartMinutes = slotHour * 60 + slotMinute;
+        const slotEndMinutes = slotStartMinutes + currentServiceDuration;
 
-          // Verificar se este slot sobrepõe com alguma reserva existente
-          const isConflict = bookedIntervals.some(
-            (reservation) =>
-              slotStartMinutes < reservation.end &&
-              slotEndMinutes > reservation.start,
-          );
+        const isConflict = bookedIntervals.some(
+          (reservation) =>
+            slotStartMinutes < reservation.end &&
+            slotEndMinutes > reservation.start,
+        );
 
-          if (isConflict) {
-            const key = `${bookingState.barber}-${dateStr}-${slotTime}`;
-            bookedSlots[key] = true;
-          }
+        if (isConflict) {
+          const key = `${bookingState.barber}-${dateStr}-${slotTime}`;
+          bookedSlots[key] = true;
         }
-      }
+      });
 
       renderTimeSlots();
     } catch (error) {

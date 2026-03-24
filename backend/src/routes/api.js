@@ -57,7 +57,7 @@ router.get("/barbers/:barberId", async (req, res) => {
   try {
     const { barberId } = req.params;
     const barber = await Barber.findById(barberId).select(
-      "name role lunchBreak avatar",
+      "name role lunchBreak avatar workingHours",
     );
     if (!barber) {
       return res.status(404).json({ error: "Barbeiro não encontrado" });
