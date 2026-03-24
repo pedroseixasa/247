@@ -1051,7 +1051,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!schedule || !schedule.open) return [];
 
     const slots = [];
-    const slotMinutes = serviceDuration; // Intervalo entre slots = duração do serviço
+    const slotMinutes = 30; // Sempre 30 minutos entre slots (09:00, 09:30, 10:00, 10:30...)
 
     // Último slot deve permitir que o serviço termine antes do fecho
     // Ex: Fecho às 18:00 (1080 min), serviço de 90 min → último slot às 16:30 (990 min)
