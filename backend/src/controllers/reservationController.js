@@ -32,6 +32,137 @@ function getTwilioClient() {
   return client;
 }
 
+const DAY_KEYS = [
+  "sunday",
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+];
+
+const DAY_LABELS_PT = [
+  "Domingo",
+  "Segunda",
+  "Terça",
+  "Quarta",
+  "Quinta",
+  "Sexta",
+  "Sábado",
+];
+
+function normalizeText(value) {
+  return (value || "")
+    .toString()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toUpperCase()
+    .trim();
+}
+
+function toMinutes(timeStr) {
+  if (!timeStr || typeof timeStr !== "string") return null;
+  const match = timeStr.match(/^([0-1][0-9]|2[0-3]):([0-5][0-9])$/);
+  if (!match) return null;
+  return Number(match[1]) * 60 + Number(match[2]);
+}
+
+function toHHmm(totalMinutes) {
+  const h = String(Math.floor(totalMinutes / 60)).padStart(2, "0");
+  const m = String(totalMinutes % 60).padStart(2, "0");
+  return `${h}:${m}`;
+}
+
+function parseRangeFromValue(value) {
+  const text = normalizeText(value);
+  if (!text || text.includes("ENCERRADO") || text.includes("FECHADO")) {
+    return null;
+  }
+  const match = text.match(/(\d{1,2}:\d{2})\s*[\u2013\-]\s*(\d{1,2}:\d{2})/);
+  if (!match) return null;
+  const start = match[1].padStart(5, "0");
+  const end = match[2].padStart(5, "0");
+  if (toMinutes(start) === null || toMinutes(end) === null) return null;
+  return { start, end };
+}
+
+function parseSiteHoursRows(hoursRows) {
+  const dayMap = {
+    DOMINGO: 0,
+    SEGUNDA: 1,
+    SEGUNDAFEIRA: 1,
+    TERCA: 2,
+    TERCAFEIRA: 2,
+    QUARTA: 3,
+    QUARTAFEIRA: 3,
+    QUINTA: 4,
+    QUINTAFEIRA: 4,
+    SEXTA: 5,
+    SEXTAFEIRA: 5,
+    SABADO: 6,
+  };
+
+  const result = {};
+  (hoursRows || []).forEach((row) => {
+    const label = normalizeText(row.label || "").replace(/\s+/g, " ");
+    if (!label) return;
+
+    const days = [];
+    const parts = label.split(" A ");
+    if (parts.length === 2) {
+      const startKey = parts[0].replace(/\s|\-FEIRA/g, "");
+      const endKey = parts[1].replace(/\s|\-FEIRA/g, "");
+      const start = dayMap[startKey];
+      const end = dayMap[endKey];
+      if (start !== undefined && end !== undefined) {
+        if (start <= end) {
+          for (let d = start; d <= end; d++) days.push(d);
+        } else {
+          for (let d = start; d <= 6; d++) days.push(d);
+          for (let d = 0; d <= end; d++) days.push(d);
+        }
+      }
+    } else {
+      const key = label.replace(/\s|\-FEIRA/g, "");
+      if (dayMap[key] !== undefined) {
+        days.push(dayMap[key]);
+      }
+    }
+
+    const range = parseRangeFromValue(row.value || "");
+    days.forEach((dayIndex) => {
+      result[DAY_KEYS[dayIndex]] = range;
+    });
+  });
+
+  return result;
+}
+
+function normalizeWorkingHours(hours) {
+  if (!hours || !hours.start || !hours.end) return null;
+  if (hours.start === "closed" || hours.end === "closed") return null;
+  if (toMinutes(hours.start) === null || toMinutes(hours.end) === null)
+    return null;
+  return { start: hours.start, end: hours.end };
+}
+
+function getRestrictiveHours(globalHours, barberHours) {
+  if (globalHours && barberHours) {
+    const openMinutes = Math.max(
+      toMinutes(globalHours.start),
+      toMinutes(barberHours.start),
+    );
+    const closeMinutes = Math.min(
+      toMinutes(globalHours.end),
+      toMinutes(barberHours.end),
+    );
+    if (closeMinutes <= openMinutes) return null;
+    return { start: toHHmm(openMinutes), end: toHHmm(closeMinutes) };
+  }
+  return globalHours || barberHours || null;
+}
+
 exports.createReservation = async (req, res) => {
   try {
     const {
@@ -129,72 +260,24 @@ exports.createReservation = async (req, res) => {
 
     // ========== VALIDAÇÃO 7: Horários de funcionamento ==========
     const reservationDateTime = new Date(reservationDate);
-    const days = [
-      "sunday",
-      "monday",
-      "tuesday",
-      "wednesday",
-      "thursday",
-      "friday",
-      "saturday",
-    ];
-    const dayKey = days[reservationDateTime.getDay()];
+    const dayIndex = reservationDateTime.getDay();
+    const dayKey = DAY_KEYS[dayIndex];
 
-    // Tentar usar horários do barbeiro PRIMEIRO
-    let todayHours = barber.workingHours[dayKey];
+    // Fonte principal: SiteSettings (horário da barbearia)
+    const siteSettings = await SiteSettings.findOne();
+    const parsedSiteHours = parseSiteHoursRows(siteSettings?.hoursRows || []);
+    const globalHours = normalizeWorkingHours(parsedSiteHours[dayKey]);
 
-    // Se o barbeiro não tiver horários para este dia, usar SiteSettings
-    if (!todayHours || !todayHours.start || !todayHours.end) {
-      const siteSettings = await SiteSettings.findOne();
-      if (
-        siteSettings &&
-        siteSettings.hoursRows &&
-        siteSettings.hoursRows.length > 0
-      ) {
-        // Procurar por day, dayKey, ou por índice numérico
-        let globalHours = siteSettings.hoursRows.find(
-          (row) =>
-            row.day === dayKey ||
-            row.day ===
-              [
-                "Domingo",
-                "Segunda",
-                "Terça",
-                "Quarta",
-                "Quinta",
-                "Sexta",
-                "Sábado",
-              ][reservationDateTime.getDay()] ||
-            row.day ===
-              [
-                "Sunday",
-                "Monday",
-                "Tuesday",
-                "Wednesday",
-                "Thursday",
-                "Friday",
-                "Saturday",
-              ][reservationDateTime.getDay()],
-        );
+    // Fallback/Restrição adicional: horário específico do barbeiro
+    const barberHours = normalizeWorkingHours(barber.workingHours?.[dayKey]);
 
-        if (globalHours && globalHours.start && globalHours.end) {
-          todayHours = { start: globalHours.start, end: globalHours.end };
-        }
-      }
-    }
+    // Regra: se ambos existem, usa o mais restritivo
+    const todayHours = getRestrictiveHours(globalHours, barberHours);
 
     if (!todayHours || !todayHours.start || !todayHours.end) {
       return res.status(400).json({
         error: `Horários de funcionamento não definidos para ${
-          [
-            "Domingo",
-            "Segunda",
-            "Terça",
-            "Quarta",
-            "Quinta",
-            "Sexta",
-            "Sábado",
-          ][reservationDateTime.getDay()]
+          DAY_LABELS_PT[dayIndex]
         }`,
       });
     }
@@ -208,10 +291,22 @@ exports.createReservation = async (req, res) => {
     // Duração vem SEMPRE da DB - nunca inventar
     const newEnd = new Date(newStart.getTime() + service.duration * 60000);
 
-    // Hora de fecho do barbeiro
+    // Hora de abertura/fecho efetiva (barbearia + barbeiro, mais restritiva)
+    const [openH, openM] = todayHours.start.split(":").map(Number);
+    const openTime = new Date(newStart);
+    openTime.setHours(openH, openM, 0, 0);
+
     const [closeH, closeM] = todayHours.end.split(":").map(Number);
     const closeTime = new Date(newStart);
     closeTime.setHours(closeH, closeM, 0, 0);
+
+    if (newStart < openTime) {
+      return res.status(400).json({
+        error:
+          "A marcação está fora do horário de funcionamento. A barbearia abre às " +
+          todayHours.start,
+      });
+    }
 
     if (newEnd > closeTime) {
       return res.status(400).json({

@@ -3297,6 +3297,79 @@
                             </form>
                         </div>
 
+                        <!-- Seção: Horários de Trabalho -->
+                        <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid #e0e0e0;">
+                            <h3 style="margin-top: 0; color: #1a1a1a; display: flex; align-items: center; gap: 0.5rem;">
+                                <span>🕒</span>
+                                <span>Os meus horários</span>
+                            </h3>
+                            <p style="color: var(--text-light); margin-top: 0; margin-bottom: 1rem;">Defina o seu horário por dia. Se marcar folga, esse dia fica sem marcações.</p>
+
+                            <form id="workingHoursForm">
+                                <div id="workingHoursGrid" style="display: grid; gap: 0.75rem;">
+                                    <div style="display:grid; grid-template-columns: 140px 1fr 1fr 110px; gap: 0.75rem; font-weight: 700; color: #555; font-size: 0.9rem;">
+                                        <div>Dia</div>
+                                        <div>Início</div>
+                                        <div>Fim</div>
+                                        <div>Folga</div>
+                                    </div>
+
+                                    <div style="display:grid; grid-template-columns: 140px 1fr 1fr 110px; gap: 0.75rem; align-items: center;">
+                                        <label style="font-weight: 600;">Segunda</label>
+                                        <input type="time" id="wh_monday_start" style="padding: 0.65rem; border: 1px solid var(--border); border-radius: 4px;" />
+                                        <input type="time" id="wh_monday_end" style="padding: 0.65rem; border: 1px solid var(--border); border-radius: 4px;" />
+                                        <label style="display:flex; align-items:center; gap:0.4rem;"><input type="checkbox" id="wh_monday_closed" /> Folga</label>
+                                    </div>
+
+                                    <div style="display:grid; grid-template-columns: 140px 1fr 1fr 110px; gap: 0.75rem; align-items: center;">
+                                        <label style="font-weight: 600;">Terça</label>
+                                        <input type="time" id="wh_tuesday_start" style="padding: 0.65rem; border: 1px solid var(--border); border-radius: 4px;" />
+                                        <input type="time" id="wh_tuesday_end" style="padding: 0.65rem; border: 1px solid var(--border); border-radius: 4px;" />
+                                        <label style="display:flex; align-items:center; gap:0.4rem;"><input type="checkbox" id="wh_tuesday_closed" /> Folga</label>
+                                    </div>
+
+                                    <div style="display:grid; grid-template-columns: 140px 1fr 1fr 110px; gap: 0.75rem; align-items: center;">
+                                        <label style="font-weight: 600;">Quarta</label>
+                                        <input type="time" id="wh_wednesday_start" style="padding: 0.65rem; border: 1px solid var(--border); border-radius: 4px;" />
+                                        <input type="time" id="wh_wednesday_end" style="padding: 0.65rem; border: 1px solid var(--border); border-radius: 4px;" />
+                                        <label style="display:flex; align-items:center; gap:0.4rem;"><input type="checkbox" id="wh_wednesday_closed" /> Folga</label>
+                                    </div>
+
+                                    <div style="display:grid; grid-template-columns: 140px 1fr 1fr 110px; gap: 0.75rem; align-items: center;">
+                                        <label style="font-weight: 600;">Quinta</label>
+                                        <input type="time" id="wh_thursday_start" style="padding: 0.65rem; border: 1px solid var(--border); border-radius: 4px;" />
+                                        <input type="time" id="wh_thursday_end" style="padding: 0.65rem; border: 1px solid var(--border); border-radius: 4px;" />
+                                        <label style="display:flex; align-items:center; gap:0.4rem;"><input type="checkbox" id="wh_thursday_closed" /> Folga</label>
+                                    </div>
+
+                                    <div style="display:grid; grid-template-columns: 140px 1fr 1fr 110px; gap: 0.75rem; align-items: center;">
+                                        <label style="font-weight: 600;">Sexta</label>
+                                        <input type="time" id="wh_friday_start" style="padding: 0.65rem; border: 1px solid var(--border); border-radius: 4px;" />
+                                        <input type="time" id="wh_friday_end" style="padding: 0.65rem; border: 1px solid var(--border); border-radius: 4px;" />
+                                        <label style="display:flex; align-items:center; gap:0.4rem;"><input type="checkbox" id="wh_friday_closed" /> Folga</label>
+                                    </div>
+
+                                    <div style="display:grid; grid-template-columns: 140px 1fr 1fr 110px; gap: 0.75rem; align-items: center;">
+                                        <label style="font-weight: 600;">Sábado</label>
+                                        <input type="time" id="wh_saturday_start" style="padding: 0.65rem; border: 1px solid var(--border); border-radius: 4px;" />
+                                        <input type="time" id="wh_saturday_end" style="padding: 0.65rem; border: 1px solid var(--border); border-radius: 4px;" />
+                                        <label style="display:flex; align-items:center; gap:0.4rem;"><input type="checkbox" id="wh_saturday_closed" /> Folga</label>
+                                    </div>
+
+                                    <div style="display:grid; grid-template-columns: 140px 1fr 1fr 110px; gap: 0.75rem; align-items: center;">
+                                        <label style="font-weight: 600;">Domingo</label>
+                                        <input type="time" id="wh_sunday_start" style="padding: 0.65rem; border: 1px solid var(--border); border-radius: 4px;" />
+                                        <input type="time" id="wh_sunday_end" style="padding: 0.65rem; border: 1px solid var(--border); border-radius: 4px;" />
+                                        <label style="display:flex; align-items:center; gap:0.4rem;"><input type="checkbox" id="wh_sunday_closed" /> Folga</label>
+                                    </div>
+                                </div>
+
+                                <button type="submit" style="background: #6f42c1; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 4px; cursor: pointer; font-weight: 600; margin-top: 1rem;">
+                                    Guardar Horários
+                                </button>
+                            </form>
+                        </div>
+
                         <!-- Seção: Segurança -->
                         <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; border: 1px solid #e0e0e0;">
                             <h3 style="margin-top: 0; color: #1a1a1a; display: flex; align-items: center; gap: 0.5rem;">
@@ -3330,6 +3403,22 @@
         }
 
         function setupProfileForms() {
+            const workingDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+
+            const toggleWorkingHoursRow = (day) => {
+                const closed = document.getElementById(`wh_${day}_closed`);
+                const start = document.getElementById(`wh_${day}_start`);
+                const end = document.getElementById(`wh_${day}_end`);
+                if (!closed || !start || !end) return;
+                const isClosed = closed.checked;
+                start.disabled = isClosed;
+                end.disabled = isClosed;
+                if (isClosed) {
+                    start.value = '';
+                    end.value = '';
+                }
+            };
+
             // Carregar dados atuais do perfil
             loadProfileData();
 
@@ -3339,6 +3428,14 @@
 
             checkboxLunch.addEventListener('change', () => {
                 lunchTimes.style.display = checkboxLunch.checked ? 'block' : 'none';
+            });
+
+            // Bind toggles de folga por dia
+            workingDays.forEach((day) => {
+                const closed = document.getElementById(`wh_${day}_closed`);
+                if (closed) {
+                    closed.addEventListener('change', () => toggleWorkingHoursRow(day));
+                }
             });
 
             // Form: Email pessoal
@@ -3420,6 +3517,58 @@
                 });
             }
 
+            // Form: Horários de trabalho
+            const workingHoursForm = document.getElementById('workingHoursForm');
+            if (workingHoursForm) {
+                workingHoursForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+
+                    const workingHoursPayload = {};
+
+                    for (const day of workingDays) {
+                        const isClosed = document.getElementById(`wh_${day}_closed`).checked;
+                        const start = document.getElementById(`wh_${day}_start`).value;
+                        const end = document.getElementById(`wh_${day}_end`).value;
+
+                        if (isClosed) {
+                            workingHoursPayload[day] = { start: 'closed', end: 'closed' };
+                            continue;
+                        }
+
+                        if (!start || !end) {
+                            showStatusModal(`Preencha início e fim para ${day}`, 'error');
+                            return;
+                        }
+
+                        if (start >= end) {
+                            showStatusModal(`A hora de fim deve ser após a hora de início em ${day}`, 'error');
+                            return;
+                        }
+
+                        workingHoursPayload[day] = { start, end };
+                    }
+
+                    try {
+                        const response = await fetch(`${API_URL}/auth/update-profile`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({ workingHours: workingHoursPayload })
+                        });
+
+                        const data = await response.json();
+                        if (!response.ok) throw new Error(data.error || 'Erro ao guardar horários');
+
+                        showStatusModal('Horários de trabalho guardados!', 'success');
+                        currentUser.workingHours = workingHoursPayload;
+                    } catch (error) {
+                        showStatusModal(error.message, 'error');
+                    }
+                });
+            }
+
             // Form: Mudar password
             const passwordForm = document.getElementById('changePasswordForm');
             if (passwordForm) {
@@ -3493,6 +3642,29 @@
                     if (lunchEndInput) lunchEndInput.value = barber.lunchBreak.endTime || '13:00';
                     if (lunchTimes) lunchTimes.style.display = (barber.lunchBreak.enabled ? 'block' : 'none');
                 }
+
+                // Preencher horários de trabalho
+                const workingDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+                const hours = barber.workingHours || {};
+
+                workingDays.forEach((day) => {
+                    const dayHours = hours[day] || { start: 'closed', end: 'closed' };
+                    const isClosed = dayHours.start === 'closed' || dayHours.end === 'closed' || !dayHours.start || !dayHours.end;
+
+                    const closedInput = document.getElementById(`wh_${day}_closed`);
+                    const startInput = document.getElementById(`wh_${day}_start`);
+                    const endInput = document.getElementById(`wh_${day}_end`);
+
+                    if (closedInput) closedInput.checked = isClosed;
+                    if (startInput) {
+                        startInput.value = isClosed ? '' : dayHours.start;
+                        startInput.disabled = isClosed;
+                    }
+                    if (endInput) {
+                        endInput.value = isClosed ? '' : dayHours.end;
+                        endInput.disabled = isClosed;
+                    }
+                });
             } catch (error) {
                 console.warn('Erro ao carregar dados do perfil:', error);
             }

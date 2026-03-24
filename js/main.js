@@ -1063,8 +1063,11 @@ document.addEventListener("DOMContentLoaded", function () {
     ];
     const dayKey = dayNames[date.getDay()];
 
-    // Prioridade: workingHours do barbeiro (backend) para manter regra idêntica ao servidor
-    let schedule = null;
+    // Horário global da barbearia (SiteSettings)
+    const globalSchedule = getScheduleForDay(date.getDay());
+
+    // Horário específico do barbeiro
+    let barberSchedule = null;
     const barberWorkingHours = barberData?.workingHours?.[dayKey];
     if (
       barberWorkingHours &&
@@ -1075,13 +1078,31 @@ document.addEventListener("DOMContentLoaded", function () {
     ) {
       const [openH, openM] = barberWorkingHours.start.split(":").map(Number);
       const [closeH, closeM] = barberWorkingHours.end.split(":").map(Number);
-      schedule = {
+      barberSchedule = {
         open: true,
         openMinutes: openH * 60 + openM,
         closeMinutes: closeH * 60 + closeM,
       };
-    } else {
-      schedule = getScheduleForDay(date.getDay());
+    }
+
+    // Regra: usar sempre o horário mais restritivo entre barbearia e barbeiro
+    let schedule = null;
+    if (globalSchedule?.open && barberSchedule?.open) {
+      const openMinutes = Math.max(
+        globalSchedule.openMinutes,
+        barberSchedule.openMinutes,
+      );
+      const closeMinutes = Math.min(
+        globalSchedule.closeMinutes,
+        barberSchedule.closeMinutes,
+      );
+      if (closeMinutes > openMinutes) {
+        schedule = { open: true, openMinutes, closeMinutes };
+      }
+    } else if (globalSchedule?.open) {
+      schedule = globalSchedule;
+    } else if (barberSchedule?.open) {
+      schedule = barberSchedule;
     }
 
     if (!schedule || !schedule.open) return [];

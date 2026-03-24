@@ -127,7 +127,7 @@ exports.getProfile = async (req, res) => {
 
 exports.updateProfile = async (req, res) => {
   try {
-    const { notificationEmail, lunchBreak } = req.body;
+    const { notificationEmail, lunchBreak, workingHours } = req.body;
 
     if (!req.barberId) {
       return res.status(401).json({ error: "Utilizador não autenticado" });
@@ -175,6 +175,62 @@ exports.updateProfile = async (req, res) => {
         }
       }
       barber.lunchBreak = lunchBreak;
+    }
+
+    // Atualizar horários de trabalho (segunda a domingo)
+    if (workingHours !== undefined) {
+      if (!workingHours || typeof workingHours !== "object") {
+        return res
+          .status(400)
+          .json({ error: "Horários de trabalho inválidos" });
+      }
+
+      const validDays = [
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday",
+        "sunday",
+      ];
+      const timeRegex = /^([0-1][0-9]|2[0-3]):[0-5][0-9]$/;
+      const normalizedHours = {};
+
+      for (const day of validDays) {
+        const dayHours = workingHours[day];
+        if (!dayHours || typeof dayHours !== "object") {
+          normalizedHours[day] = { start: "closed", end: "closed" };
+          continue;
+        }
+
+        const start = dayHours.start;
+        const end = dayHours.end;
+
+        // Folga: ambos closed
+        if (start === "closed" || end === "closed") {
+          normalizedHours[day] = { start: "closed", end: "closed" };
+          continue;
+        }
+
+        if (!timeRegex.test(start || "") || !timeRegex.test(end || "")) {
+          return res
+            .status(400)
+            .json({ error: `Formato de hora inválido em ${day} (HH:mm)` });
+        }
+
+        if (start >= end) {
+          return res
+            .status(400)
+            .json({
+              error: `Hora de início deve ser antes da hora de fim em ${day}`,
+            });
+        }
+
+        normalizedHours[day] = { start, end };
+      }
+
+      barber.workingHours = normalizedHours;
     }
 
     await barber.save();
