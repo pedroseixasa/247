@@ -1116,7 +1116,7 @@
             });
 
             // Carregar página inicial baseado no role
-            const initialPage = currentUser.role === 'admin' ? 'dashboard' : 'reservations';
+            const initialPage = isAdmin ? 'dashboard' : 'reservations';
             loadPage(initialPage);
         }
 
