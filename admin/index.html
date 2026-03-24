@@ -1113,6 +1113,12 @@
         }
 
         async function loadPage(page) {
+            // Verificar autenticação ANTES de qualquer coisa
+            if (!currentUser || !currentUser.role || !token) {
+                showLoginPage();
+                return;
+            }
+
             const pageTitles = {
                 'dashboard': '📊 Dashboard',
                 'reservations': currentUser.role === 'admin' ? '📅 Reservas' : '📅 Minhas Reservas',
