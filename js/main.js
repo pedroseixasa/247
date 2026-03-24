@@ -961,7 +961,10 @@ document.addEventListener("DOMContentLoaded", function () {
       try {
         const response = await fetch(`${API_BASE_URL}/barbers/${barberId}`);
         if (!response.ok) {
-          console.warn(`Falha ao carregar barbeiro ${barberId}:`, response.status);
+          console.warn(
+            `Falha ao carregar barbeiro ${barberId}:`,
+            response.status,
+          );
           continue;
         }
 
@@ -1151,14 +1154,16 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    console.log(
-      `🔧 updateBarberLunchBreak called with:`,
-      { barberKey, lunchBreak, type: typeof lunchBreak },
-    );
-    console.log(
-      `🔧 Detailed lunchBreak structure:`,
-      { enabled: lunchBreak?.enabled, startTime: lunchBreak?.startTime, endTime: lunchBreak?.endTime },
-    );
+    console.log(`🔧 updateBarberLunchBreak called with:`, {
+      barberKey,
+      lunchBreak,
+      type: typeof lunchBreak,
+    });
+    console.log(`🔧 Detailed lunchBreak structure:`, {
+      enabled: lunchBreak?.enabled,
+      startTime: lunchBreak?.startTime,
+      endTime: lunchBreak?.endTime,
+    });
 
     if (lunchBreak && typeof lunchBreak === "object") {
       barbers[barberKey].lunchBreak = lunchBreak;
@@ -1167,7 +1172,10 @@ document.addEventListener("DOMContentLoaded", function () {
         barbers[barberKey].lunchBreak,
       );
     } else {
-      console.warn(`⚠️ Sem dados válidos de lunch break para ${barberKey}. Recebido:`, lunchBreak);
+      console.warn(
+        `⚠️ Sem dados válidos de lunch break para ${barberKey}. Recebido:`,
+        lunchBreak,
+      );
     }
 
     // Re-render slots se o barbeiro tiver sido selecionado
