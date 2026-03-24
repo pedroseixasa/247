@@ -1630,6 +1630,23 @@ document.addEventListener("DOMContentLoaded", function () {
       const dayOfWeek = date.getDay();
       const isPast = date < today;
       const isWorkDay = barberWorkDays.includes(dayOfWeek);
+
+      // Verificar folga do barbeiro
+      const dayKeys = [
+        "sunday",
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday",
+      ];
+      const dayKey = dayKeys[dayOfWeek];
+      const barberData = barbers[bookingState.barber];
+      const barberDayHours = barberData?.workingHours?.[dayKey];
+      const isBarberDayOff =
+        barberDayHours &&
+        (barberDayHours.start === "closed" || barberDayHours.end === "closed");
       const isSelected =
         bookingState.date &&
         bookingState.date.getDate() === day &&
@@ -1637,7 +1654,7 @@ document.addEventListener("DOMContentLoaded", function () {
         bookingState.date.getFullYear() === bookingState.selectedYear;
 
       let classes = "calendar-day";
-      if (isPast) classes += " disabled";
+      if (isPast || isBarberDayOff) classes += " disabled";
       else if (!isWorkDay) classes += " disabled";
       if (isSelected) classes += " selected";
 
@@ -1645,7 +1662,7 @@ document.addEventListener("DOMContentLoaded", function () {
       dayEl.className = classes;
       dayEl.textContent = day;
 
-      if (!isPast && isWorkDay) {
+      if (!isPast && isWorkDay && !isBarberDayOff) {
         dayEl.addEventListener("click", () =>
           selectDate(
             new Date(
