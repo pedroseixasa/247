@@ -220,11 +220,9 @@ exports.updateProfile = async (req, res) => {
         }
 
         if (start >= end) {
-          return res
-            .status(400)
-            .json({
-              error: `Hora de início deve ser antes da hora de fim em ${day}`,
-            });
+          return res.status(400).json({
+            error: `Hora de início deve ser antes da hora de fim em ${day}`,
+          });
         }
 
         normalizedHours[day] = { start, end };
@@ -233,7 +231,15 @@ exports.updateProfile = async (req, res) => {
       barber.workingHours = normalizedHours;
     }
 
-    await barber.save();
+    await Barber.findByIdAndUpdate(
+      req.barberId,
+      {
+        notificationEmail: barber.notificationEmail,
+        lunchBreak: barber.lunchBreak,
+        workingHours: barber.workingHours,
+      },
+      { runValidators: false },
+    );
 
     res.json({
       success: true,
