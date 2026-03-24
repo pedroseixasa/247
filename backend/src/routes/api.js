@@ -4,6 +4,7 @@ const reservationController = require("../controllers/reservationController");
 const adminController = require("../controllers/adminController");
 const cronController = require("../controllers/cronController");
 const { authMiddleware, adminMiddleware } = require("../middleware/auth");
+const Barber = require("../models/Barber");
 const {
   upload,
   optimizeUploadedImages,

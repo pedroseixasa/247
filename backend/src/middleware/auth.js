@@ -11,6 +11,12 @@ const authMiddleware = (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.barberId = decoded.id;
     req.barberRole = decoded.role;
+    // Backward-compatible shape used by several controllers
+    req.user = {
+      _id: decoded.id,
+      role: decoded.role,
+      name: decoded.name,
+    };
     next();
   } catch (error) {
     res.status(401).json({ error: "Token inválido ou expirado" });
