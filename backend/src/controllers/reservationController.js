@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const Reservation = require("../models/Reservation");
 const Barber = require("../models/Barber");
 const Service = require("../models/Service");
+const SiteSettings = require("../models/SiteSettings");
 const twilio = require("twilio");
 const crypto = require("crypto");
 const {
@@ -138,7 +139,31 @@ exports.createReservation = async (req, res) => {
       "saturday",
     ];
     const dayKey = days[reservationDateTime.getDay()];
-    const todayHours = barber.workingHours[dayKey];
+    let todayHours = barber.workingHours[dayKey];
+
+    // Se barbeiro não tiver horários customizados para o dia, usar horários globais do SiteSettings
+    if (!todayHours || !todayHours.start || !todayHours.end) {
+      const siteSettings = await SiteSettings.findOne();
+      if (siteSettings && siteSettings.hoursRows && siteSettings.hoursRows.length > 0) {
+        // Encontrar o dia na configuração global
+        const dayName = [
+          "Domingo",
+          "Segunda",
+          "Terça",
+          "Quarta",
+          "Quinta",
+          "Sexta",
+          "Sábado",
+        ][reservationDateTime.getDay()];
+        const globalHours = siteSettings.hoursRows.find(
+          (row) => row.day === dayName || row.day === dayKey,
+        );
+
+        if (globalHours && globalHours.start && globalHours.end) {
+          todayHours = { start: globalHours.start, end: globalHours.end };
+        }
+      }
+    }
 
     if (!todayHours || !todayHours.start || !todayHours.end) {
       return res.status(400).json({ error: "Barbeiro não trabalha neste dia" });
