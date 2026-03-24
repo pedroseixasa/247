@@ -144,7 +144,11 @@ exports.createReservation = async (req, res) => {
     const siteSettings = await SiteSettings.findOne();
     let todayHours = null;
 
-    if (siteSettings && siteSettings.hoursRows && siteSettings.hoursRows.length > 0) {
+    if (
+      siteSettings &&
+      siteSettings.hoursRows &&
+      siteSettings.hoursRows.length > 0
+    ) {
       const dayName = [
         "Domingo",
         "Segunda",
