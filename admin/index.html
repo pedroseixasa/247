@@ -2959,8 +2959,9 @@
             showEditServiceModal(serviceId);
         }
 
-        /*
         async function reorderService(serviceId, direction) {
+            var APIURL = 'https://two4-7-barbearia.onrender.com/api';
+            var token = localStorage.getItem('admintoken');
             try {
                 await fetchJson(`${APIURL}/admin/services/${serviceId}/reorder`, {
                     method: 'POST',
@@ -2976,7 +2977,7 @@
                 showStatusModal(error.message, 'error');
             }
         }
-        */
+
 
         async function cancelReservation(reservationId) {
             const confirmed = await showConfirmModal('Tem a certeza que quer cancelar esta reserva? Esta ação não pode ser desfeita!', {
