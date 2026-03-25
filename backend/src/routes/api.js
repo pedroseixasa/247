@@ -510,13 +510,4 @@ router.delete(
   },
 );
 
-router.get("/admin/fix-order", async (req, res) => {
-  const Service = require("../models/Service");
-  const services = await Service.find().sort({ _id: 1 });
-  for (let i = 0; i < services.length; i++) {
-    await Service.findByIdAndUpdate(services[i]._id, { order: i });
-  }
-  res.json({ ok: true, fixed: services.length });
-});
-
 module.exports = router;

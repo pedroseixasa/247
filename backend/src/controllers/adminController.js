@@ -263,13 +263,16 @@ exports.createService = async (req, res) => {
       imageUrl = req.body.imageUrl;
     }
 
+    const maxOrderService = await Service.findOne().sort({ order: -1 });
+    const nextOrder = maxOrderService ? maxOrderService.order + 1 : 0;
+
     const service = new Service({
       name,
       description,
       price: normalizedPrice,
       duration: duration || 30,
       image: imageUrl,
-      order: order || 0,
+      order: order !== undefined && order !== null ? order : nextOrder,
     });
 
     await service.save();
