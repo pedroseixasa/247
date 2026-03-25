@@ -938,6 +938,59 @@
             background: #111;
             color: #fff;
         }
+
+        /* Profile - Working Hours Mobile */
+        @media (max-width: 768px) {
+            .wh-row {
+                display: grid !important;
+                grid-template-columns: 80px 1fr 1fr auto !important;
+                align-items: center !important;
+                gap: 0.4rem !important;
+                padding: 0.5rem 0 !important;
+                border-bottom: 1px solid #eee !important;
+            }
+
+            .wh-row label {
+                font-size: 0.8rem !important;
+                font-weight: 600 !important;
+            }
+
+            .wh-row input[type="time"] {
+                padding: 0.4rem 0.3rem !important;
+                font-size: 0.8rem !important;
+                width: 100% !important;
+                min-width: 0 !important;
+            }
+
+            .wh-row input[type="checkbox"] {
+                width: 18px !important;
+                height: 18px !important;
+            }
+
+            /* Botões do perfil */
+            #lunchBreakForm button,
+            #workingHoursForm button[type="submit"],
+            #contactInfoForm button[type="submit"] {
+                width: 100% !important;
+                margin-top: 0.5rem !important;
+            }
+
+            /* Cards do perfil */
+            #content .card {
+                padding: 1rem !important;
+            }
+
+            #content .card h2 {
+                font-size: 1.1rem !important;
+            }
+
+            /* Secções do perfil */
+            #content>div>div[style*="background: #f8f9fa"],
+            #content>div>div[style*="background:#f8f9fa"] {
+                padding: 1rem !important;
+                margin-bottom: 1rem !important;
+            }
+        }
     </style>
 </head>
 
