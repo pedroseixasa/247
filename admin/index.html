@@ -2969,7 +2969,8 @@
                     },
                     body: JSON.stringify({ direction })
                 });
-                loadPage('services');
+                const content = document.getElementById('content');
+                loadServices(content);
             } catch (error) {
                 showStatusModal(error.message, 'error');
             }
