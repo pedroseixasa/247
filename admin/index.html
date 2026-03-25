@@ -2960,8 +2960,9 @@
         }
 
         async function reorderService(serviceId, direction) {
-            var APIURL = 'https://two4-7-barbearia.onrender.com/api';
-            var token = localStorage.getItem('admintoken');
+            const APIURL = 'https://two4-7-barbearia.onrender.com/api';
+            const token = localStorage.getItem('admintoken') || window.token;
+            if (!token) { showStatusModal('Sessão expirada. Faz login novamente.', 'error'); return; }
             try {
                 await fetchJson(`${APIURL}/admin/services/${serviceId}/reorder`, {
                     method: 'POST',
