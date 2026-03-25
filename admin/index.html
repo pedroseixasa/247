@@ -1205,26 +1205,29 @@
             return `€${formatted}`;
         }
 
-        async function fetchJson(url, options = {}) {
-            const response = await fetch(url, options);
-            const text = await response.text();
-            let data = {};
-
-            if (text) {
+        async function fetchJson(url, options = {}, retries = 3, delayMs = 1000) {
+            for (let attempt = 0; attempt < retries; attempt++) {
                 try {
-                    data = JSON.parse(text);
-                } catch (error) {
-                    throw new Error('Resposta inválida do servidor. Reinicia o backend.');
+                    const response = await fetch(url, options);
+                    const text = await response.text();
+                    let data;
+                    if (text) {
+                        try { data = JSON.parse(text); } catch (e) { throw new Error('Resposta inválida do servidor.'); }
+                    }
+                    if (response.status === 503 && attempt < retries - 1) {
+                        await new Promise(r => setTimeout(r, delayMs));
+                        continue;
+                    }
+                    if (!response.ok) throw new Error(data?.error || 'Erro ao comunicar com o servidor');
+                    return data;
+                } catch (err) {
+                    const isLastAttempt = attempt === retries - 1;
+                    const isNetworkError = err instanceof TypeError;
+                    if (isLastAttempt || !isNetworkError) throw err;
+                    await new Promise(r => setTimeout(r, delayMs));
                 }
             }
-
-            if (!response.ok) {
-                throw new Error(data.error || 'Erro ao comunicar com o servidor');
-            }
-
-            return data;
         }
-
         async function fetchBarbers() {
             return fetchJson(`${API_URL}/admin/barbers`, {
                 headers: { 'Authorization': `Bearer ${token}` }
