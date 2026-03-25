@@ -2960,13 +2960,12 @@
         }
 
         async function reorderService(serviceId, direction) {
-            const _APIURL = 'https://two4-7-barbearia.onrender.com/api';
-            const _token = token || localStorage.getItem('admintoken');
             try {
-                await fetchJson(`${_APIURL}/admin/services/${serviceId}/reorder`, {
+                const t = ensureToken();
+                await fetchJson(`${APIURL}/admin/services/${serviceId}/reorder`, {
                     method: 'POST',
                     headers: {
-                        'Authorization': 'Bearer ' + _token,
+                        'Authorization': 'Bearer ' + t,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({ direction })
