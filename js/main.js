@@ -981,9 +981,8 @@ document.addEventListener("DOMContentLoaded", function () {
         if (window.updateBarberWorkingHours) {
           window.updateBarberWorkingHours(barberKey, barberData.workingHours);
         }
-        // ✅ ADICIONA ESTAS 2 LINHAS:
         if (barberData.absences) {
-          barbers[barberKey].absences = barberData.absences;
+          window["absences_" + barberKey] = barberData.absences;
         }
       } catch (error) {
         console.error(`Erro ao carregar dados do barbeiro ${barberId}:`, error);
@@ -1782,7 +1781,10 @@ document.addEventListener("DOMContentLoaded", function () {
       })
       // ✅ NOVO filtro de ausências:
       .filter((time) => {
-        const absences = barberData?.absences || [];
+        const absences =
+          barberData?.absences ||
+          window["absences_" + bookingState.barber] ||
+          [];
         return !absences.some((absence) => {
           const absDate = new Date(absence.date).toISOString().split("T")[0];
           if (absDate !== dateKey) return false;
