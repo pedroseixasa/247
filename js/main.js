@@ -946,7 +946,6 @@ document.addEventListener("DOMContentLoaded", function () {
   async function loadBarberData() {
     const API_BASE_URL = "https://two4-7-barbearia.onrender.com/api";
 
-    // IDs dos barbeiros
     const barberIds = [
       "6998aaf59119a721cdc1e136", // Diogo Cunha
       "6998aaf59119a721cdc1e137", // Ricardo Silva
@@ -976,12 +975,15 @@ document.addEventListener("DOMContentLoaded", function () {
           lunchBreak: barberData.lunchBreak,
         });
 
-        // Atualizar dados do barbeiro na memória (será usado pela seção de reservas)
         if (window.updateBarberLunchBreak) {
           window.updateBarberLunchBreak(barberKey, barberData.lunchBreak);
         }
         if (window.updateBarberWorkingHours) {
           window.updateBarberWorkingHours(barberKey, barberData.workingHours);
+        }
+        // ✅ ADICIONA ESTAS 2 LINHAS:
+        if (barberData.absences) {
+          barbers[barberKey].absences = barberData.absences;
         }
       } catch (error) {
         console.error(`Erro ao carregar dados do barbeiro ${barberId}:`, error);
@@ -1768,25 +1770,31 @@ document.addEventListener("DOMContentLoaded", function () {
     const currentMinute = now.getMinutes();
 
     // Filtrar horários que já passaram se for hoje
-    const availableHours = barberHours.filter((time) => {
-      if (!isToday) {
-        return true; // Se não for hoje, todos os horários estão disponíveis
-      }
-
-      const [slotHour, slotMinute] = time.split(":").map(Number);
-
-      // Horário já passou se:
-      // - A hora do slot é menor que a hora atual, OU
-      // - A hora do slot é igual mas os minutos são menores ou iguais
-      if (slotHour < currentHour) {
-        return false;
-      }
-      if (slotHour === currentHour && slotMinute <= currentMinute) {
-        return false;
-      }
-
-      return true;
-    });
+    const availableHours = barberHours
+      .filter((time) => {
+        // código existente de filtrar horários passados...
+        if (!isToday) return true;
+        const [slotHour, slotMinute] = time.split(":").map(Number);
+        if (slotHour < currentHour) return false;
+        if (slotHour === currentHour && slotMinute <= currentMinute)
+          return false;
+        return true;
+      })
+      // ✅ NOVO filtro de ausências:
+      .filter((time) => {
+        const absences = barberData?.absences || [];
+        return !absences.some((absence) => {
+          const absDate = new Date(absence.date).toISOString().split("T")[0];
+          if (absDate !== dateKey) return false;
+          if (absence.type === "full") return true;
+          if (absence.type === "morning") return time < "13:00";
+          if (absence.type === "afternoon") return time >= "13:00";
+          if (absence.type === "specific") {
+            return time >= absence.startTime && time < absence.endTime;
+          }
+          return false;
+        });
+      });
 
     if (availableHours.length === 0) {
       timeSlotsContainer.innerHTML =
