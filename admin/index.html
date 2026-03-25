@@ -2961,18 +2961,14 @@
 
         async function reorderService(serviceId, direction) {
             try {
-                const response = await fetch(`${API_URL}admin/services/${serviceId}/reorder`, {
+                await fetchJson(`${APIURL}/admin/services/${serviceId}/reorder`, {
                     method: 'POST',
                     headers: {
                         'Authorization': 'Bearer ' + token,
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ direction }) // ✅ { direction: "up" } em vez de só "up"
+                    body: JSON.stringify({ direction })
                 });
-                if (!response.ok) {
-                    const error = await response.json();
-                    throw new Error(error.error || 'Erro ao reordenar');
-                }
                 loadPage('services');
             } catch (error) {
                 showStatusModal(error.message, 'error');
