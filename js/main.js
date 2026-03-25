@@ -1792,7 +1792,18 @@ document.addEventListener("DOMContentLoaded", function () {
           if (absence.type === "morning") return time < "13:00";
           if (absence.type === "afternoon") return time >= "13:00";
           if (absence.type === "specific") {
-            return time >= absence.startTime && time < absence.endTime;
+            const [slotH, slotM] = time.split(":").map(Number);
+            const slotEndMinutes =
+              slotH * 60 + slotM + bookingState.serviceDuration;
+            const [absStartH, absStartM] = absence.startTime
+              .split(":")
+              .map(Number);
+            const [absEndH, absEndM] = absence.endTime.split(":").map(Number);
+            const absStart = absStartH * 60 + absStartM;
+            const absEnd = absEndH * 60 + absEndM;
+            const slotStart = slotH * 60 + slotM;
+            // Bloqueia se o slot ou o serviço sobrepõe a ausência
+            return slotEndMinutes > absStart && slotStart < absEnd;
           }
           return false;
         });
