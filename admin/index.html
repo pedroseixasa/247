@@ -2964,7 +2964,7 @@
 
                 const _APIURL = 'https://two4-7-barbearia.onrender.com/api';
                 const t = ensureToken();
-                await fetchJson(`${APIURL}/admin/services/${serviceId}/reorder`, {
+                await fetchJson(`${_APIURL}/admin/services/${serviceId}/reorder`, {
                     method: 'POST',
                     headers: {
                         'Authorization': 'Bearer ' + t,
