@@ -2961,23 +2961,21 @@
 
         async function reorderService(serviceId, direction) {
             try {
-                const response = await fetch(`${API_URL}/admin/services/${serviceId}/reorder`, {
+                const response = await fetch(`${API_URL}admin/services/${serviceId}/reorder`, {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${token}`,
+                        'Authorization': 'Bearer ' + token,
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ direction })
+                    body: JSON.stringify({ direction }) // ✅ { direction: "up" } em vez de só "up"
                 });
-
                 if (!response.ok) {
                     const error = await response.json();
                     throw new Error(error.error || 'Erro ao reordenar');
                 }
-
                 loadPage('services');
             } catch (error) {
-                showStatusModal('Erro: ' + error.message, 'error');
+                showStatusModal(error.message, 'error');
             }
         }
 
