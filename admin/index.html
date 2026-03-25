@@ -2961,6 +2961,8 @@
 
         async function reorderService(serviceId, direction) {
             try {
+
+                const _APIURL = 'https://two4-7-barbearia.onrender.com/api';
                 const t = ensureToken();
                 await fetchJson(`${APIURL}/admin/services/${serviceId}/reorder`, {
                     method: 'POST',
