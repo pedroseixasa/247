@@ -4465,6 +4465,163 @@
                     transform: translateY(-8px) scale(1.01);
                 }
             }
+
+            /* ===== REVIEWS SECTION ===== */
+            .reviews {
+                padding: var(--spacing-xl) 0;
+                background: #f5f4f2;
+            }
+
+            #reviewsContainer {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 1.5rem;
+                margin-bottom: var(--spacing-lg);
+                padding: 2rem 0;
+            }
+
+            .review-card {
+                background: #ffffff;
+                border: 1px solid rgba(0, 0, 0, 0.07);
+                border-radius: 20px;
+                padding: 2rem;
+                display: flex;
+                flex-direction: column;
+                gap: 1.25rem;
+                position: relative;
+                overflow: hidden;
+                transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            }
+
+            .review-card::before {
+                content: none;
+            }
+
+            .review-card::after {
+                content: '\201C';
+                position: absolute;
+                top: -8px;
+                right: 18px;
+                font-size: 6rem;
+                font-family: Georgia, serif;
+                color: #c9a961;
+                opacity: 0.07;
+                line-height: 1;
+                pointer-events: none;
+            }
+
+            .review-card:hover {
+                transform: translateY(-6px);
+                border-color: rgba(201, 169, 97, 0.4);
+                box-shadow:
+                    0 12px 32px rgba(0, 0, 0, 0.10),
+                    0 4px 12px rgba(201, 169, 97, 0.10);
+            }
+
+            .review-card-stars {
+                color: #f59e0b;
+                font-size: 1.05rem;
+                letter-spacing: 0.12em;
+                line-height: 1;
+            }
+
+            .review-card-text {
+                color: #4b5563;
+                font-size: 0.95rem;
+                line-height: 1.8;
+                flex-grow: 1;
+                margin: 0;
+                font-weight: 400;
+            }
+
+            .review-card-footer {
+                display: flex;
+                align-items: center;
+                gap: 0.875rem;
+                padding-top: 1.25rem;
+                border-top: 1px solid rgba(0, 0, 0, 0.07);
+                margin-top: auto;
+            }
+
+            .review-card-avatar {
+                width: 42px;
+                height: 42px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, #8b6914, #c9a961);
+                color: #fff;
+                font-size: 0.82rem;
+                font-weight: 800;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+                letter-spacing: 0.05em;
+                box-shadow: 0 0 0 3px rgba(201, 169, 97, 0.20);
+            }
+
+            .review-card-info {
+                display: flex;
+                flex-direction: column;
+                gap: 0.2rem;
+            }
+
+            .review-card-author {
+                font-weight: 700;
+                color: #1a1a1a;
+                font-size: 0.9rem;
+                letter-spacing: 0.01em;
+                text-transform: capitalize;
+            }
+
+            .review-card-date {
+                color: #9ca3af;
+                font-size: 0.78rem;
+                font-weight: 500;
+                text-transform: none;
+                letter-spacing: 0;
+            }
+
+            /* Remove os header e footer antigos da review */
+            .review-card-header {
+                display: none;
+            }
+
+            .review-header {
+                display: none;
+            }
+
+            .review-author {
+                display: none;
+            }
+
+            .review-rating {
+                display: none;
+            }
+
+            .review-date {
+                display: none;
+            }
+
+            .review-text {
+                display: none;
+            }
+
+            @media (max-width: 768px) {
+                #reviewsContainer {
+                    grid-template-columns: 1fr;
+                    gap: 1.25rem;
+                    padding: 1.5rem 0;
+                }
+
+                .review-card {
+                    padding: 1.5rem;
+                }
+
+                .review-card:hover {
+                    transform: translateY(-3px);
+                }
+            }
         }
     </style>
 
@@ -5037,17 +5194,17 @@
                     }
 
                     container.innerHTML = reviews.map(review => `
-                    <div class="review-card">
-                        <div class="review-card-header">
-                            <div class="review-card-stars">${'⭐'.repeat(review.rating || 0)}</div>
-                        </div>
-                        <p class="review-card-text">${review.text}</p>
-                        <div class="review-card-footer">
-                            <div class="review-card-author">${review.author || 'Cliente Anónimo'}</div>
-                            <div class="review-card-date">${new Date(review.date).toLocaleDateString('pt-PT', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
-                        </div>
-                    </div>
-                `).join('');
+    <div class="review-card">
+        <div class="review-card-stars">${renderStars(review.rating)}</div>
+        <p class="review-card-text">${review.text}</p>
+        <div class="review-card-footer">
+            <div class="review-card-avatar">${getInitials(author)}</div>
+            <div class="review-card-info">
+                <div class="review-card-author">${author}</div>
+                <div class="review-card-date">${date}</div>
+            </div>
+        </div>
+    </div>`).join('');
                 } catch (error) {
                     console.error('Erro ao carregar reviews:', error);
                     container.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: var(--text-muted);">Erro ao carregar avaliações. Tente recarregar a página.</p>';
