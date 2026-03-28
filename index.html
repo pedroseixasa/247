@@ -4311,132 +4311,158 @@
                 height: 50px;
             }
 
-            /* ===== REVIEWS SECTION ===== */
-            .reviews-section {
-                background: #0d0d0d;
-                padding: 6rem 2rem;
-            }
-
-            .reviews-section h2 {
-                text-align: center;
-                font-size: 2.2rem;
-                font-weight: 800;
-                color: #ffffff;
-                margin-bottom: 0.5rem;
-                letter-spacing: -0.02em;
-            }
-
-            .reviews-section .reviews-subtitle {
-                text-align: center;
-                color: #888;
-                font-size: 1rem;
-                margin-bottom: 3.5rem;
-            }
-
+            /* ===== REVIEWS CARDS ===== */
             #reviewsContainer {
                 display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-                gap: 1.5rem;
-                max-width: 1100px;
-                margin: 0 auto 3rem auto;
+                grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+                gap: 2.5rem;
+                margin-bottom: var(--spacing-lg);
+                padding: 3rem 0;
             }
 
             .review-card {
-                background: #1a1a1a;
-                border: 1px solid #2a2a2a;
-                border-radius: 20px;
-                padding: 2rem;
+                background: linear-gradient(135deg, #ffffff 0%, #f9f8f7 100%);
+                border: none;
+                border-radius: 16px;
+                padding: 2.5rem;
+                box-shadow: 0 8px 32px rgba(26, 26, 26, 0.12), 0 2px 8px rgba(26, 26, 26, 0.08);
+                transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
                 display: flex;
                 flex-direction: column;
-                gap: 1rem;
-                transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
                 position: relative;
                 overflow: hidden;
             }
 
-            .review-card::before {
-                content: '\201C';
+            .review-card::after {
+                content: '';
                 position: absolute;
-                top: -10px;
-                right: 20px;
-                font-size: 7rem;
-                font-family: Georgia, serif;
-                color: #c9a961;
+                top: -1px;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: linear-gradient(90deg, var(--accent) 0%, var(--accent-light) 50%, transparent 100%);
+                transform: translateX(-100%);
+                transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            }
+
+            .review-card:nth-child(2)::after {
+                background: linear-gradient(90deg, #8b7355 0%, #c9a961 50%, transparent 100%);
+            }
+
+            .review-card:nth-child(3)::after {
+                background: linear-gradient(90deg, #a0826d 0%, #d4a574 50%, transparent 100%);
+            }
+
+            .review-card::before {
+                content: '"';
+                position: absolute;
+                top: 15px;
+                right: 25px;
+                font-size: 4rem;
+                color: var(--accent);
                 opacity: 0.08;
-                line-height: 1;
-                pointer-events: none;
+                font-family: Georgia, serif;
+            }
+
+            .review-card:hover::after {
+                transform: translateX(0);
             }
 
             .review-card:hover {
-                transform: translateY(-6px);
-                border-color: #c9a961;
-                box-shadow: 0 20px 60px rgba(201, 169, 97, 0.12);
+                transform: translateY(-12px) scale(1.02);
+                box-shadow: 0 20px 60px rgba(26, 26, 26, 0.2), 0 8px 24px rgba(139, 115, 85, 0.15);
             }
 
             .review-card-stars {
-                color: #f59e0b;
-                font-size: 1rem;
-                letter-spacing: 0.15em;
+                color: #f39c12;
+                font-size: 1.3rem;
+                margin-bottom: 1.25rem;
+                letter-spacing: 0.3rem;
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            .review-card-stars::after {
+                content: '';
+                flex-grow: 1;
+                height: 1px;
+                background: linear-gradient(90deg, var(--accent) 0%, transparent 100%);
+                opacity: 0.3;
+            }
+
+            .review-card-header {
+                margin-bottom: 1.5rem;
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
             }
 
             .review-card-text {
-                color: #cccccc;
-                font-size: 0.95rem;
-                line-height: 1.8;
+                color: var(--text-light);
+                font-size: 1.05rem;
+                line-height: 1.95;
+                margin-bottom: 2rem;
                 flex-grow: 1;
-                margin: 0;
+                font-weight: 400;
+                letter-spacing: 0.3px;
+                position: relative;
+                z-index: 1;
             }
 
             .review-card-footer {
                 display: flex;
-                align-items: center;
-                gap: 0.875rem;
-                padding-top: 1.25rem;
-                border-top: 1px solid #2a2a2a;
-                margin-top: auto;
-            }
-
-            .review-card-avatar {
-                width: 42px;
-                height: 42px;
-                border-radius: 50%;
-                background: linear-gradient(135deg, #8b6914, #c9a961);
-                color: #fff;
-                font-size: 0.82rem;
-                font-weight: 800;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                flex-shrink: 0;
-                letter-spacing: 0.05em;
-                box-shadow: 0 0 0 2px rgba(201, 169, 97, 0.25);
-            }
-
-            .review-card-info {
-                display: flex;
-                flex-direction: column;
-                gap: 0.15rem;
+                justify-content: space-between;
+                align-items: flex-end;
+                padding-top: 1.5rem;
+                border-top: 1px solid rgba(139, 115, 85, 0.15);
             }
 
             .review-card-author {
                 font-weight: 700;
-                color: #ffffff;
-                font-size: 0.9rem;
+                color: var(--primary);
+                font-size: 1rem;
+                letter-spacing: 0.7px;
+                text-transform: capitalize;
+                position: relative;
+                z-index: 1;
             }
 
             .review-card-date {
-                color: #666;
-                font-size: 0.78rem;
+                color: var(--accent);
+                font-size: 0.80rem;
+                font-weight: 600;
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
+                position: relative;
+                z-index: 1;
+            }
+
+            .review-card-text::before {
+                position: absolute;
+                top: -1rem;
+                left: 0;
+                font-size: 2rem;
+                color: var(--accent);
+                opacity: 0.15;
+                font-weight: 900;
+                line-height: 1;
             }
 
             @media (max-width: 768px) {
                 #reviewsContainer {
                     grid-template-columns: 1fr;
-                    gap: 1.25rem;
+                    gap: 2rem;
+                    padding: 2rem 0;
                 }
 
                 .review-card {
-                    padding: 1.5rem;
+                    padding: 2rem;
+                }
+
+                .review-card:hover {
+                    transform: translateY(-8px) scale(1.01);
                 }
             }
         }
@@ -4995,21 +5021,9 @@
     <script>
         (function () {
             // ===== LOAD REVIEWS =====
-
             async function loadReviews() {
                 const container = document.getElementById('reviewsContainer');
                 if (!container) return;
-
-                function getInitials(name) {
-                    if (!name || name === 'Cliente Anónimo') return '?';
-                    return name.trim().split(' ').filter(Boolean)
-                        .slice(0, 2).map(w => w[0].toUpperCase()).join('');
-                }
-
-                function renderStars(rating) {
-                    const n = Math.min(Math.max(parseInt(rating) || 0, 0), 5);
-                    return '★'.repeat(n) + '☆'.repeat(5 - n);
-                }
 
                 try {
                     const response = await fetch('https://two4-7-barbearia.onrender.com/api/reviews/random');
@@ -5017,33 +5031,26 @@
 
                     const reviews = await response.json();
 
-                    if (!reviews.length) {
-                        container.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:#888">Sem avaliações no momento.</p>';
+                    if (reviews.length === 0) {
+                        container.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: var(--text-muted);">Sem avaliações no momento.</p>';
                         return;
                     }
 
-                    container.innerHTML = reviews.map(review => {
-                        const author = review.author || 'Cliente Anónimo';
-                        const date = review.date
-                            ? new Date(review.date).toLocaleDateString('pt-PT', { year: 'numeric', month: 'long', day: 'numeric' })
-                            : '';
-                        return `
-                <div class="review-card">
-                    <div class="review-card-stars">${renderStars(review.rating)}</div>
-                    <p class="review-card-text">${review.text}</p>
-                    <div class="review-card-footer">
-                        <div class="review-card-avatar">${getInitials(author)}</div>
-                        <div class="review-card-info">
-                            <div class="review-card-author">${author}</div>
-                            <div class="review-card-date">${date}</div>
+                    container.innerHTML = reviews.map(review => `
+                    <div class="review-card">
+                        <div class="review-card-header">
+                            <div class="review-card-stars">${'⭐'.repeat(review.rating || 0)}</div>
+                        </div>
+                        <p class="review-card-text">${review.text}</p>
+                        <div class="review-card-footer">
+                            <div class="review-card-author">${review.author || 'Cliente Anónimo'}</div>
+                            <div class="review-card-date">${new Date(review.date).toLocaleDateString('pt-PT', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
                         </div>
                     </div>
-                </div>`;
-                    }).join('');
-
+                `).join('');
                 } catch (error) {
                     console.error('Erro ao carregar reviews:', error);
-                    container.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:#888">Erro ao carregar avaliações.</p>';
+                    container.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: var(--text-muted);">Erro ao carregar avaliações. Tente recarregar a página.</p>';
                 }
             }
 
