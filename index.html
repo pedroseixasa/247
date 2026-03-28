@@ -5029,9 +5029,26 @@
     <script>
         (function () {
             // ===== LOAD REVIEWS =====
+            // ===== LOAD REVIEWS =====
             async function loadReviews() {
                 const container = document.getElementById('reviewsContainer');
                 if (!container) return;
+
+                function getInitials(name) {
+                    if (!name || name === 'Cliente Anónimo') return '?';
+                    return name
+                        .trim()
+                        .split(' ')
+                        .filter(Boolean)
+                        .slice(0, 2)
+                        .map(word => word[0].toUpperCase())
+                        .join('');
+                }
+
+                function renderStars(rating) {
+                    const count = Math.min(Math.max(parseInt(rating) || 0, 0), 5);
+                    return '★'.repeat(count) + '☆'.repeat(5 - count);
+                }
 
                 try {
                     const response = await fetch('https://two4-7-barbearia.onrender.com/api/reviews/random');
@@ -5044,18 +5061,30 @@
                         return;
                     }
 
-                    container.innerHTML = reviews.map(review => `
-                    <div class="review-card">
-                        <div class="review-card-header">
-                            <div class="review-card-stars">${'⭐'.repeat(review.rating || 0)}</div>
-                        </div>
-                        <p class="review-card-text">${review.text}</p>
-                        <div class="review-card-footer">
-                            <div class="review-card-author">${review.author || 'Cliente Anónimo'}</div>
-                            <div class="review-card-date">${new Date(review.date).toLocaleDateString('pt-PT', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+                    container.innerHTML = reviews.map(review => {
+                        const author = review.author || 'Cliente Anónimo';
+                        const initials = getInitials(author);
+                        const date = review.date
+                            ? new Date(review.date).toLocaleDateString('pt-PT', { year: 'numeric', month: 'long', day: 'numeric' })
+                            : '';
+
+                        return `
+                <div class="review-card">
+                    <div class="review-card-header">
+                        <div class="review-card-stars">${renderStars(review.rating)}</div>
+                    </div>
+                    <p class="review-card-text">${review.text}</p>
+                    <div class="review-card-footer">
+                        <div class="review-card-avatar">${initials}</div>
+                        <div class="review-card-info">
+                            <div class="review-card-author">${author}</div>
+                            <div class="review-card-date">${date}</div>
                         </div>
                     </div>
-                `).join('');
+                </div>
+            `;
+                    }).join('');
+
                 } catch (error) {
                     console.error('Erro ao carregar reviews:', error);
                     container.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: var(--text-muted);">Erro ao carregar avaliações. Tente recarregar a página.</p>';
