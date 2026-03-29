@@ -5177,6 +5177,18 @@
 
     <script>
         (function () {
+
+            // ===== HELPER FUNCTIONS (fora do loadReviews) =====
+            function getInitials(name) {
+                if (!name || name === 'Cliente Anónimo') return '?';
+                return name.trim().split(' ').filter(Boolean)
+                    .slice(0, 2).map(w => w[0].toUpperCase()).join('');
+            }
+
+            function renderStars(rating) {
+                const n = Math.min(Math.max(parseInt(rating) || 0, 0), 5);
+                return '★'.repeat(n) + '☆'.repeat(5 - n);
+            }
             // ===== LOAD REVIEWS =====
             async function loadReviews() {
                 const container = document.getElementById('reviewsContainer');
@@ -5188,29 +5200,38 @@
 
                     const reviews = await response.json();
 
-                    if (reviews.length === 0) {
-                        container.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: var(--text-muted);">Sem avaliações no momento.</p>';
+                    if (!reviews.length) {
+                        container.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:#888">Sem avaliações no momento.</p>';
                         return;
                     }
 
-                    container.innerHTML = reviews.map(review => `
-    <div class="review-card">
-        <div class="review-card-stars">${renderStars(review.rating)}</div>
-        <p class="review-card-text">${review.text}</p>
-        <div class="review-card-footer">
-            <div class="review-card-avatar">${getInitials(author)}</div>
-            <div class="review-card-info">
-                <div class="review-card-author">${author}</div>
-                <div class="review-card-date">${date}</div>
-            </div>
-        </div>
-    </div>`).join('');
+                    container.innerHTML = reviews.map(review => {
+                        const author = review.author || 'Cliente Anónimo';
+                        const date = review.date
+                            ? new Date(review.date).toLocaleDateString('pt-PT', {
+                                year: 'numeric', month: 'long', day: 'numeric'
+                            })
+                            : '';
+
+                        return `
+                <div class="review-card">
+                    <div class="review-card-stars">${renderStars(review.rating)}</div>
+                    <p class="review-card-text">${review.text}</p>
+                    <div class="review-card-footer">
+                        <div class="review-card-avatar">${getInitials(author)}</div>
+                        <div class="review-card-info">
+                            <div class="review-card-author">${author}</div>
+                            <div class="review-card-date">${date}</div>
+                        </div>
+                    </div>
+                </div>`;
+                    }).join('');
+
                 } catch (error) {
                     console.error('Erro ao carregar reviews:', error);
-                    container.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: var(--text-muted);">Erro ao carregar avaliações. Tente recarregar a página.</p>';
+                    container.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:#888">Erro ao carregar avaliações. Tente recarregar a página.</p>';
                 }
             }
-
             const init = () => {
                 loadReviews();
             };
