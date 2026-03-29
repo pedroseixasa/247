@@ -658,46 +658,46 @@
         }
 
         .about-payment-label {
-            font-size: 0.78rem;
-            letter-spacing: 0.24em;
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
             text-transform: uppercase;
             color: var(--text-muted);
             font-weight: 700;
+            margin-bottom: 1rem;
+            display: block;
         }
 
         .about-payment-pills {
             display: flex;
             flex-wrap: wrap;
-            gap: 1rem;
+            gap: 0.75rem;
             padding: 0;
             list-style: none;
             justify-content: flex-start;
         }
 
         .about-payment-pills li {
-            border: 2px solid var(--accent);
-            border-radius: 999px;
-            padding: 0.5rem 1rem;
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--primary);
-            background: #fff;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
             display: inline-flex;
             align-items: center;
-            justify-content: center;
-            gap: 0.6rem;
-            min-width: 120px;
-            text-align: center;
-            transition: all 0.3s ease;
+            gap: 0.55rem;
+            padding: 0.6rem 1.25rem;
+            background: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.10);
+            border-radius: 12px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--primary);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+            cursor: default;
         }
 
         .about-payment-pills li:hover {
-            background: #000;
-            color: #fff;
-            border-color: #000;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            transform: translateY(-3px);
+            border-color: rgba(201, 169, 97, 0.5);
+            box-shadow: 0 8px 24px rgba(201, 169, 97, 0.15), 0 2px 6px rgba(0, 0, 0, 0.06);
+            background: #ffffff;
+            color: var(--primary);
         }
 
         /* Showcase Grid Inline (abaixo dos payment methods) */
@@ -4743,25 +4743,6 @@
                             <ul class="about-payment-pills" id="aboutPaymentMethods">
                                 <!-- Populated by JavaScript -->
                             </ul>
-
-                            <!-- SHOWCASE CARDS AQUI -->
-                            <div class="showcase-grid-inline">
-                                <!-- Card 1 -->
-                                <div class="showcase-card">
-                                    <div class="showcase-card-images">
-                                        <img class="showcase-card-img showcase-card-img-1" src="images/1.jpg"
-                                            alt="Showcase 1" loading="lazy" />
-                                    </div>
-                                </div>
-
-                                <!-- Card 2 -->
-                                <div class="showcase-card">
-                                    <div class="showcase-card-images">
-                                        <img class="showcase-card-img showcase-card-img-2" src="images/cunhacorte.png"
-                                            alt="Showcase 2" loading="lazy" />
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
