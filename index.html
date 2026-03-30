@@ -5011,12 +5011,14 @@
                         header.classList.remove('menu-is-open');
                     }
 
+                    // Atualiza scroll-margin-top do destino imediatamente
                     const offset = getHeaderOffset();
-                    const position = target.getBoundingClientRect().top + window.pageYOffset - offset;
+                    target.style.scrollMarginTop = offset + 'px';
 
-                    // Scroll imediato, sem delay
-                    smoothScrollTo(position, 150);
+                    // Usa scrollIntoView para máxima precisão
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
 
+                    // Atualiza o hash na barra de endereço
                     try {
                         history.replaceState(null, '', href);
                     } catch (err) {
