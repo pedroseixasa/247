@@ -2559,17 +2559,9 @@
             }
         }
 
-        /* Compensar header sticky no scroll das anchors */
-        .section-anchor {
-            scroll-margin-top: 100px;
-            /* altura aproximada do header em desktop */
-        }
-
-        @media (max-width: 768px) {
-            .section-anchor {
-                scroll-margin-top: 110px;
-                /* header fica mais alto em mobile */
-            }
+        /* Compensar header sticky no scroll das anchors (valor real definido via JS) */
+        section[id] {
+            scroll-margin-top: var(--header-scroll-offset, 100px);
         }
 
         /* Versão compacta (fallback) */
@@ -4928,20 +4920,26 @@
     <!-- Unified Scroll and Menu Script -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const isMobile = () => window.innerWidth <= 768;
             const mobileToggle = document.querySelector('.mobile-menu-toggle');
             const nav = document.querySelector('nav');
             const header = document.querySelector('header');
+            const sectionAnchors = document.querySelectorAll('section[id]');
+            let resizeRaf = null;
 
-            if (!mobileToggle || !nav || !header) return;
+            function getHeaderOffset() {
+                const headerHeight = header ? Math.ceil(header.getBoundingClientRect().height) : 0;
+                const breathingSpace = 12;
+                return Math.max(headerHeight + breathingSpace, 0);
+            }
 
-            // Toggle menu
-            mobileToggle.addEventListener('click', function () {
-                const isOpen = nav.classList.toggle('mobile-menu-open');
-                mobileToggle.classList.toggle('active');
-                header.classList.toggle('menu-is-open');
-                mobileToggle.setAttribute('aria-expanded', isOpen);
-            });
+            function applyDynamicScrollMargins() {
+                const offset = getHeaderOffset();
+                document.documentElement.style.setProperty('--header-scroll-offset', offset + 'px');
+
+                sectionAnchors.forEach((section) => {
+                    section.style.scrollMarginTop = offset + 'px';
+                });
+            }
 
             function smoothScrollTo(targetPosition, duration) {
                 const startPosition = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
@@ -4968,6 +4966,28 @@
                 requestAnimationFrame(step);
             }
 
+            function queueScrollMarginUpdate() {
+                if (resizeRaf) {
+                    cancelAnimationFrame(resizeRaf);
+                }
+
+                resizeRaf = requestAnimationFrame(() => {
+                    applyDynamicScrollMargins();
+                    resizeRaf = null;
+                });
+            }
+
+            if (mobileToggle && nav && header) {
+                // Toggle menu
+                mobileToggle.addEventListener('click', function () {
+                    const isOpen = nav.classList.toggle('mobile-menu-open');
+                    mobileToggle.classList.toggle('active');
+                    header.classList.toggle('menu-is-open');
+                    mobileToggle.setAttribute('aria-expanded', isOpen);
+                    queueScrollMarginUpdate();
+                });
+            }
+
             // Adiciona scroll e fecha menu para TODOS os anchor links
             document.querySelectorAll('a[href^="#"]').forEach(link => {
                 link.addEventListener('click', function (e) {
@@ -4980,15 +5000,13 @@
                     e.preventDefault();
 
                     // Fecha menu se estiver aberto
-                    const wasMenuOpen = nav.classList.contains('mobile-menu-open');
-                    if (wasMenuOpen) {
+                    if (mobileToggle && nav && header && nav.classList.contains('mobile-menu-open')) {
                         nav.classList.remove('mobile-menu-open');
                         mobileToggle.classList.remove('active');
                         header.classList.remove('menu-is-open');
                     }
 
-                    // Menor offset para a secção assentar um pouco mais abaixo.
-                    const offset = header ? Math.max(header.offsetHeight - 10, 0) : 36;
+                    const offset = getHeaderOffset();
                     const position = target.getBoundingClientRect().top + window.pageYOffset - offset;
 
                     // Scroll imediato, sem delay
@@ -5016,7 +5034,20 @@
                 }
             }
 
-            window.addEventListener('resize', updateMenuDisplay);
+            if (header && typeof ResizeObserver === 'function') {
+                const headerObserver = new ResizeObserver(() => {
+                    queueScrollMarginUpdate();
+                });
+                headerObserver.observe(header);
+            }
+
+            window.addEventListener('resize', function () {
+                updateMenuDisplay();
+                queueScrollMarginUpdate();
+            });
+            window.addEventListener('orientationchange', queueScrollMarginUpdate);
+
+            applyDynamicScrollMargins();
             updateMenuDisplay();
         });
     </script>
