@@ -2560,7 +2560,10 @@
         }
 
         /* Compensar header sticky no scroll das anchors (valor real definido via JS) */
-        section[id] {
+        /* Compensar header sticky no scroll das anchors (valor real definido via JS) */
+        [id].section-anchor,
+        section[id],
+        div[id].section-anchor {
             scroll-margin-top: var(--header-scroll-offset, 100px);
         }
 
@@ -4923,7 +4926,10 @@
             const mobileToggle = document.querySelector('.mobile-menu-toggle');
             const nav = document.querySelector('nav');
             const header = document.querySelector('header');
-            const sectionAnchors = document.querySelectorAll('section[id]');
+            // Seleciona todos os elementos de secção relevantes com id (section, div.section-anchor, etc)
+            function getAnchorElements() {
+                return Array.from(document.querySelectorAll('[id].section-anchor, section[id], div[id].section-anchor'));
+            }
             let resizeRaf = null;
 
             function getHeaderOffset() {
@@ -4935,9 +4941,8 @@
             function applyDynamicScrollMargins() {
                 const offset = getHeaderOffset();
                 document.documentElement.style.setProperty('--header-scroll-offset', offset + 'px');
-
-                sectionAnchors.forEach((section) => {
-                    section.style.scrollMarginTop = offset + 'px';
+                getAnchorElements().forEach((el) => {
+                    el.style.scrollMarginTop = offset + 'px';
                 });
             }
 
@@ -5047,8 +5052,22 @@
             });
             window.addEventListener('orientationchange', queueScrollMarginUpdate);
 
+            // Atualiza margens no load inicial e sempre que necessário
             applyDynamicScrollMargins();
             updateMenuDisplay();
+
+            // Corrige também ao abrir/fechar menu mobile
+            if (mobileToggle && nav && header) {
+                ['click', 'transitionend'].forEach(evt => {
+                    mobileToggle.addEventListener(evt, queueScrollMarginUpdate);
+                });
+                nav.addEventListener('transitionend', queueScrollMarginUpdate);
+            }
+
+            // Corrige ao mudar hash manualmente (ex: user digita #services)
+            window.addEventListener('hashchange', function () {
+                setTimeout(applyDynamicScrollMargins, 10);
+            });
         });
     </script>
 
