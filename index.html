@@ -5011,12 +5011,12 @@
                         header.classList.remove('menu-is-open');
                     }
 
-                    // Atualiza scroll-margin-top do destino imediatamente
+                    // Calcula offset real do header sticky
                     const offset = getHeaderOffset();
-                    target.style.scrollMarginTop = offset + 'px';
-
-                    // Usa scrollIntoView para máxima precisão
-                    target.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
+                    // Calcula posição absoluta do topo do destino
+                    const targetTop = target.getBoundingClientRect().top + window.pageYOffset - offset;
+                    // Faz scroll manualmente para o topo correto
+                    window.scrollTo({ top: targetTop, behavior: 'smooth' });
 
                     // Atualiza o hash na barra de endereço
                     try {
