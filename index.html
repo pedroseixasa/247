@@ -2865,14 +2865,41 @@
         }
 
         .about-card {
-            width: var(--about-card-width);
-            height: 340px;
+            width: 420px;
+            max-width: 92vw;
+            height: auto;
+            min-height: 220px;
             position: relative;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            justify-content: flex-start;
             align-items: center;
-            padding: 0 24px;
+            padding: 1.2rem 1rem 1.5rem 1rem;
             perspective: 2000px;
+            background: #fff;
+            border-radius: 1.25rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+            margin: 0 auto;
+        }
+
+        @media (max-width: 900px) {
+            .about-card {
+                width: 98vw;
+                max-width: 99vw;
+                padding: 0.7rem 0.3rem 1.1rem 0.3rem;
+                border-radius: 1rem;
+                box-shadow: 0 4px 18px rgba(0,0,0,0.10);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .about-card {
+                width: 100vw;
+                max-width: 100vw;
+                padding: 0.4rem 0.1rem 0.7rem 0.1rem;
+                border-radius: 0.7rem;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+            }
         }
 
         .about-card-wrapper {
@@ -2889,10 +2916,31 @@
 
         .about-cover-image {
             width: 100%;
-            height: 100%;
+            max-width: 340px;
+            height: auto;
+            max-height: 340px;
             object-fit: cover;
-            border-radius: 0.75rem;
+            border-radius: 1rem;
+            margin: 0 auto 1rem auto;
+            display: block;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
             background-clip: content-box;
+        }
+
+        @media (max-width: 900px) {
+            .about-cover-image {
+                max-width: 92vw;
+                max-height: 220px;
+                border-radius: 0.8rem;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .about-cover-image {
+                max-width: 98vw;
+                max-height: 160px;
+                border-radius: 0.6rem;
+            }
         }
 
         .about-card.is-3d .about-cover-image {
