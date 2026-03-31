@@ -572,7 +572,6 @@
   }
 
   .about-payment-pills li {
-    border: 2px solid #000 !important;
     border-radius: 999px !important;
     padding: 0.5rem 1rem !important;
     font-size: 0.85rem !important;
