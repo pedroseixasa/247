@@ -5245,6 +5245,17 @@
         setTimeout(registerServiceWorkerForPush, 2000);
     </script>
 
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function () {
+                navigator.serviceWorker.register('/sw.js').then(function (reg) {
+                    // Registration successful
+                }).catch(function (err) {
+                    console.warn('Service Worker registration failed:', err);
+                });
+            });
+        }
+    </script>
 </body>
 
 </html>
