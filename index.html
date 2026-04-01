@@ -4929,6 +4929,7 @@
             const mobileToggle = document.querySelector('.mobile-menu-toggle');
             const nav = document.querySelector('nav');
             const header = document.querySelector('header');
+            const hasNativeSmoothScroll = 'scrollBehavior' in document.documentElement.style;
             const prefersReducedMotionQuery = typeof window.matchMedia === 'function'
                 ? window.matchMedia('(prefers-reduced-motion: reduce)')
                 : null;
@@ -4940,6 +4941,10 @@
 
             function shouldReduceMotion() {
                 return prefersReducedMotionQuery ? prefersReducedMotionQuery.matches : false;
+            }
+
+            function getScrollPosition() {
+                return window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
             }
 
             function getHeaderOffset() {
@@ -4985,7 +4990,7 @@
                     return;
                 }
 
-                const startPosition = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+                const startPosition = getScrollPosition();
                 const distance = targetPosition - startPosition;
                 const startTime = performance.now();
 
@@ -5011,12 +5016,62 @@
                 requestAnimationFrame(step);
             }
 
-            function scrollToWithOffset(targetPosition) {
+            function ensureTargetOffset(target) {
+                if (!target) return;
+
+                const offset = getHeaderOffset();
+                const targetTop = target.getBoundingClientRect().top + getScrollPosition() - offset;
+
                 if (shouldReduceMotion()) {
-                    window.scrollTo(0, targetPosition);
-                } else {
-                    smoothScrollTo(targetPosition, 650);
+                    window.scrollTo(0, targetTop);
+                    return;
                 }
+
+                if (hasNativeSmoothScroll) {
+                    window.scrollTo({ top: targetTop, behavior: 'smooth' });
+                    return;
+                }
+
+                smoothScrollTo(targetTop, 650);
+            }
+
+            function scrollTargetIntoView(target) {
+                if (!target) return;
+
+                const prefersReducedMotion = shouldReduceMotion();
+                const startY = getScrollPosition();
+                let usedScrollIntoView = false;
+
+                if (typeof target.scrollIntoView === 'function') {
+                    try {
+                        target.scrollIntoView({
+                            block: 'start',
+                            inline: 'nearest',
+                            behavior: prefersReducedMotion ? 'auto' : 'smooth',
+                        });
+                        usedScrollIntoView = true;
+                    } catch (err) {
+                        target.scrollIntoView();
+                        usedScrollIntoView = true;
+                    }
+                }
+
+                if (!usedScrollIntoView) {
+                    ensureTargetOffset(target);
+                    return;
+                }
+
+                const fallbackDelay = prefersReducedMotion ? 80 : 450;
+
+                setTimeout(() => {
+                    const currentY = getScrollPosition();
+                    const distanceToTarget = Math.abs(target.getBoundingClientRect().top - getHeaderOffset());
+                    const noMovement = Math.abs(currentY - startY) < 4;
+
+                    if (noMovement || distanceToTarget > 6) {
+                        ensureTargetOffset(target);
+                    }
+                }, fallbackDelay);
             }
 
             function queueScrollMarginUpdate() {
@@ -5059,12 +5114,8 @@
                         header.classList.remove('menu-is-open');
                     }
 
-                    // Calcula offset real do header sticky
-                    const offset = getHeaderOffset();
-                    // Calcula posição absoluta do topo do destino
-                    const targetTop = target.getBoundingClientRect().top + window.pageYOffset - offset;
                     // Faz scroll manualmente para o topo correto
-                    scrollToWithOffset(targetTop);
+                    scrollTargetIntoView(target);
 
                     // Atualiza o hash na barra de endereço
                     try {
