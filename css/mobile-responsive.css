@@ -676,24 +676,25 @@
   }
 
   .service-photo {
-    aspect-ratio: 1 / 1 !important;
+    aspect-ratio: 4 / 5 !important;
   }
 
   .service-info {
-    padding: 0.8rem !important;
-    gap: 0.4rem !important;
-    text-align: center;
+    padding: 0.7rem !important;
+    gap: 0.3rem !important;
+    text-align: center !important;
   }
 
   .service-card-new .service-main-line {
     flex-direction: column !important;
-    gap: 0.2rem !important;
+    gap: 0.15rem !important;
   }
 
   .service-card-new .service-name {
     font-size: 0.9rem !important;
     line-height: 1.1 !important;
     text-align: center !important;
+    width: 100% !important;
   }
 
   .service-card-new .service-price {
@@ -701,10 +702,16 @@
     text-align: center !important;
   }
 
+  .service-card-new .service-meta-line {
+    display: none !important;
+  }
+
   .service-card-new .service-book-btn {
     padding: 0.5rem 1rem !important;
     font-size: 0.75rem !important;
-    margin-top: 0.3rem !important;
+    margin: 0.4rem 0 0 0 !important;
+    display: block !important;
+    width: 100% !important;
   }
   }
 
