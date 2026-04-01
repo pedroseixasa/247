@@ -4929,247 +4929,162 @@
             const mobileToggle = document.querySelector('.mobile-menu-toggle');
             const nav = document.querySelector('nav');
             const header = document.querySelector('header');
-            const hasNativeSmoothScroll = 'scrollBehavior' in document.documentElement.style;
-            const prefersReducedMotionQuery = typeof window.matchMedia === 'function'
-                ? window.matchMedia('(prefers-reduced-motion: reduce)')
-                : null;
-            // Seleciona todos os elementos de secção relevantes com id (section, div.section-anchor, etc)
-            function getAnchorElements() {
-                return Array.from(document.querySelectorAll('[id].section-anchor, section[id], div[id].section-anchor'));
-            }
-            let resizeRaf = null;
-
-            function shouldReduceMotion() {
-                return prefersReducedMotionQuery ? prefersReducedMotionQuery.matches : false;
-            }
-
-            function getScrollPosition() {
-                return window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
-            }
 
             function getHeaderOffset() {
-                const headerHeight = header ? Math.ceil(header.getBoundingClientRect().height) : 0;
-                const breathingSpace = 12;
-                return Math.max(headerHeight + breathingSpace, 0);
+                if (!header) return 0;
+                return Math.ceil(header.getBoundingClientRect().height) + 12;
             }
 
-            function applyDynamicScrollMargins() {
-                const offset = getHeaderOffset();
-                document.documentElement.style.setProperty('--header-scroll-offset', offset + 'px');
-                getAnchorElements().forEach((el) => {
-                    el.style.scrollMarginTop = offset + 'px';
-                });
-            }
-
-            function smoothScrollTo(targetPosition, duration) {
-                const root = document.documentElement;
-                const body = document.body || root;
-                const previousRootBehavior = root.style.scrollBehavior;
-                const previousBodyBehavior = body.style.scrollBehavior;
-
-                root.style.scrollBehavior = 'auto';
-                body.style.scrollBehavior = 'auto';
-
-                function restoreScrollBehavior() {
-                    if (previousRootBehavior) {
-                        root.style.scrollBehavior = previousRootBehavior;
-                    } else {
-                        root.style.removeProperty('scroll-behavior');
-                    }
-
-                    if (previousBodyBehavior) {
-                        body.style.scrollBehavior = previousBodyBehavior;
-                    } else {
-                        body.style.removeProperty('scroll-behavior');
-                    }
-                }
-
-                if (!duration || duration <= 0) {
-                    window.scrollTo(0, targetPosition);
-                    restoreScrollBehavior();
-                    return;
-                }
-
-                const startPosition = getScrollPosition();
-                const distance = targetPosition - startPosition;
-                const startTime = performance.now();
-
-                function step(currentTime) {
-                    const elapsed = currentTime - startTime;
-                    const progress = Math.min(elapsed / duration, 1);
-                    const ease = progress < 0.5
-                        ? 4 * progress * progress * progress
-                        : 1 - Math.pow(-2 * progress + 2, 3) / 2;
-                    const position = startPosition + distance * ease;
-
-                    document.documentElement.scrollTop = position;
-                    document.body.scrollTop = position;
-                    window.scrollTo(0, position);
-
-                    if (progress < 1) {
-                        requestAnimationFrame(step);
-                    } else {
-                        restoreScrollBehavior();
-                    }
-                }
-
-                requestAnimationFrame(step);
-            }
-
-            function ensureTargetOffset(target) {
+            function performScroll(target) {
                 if (!target) return;
 
-                const offset = getHeaderOffset();
-                const targetTop = target.getBoundingClientRect().top + getScrollPosition() - offset;
+                const headerOffset = getHeaderOffset();
+                const rect = target.getBoundingClientRect();
+                const elementY = window.pageYOffset + rect.top;
+                const targetScroll = Math.max(0, elementY - headerOffset);
 
-                if (shouldReduceMotion()) {
-                    window.scrollTo(0, targetTop);
-                    return;
+                console.log('🔴 performScroll:', { targetScroll, currentScroll: window.pageYOffset, rect: { top: rect.top, bottom: rect.bottom } });
+
+                // Força scroll imediato em TODOS os lugares possíveis
+                function doScroll() {
+                    window.scrollTo(0, targetScroll);
+                    document.body.scrollTop = targetScroll;
+                    document.documentElement.scrollTop = targetScroll;
+                    window.pageYOffset === targetScroll && console.log('✅ Scroll succeeded!');
                 }
 
-                if (hasNativeSmoothScroll) {
-                    window.scrollTo({ top: targetTop, behavior: 'smooth' });
-                    return;
-                }
+                // Tentativa 1: scroll imediato
+                doScroll();
 
-                smoothScrollTo(targetTop, 650);
-            }
+                // Tentativa 2: após 50ms
+                setTimeout(doScroll, 50);
 
-            function scrollTargetIntoView(target) {
-                if (!target) return;
+                // Tentativa 3: após 150ms
+                setTimeout(doScroll, 150);
 
-                const prefersReducedMotion = shouldReduceMotion();
-                const startY = getScrollPosition();
-                let usedScrollIntoView = false;
+                // Tentativa 4: após 300ms (talvez haja reflow lento)
+                setTimeout(doScroll, 300);
 
-                if (typeof target.scrollIntoView === 'function') {
-                    try {
-                        target.scrollIntoView({
-                            block: 'start',
-                            inline: 'nearest',
-                            behavior: prefersReducedMotion ? 'auto' : 'smooth',
-                        });
-                        usedScrollIntoView = true;
-                    } catch (err) {
-                        target.scrollIntoView();
-                        usedScrollIntoView = true;
-                    }
-                }
-
-                if (!usedScrollIntoView) {
-                    ensureTargetOffset(target);
-                    return;
-                }
-
-                const fallbackDelay = prefersReducedMotion ? 80 : 450;
-
+                // Log final
                 setTimeout(() => {
-                    const currentY = getScrollPosition();
-                    const distanceToTarget = Math.abs(target.getBoundingClientRect().top - getHeaderOffset());
-                    const noMovement = Math.abs(currentY - startY) < 4;
+                    const finalScroll = window.pageYOffset;
+                    const diff = Math.abs(finalScroll - targetScroll);
+                    console.log('🔴 Final scroll position:', { finalScroll, targetScroll, diff });
 
-                    if (noMovement || distanceToTarget > 6) {
-                        ensureTargetOffset(target);
+                    if (diff <= 20) {
+                        console.log('✅ Scroll WORKED!');
+                    } else {
+                        console.log('❌ Scroll FAILED - still ' + diff + 'px away');
                     }
-                }, fallbackDelay);
-            }
-
-            function queueScrollMarginUpdate() {
-                if (resizeRaf) {
-                    cancelAnimationFrame(resizeRaf);
+                }, 500);
+                function applyScrollMarginTop() {
+                    const offset = getHeaderOffset();
+                    document.querySelectorAll('section[id], div[id].section-anchor').forEach((el) => {
+                        el.style.scrollMarginTop = offset + 'px';
+                    });
                 }
 
-                resizeRaf = requestAnimationFrame(() => {
-                    applyDynamicScrollMargins();
-                    resizeRaf = null;
+                function queueScrollMarginUpdate() {
+                    if (resizeRaf) {
+                        cancelAnimationFrame(resizeRaf);
+                    }
+
+                    resizeRaf = requestAnimationFrame(() => {
+                        applyScrollMarginTop();
+                        resizeRaf = null;
+                    });
+                }
+
+                if (mobileToggle && nav && header) {
+                    // Toggle menu
+                    mobileToggle.addEventListener('click', function () {
+                        const isOpen = nav.classList.toggle('mobile-menu-open');
+                        mobileToggle.classList.toggle('active');
+                        header.classList.toggle('menu-is-open');
+                        mobileToggle.setAttribute('aria-expanded', isOpen);
+                        queueScrollMarginUpdate();
+                    });
+                }
+
+                // Adiciona scroll e fecha menu para TODOS os anchor links
+                document.querySelectorAll('a[href^="#"]').forEach(link => {
+                    link.addEventListener('click', function (e) {
+                        const href = this.getAttribute('href');
+                        console.log('🔴 Link clicked:', href);
+
+                        if (!href || href === '#') return;
+
+                        const target = document.querySelector(href);
+                        if (!target) {
+                            console.log('🔴 Target not found:', href);
+                            return;
+                        }
+
+                        e.preventDefault();
+
+                        // Fecha menu se estiver aberto
+                        if (mobileToggle && nav && nav.classList.contains('mobile-menu-open')) {
+                            nav.classList.remove('mobile-menu-open');
+                            mobileToggle.classList.remove('active');
+                        }
+
+                        // Faz scroll para o alvo
+                        console.log('🔴 Performing scroll to:', href);
+                        performScroll(target);
+
+                        // Atualiza o hash na barra de endereço
+                        try {
+                            history.replaceState(null, '', href);
+                        } catch (err) {
+                            window.location.hash = href;
+                        }
+                    });
                 });
-            }
 
-            if (mobileToggle && nav && header) {
-                // Toggle menu
-                mobileToggle.addEventListener('click', function () {
-                    const isOpen = nav.classList.toggle('mobile-menu-open');
-                    mobileToggle.classList.toggle('active');
-                    header.classList.toggle('menu-is-open');
-                    mobileToggle.setAttribute('aria-expanded', isOpen);
-                    queueScrollMarginUpdate();
-                });
-            }
+                // Update menu display on resize
+                function updateMenuDisplay() {
+                    if (!mobileToggle || !nav || !header) return;
 
-            // Adiciona scroll e fecha menu para TODOS os anchor links
-            document.querySelectorAll('a[href^="#"]').forEach(link => {
-                link.addEventListener('click', function (e) {
-                    const href = this.getAttribute('href');
-                    if (!href || href === '#') return;
-
-                    const target = document.querySelector(href);
-                    if (!target) return;
-
-                    e.preventDefault();
-
-                    // Fecha menu se estiver aberto
-                    if (mobileToggle && nav && header && nav.classList.contains('mobile-menu-open')) {
+                    if (window.innerWidth <= 768) {
+                        mobileToggle.style.display = 'flex';
+                    } else {
+                        mobileToggle.style.display = 'none';
                         nav.classList.remove('mobile-menu-open');
                         mobileToggle.classList.remove('active');
                         header.classList.remove('menu-is-open');
                     }
-
-                    // Faz scroll manualmente para o topo correto
-                    scrollTargetIntoView(target);
-
-                    // Atualiza o hash na barra de endereço
-                    try {
-                        history.replaceState(null, '', href);
-                    } catch (err) {
-                        window.location.hash = href;
-                    }
-                });
-            });
-
-            // Update menu display on resize
-            function updateMenuDisplay() {
-                if (!mobileToggle || !nav || !header) return;
-
-                if (window.innerWidth <= 768) {
-                    mobileToggle.style.display = 'flex';
-                } else {
-                    mobileToggle.style.display = 'none';
-                    nav.classList.remove('mobile-menu-open');
-                    mobileToggle.classList.remove('active');
-                    header.classList.remove('menu-is-open');
                 }
-            }
 
-            if (header && typeof ResizeObserver === 'function') {
-                const headerObserver = new ResizeObserver(() => {
+                if (header && typeof ResizeObserver === 'function') {
+                    const headerObserver = new ResizeObserver(() => {
+                        queueScrollMarginUpdate();
+                    });
+                    headerObserver.observe(header);
+                }
+
+                window.addEventListener('resize', function () {
+                    updateMenuDisplay();
                     queueScrollMarginUpdate();
                 });
-                headerObserver.observe(header);
-            }
+                window.addEventListener('orientationchange', queueScrollMarginUpdate);
 
-            window.addEventListener('resize', function () {
+                // Atualiza margens no load inicial e sempre que necessário
+                applyDynamicScrollMargins();
                 updateMenuDisplay();
-                queueScrollMarginUpdate();
-            });
-            window.addEventListener('orientationchange', queueScrollMarginUpdate);
 
-            // Atualiza margens no load inicial e sempre que necessário
-            applyDynamicScrollMargins();
-            updateMenuDisplay();
+                // Corrige também ao abrir/fechar menu mobile
+                if (mobileToggle && nav && header) {
+                    ['click', 'transitionend'].forEach(evt => {
+                        mobileToggle.addEventListener(evt, queueScrollMarginUpdate);
+                    });
+                    nav.addEventListener('transitionend', queueScrollMarginUpdate);
+                }
 
-            // Corrige também ao abrir/fechar menu mobile
-            if (mobileToggle && nav && header) {
-                ['click', 'transitionend'].forEach(evt => {
-                    mobileToggle.addEventListener(evt, queueScrollMarginUpdate);
+                // Corrige ao mudar hash manualmente (ex: user digita #services)
+                window.addEventListener('hashchange', function () {
+                    setTimeout(applyDynamicScrollMargins, 10);
                 });
-                nav.addEventListener('transitionend', queueScrollMarginUpdate);
-            }
-
-            // Corrige ao mudar hash manualmente (ex: user digita #services)
-            window.addEventListener('hashchange', function () {
-                setTimeout(applyDynamicScrollMargins, 10);
             });
-        });
     </script>
 
     <!-- ===== PWA & PUSH NOTIFICATIONS ===== -->
