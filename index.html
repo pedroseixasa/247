@@ -48,7 +48,7 @@
 
     <!-- Performance: Preload critical assets -->
     <link rel="preload" href="images/logo.jpg" as="image">
-    <link rel="preload" href="css/mobile-responsive.css?v=202604010550" as="style">
+    <link rel="preload" href="css/mobile-responsive.css?v=202604010558" as="style">
 
     <!-- Performance: DNS Prefetch for external resources -->
     <link rel="dns-prefetch" href="https://two4-7-barbearia.onrender.com">
@@ -2212,13 +2212,16 @@
             flex-direction: column;
             padding: 1.5rem 1.75rem;
             gap: 0.9rem;
+            align-items: center;
         }
 
         .service-card-new .service-main-line {
             display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: 1rem;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.3rem;
+            width: 100%;
         }
 
         .service-card-new .service-name {
@@ -2227,7 +2230,8 @@
             color: #1a1a1a;
             letter-spacing: -0.01em;
             line-height: 1.4;
-            flex: 1;
+            text-align: center;
+            width: 100%;
         }
 
         .service-card-new .service-price {
@@ -2235,7 +2239,8 @@
             font-weight: 800;
             color: #c9a961;
             letter-spacing: -0.02em;
-            white-space: nowrap;
+            text-align: center;
+            width: 100%;
         }
 
         .service-card-new .service-description {
@@ -2261,9 +2266,7 @@
         .service-card-new .service-book-btn {
             width: 95%;
             margin: 0 auto;
-            margin-left: auto;
-            margin-right: auto;
-            padding: 0.9rem 1.5rem;
+            padding: 0.5rem 1.2rem;
             background: #1a1a1a;
             color: #fff;
             border: none;
@@ -4304,7 +4307,7 @@
     </style>
 
     <!-- Mobile Responsive Styles -->
-    <link rel="stylesheet" href="css/mobile-responsive.css?v=202604010550">
+    <link rel="stylesheet" href="css/mobile-responsive.css?v=202604010558">
 
     <script defer type="text/javascript">
         (function () {
