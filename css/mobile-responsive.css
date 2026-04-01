@@ -548,6 +548,7 @@
     display: flex !important;
     flex-direction: column !important;
     gap: 1rem !important;
+    margin-top: 1.5rem !important;
     padding-top: 1.5rem !important;
     border-top: 1px solid #e0e0e0 !important;
   }
@@ -571,6 +572,7 @@
   }
 
   .about-payment-pills li {
+    border: 2px solid #000 !important;
     border-radius: 999px !important;
     padding: 0.5rem 1rem !important;
     font-size: 0.85rem !important;
@@ -1133,7 +1135,6 @@
   .about-text,
   .about-content {
     margin-bottom: 0.75rem !important;
-    gap: 0 !important;
   }
 
   .cta-content {
