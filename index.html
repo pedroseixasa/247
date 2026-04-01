@@ -4948,170 +4948,150 @@
                 const elementY = window.pageYOffset + rect.top;
                 const targetScroll = Math.max(0, elementY - headerOffset);
 
-                console.log('🔴 performScroll:', {
+                console.log('🔴 performScroll START:', {
                     headerHeight,
                     safeAreaTop,
                     headerOffset,
                     elementY,
                     targetScroll,
-                    currentScroll: window.pageYOffset,
-                    rectTop: rect.top,
                 });
-
-                // Força scroll imediato
-                function doScroll() {
-                    window.scrollTo(0, targetScroll);
-                    document.body.scrollTop = targetScroll;
-                    document.documentElement.scrollTop = targetScroll;
-                }
 
                 // Scroll imediato
-                doScroll();
+                window.scrollTo(0, targetScroll);
+                document.body.scrollTop = targetScroll;
+                document.documentElement.scrollTop = targetScroll;
 
-                // Re-check e ajusta se necessário após o browser processar
-                setTimeout(() => {
+                // Ajuste fino - faz 3 verificações progressivas
+                let adjustAttempt = 0;
+                const maxAttempts = 3;
+
+                function checkAndAdjust() {
+                    adjustAttempt++;
                     const newRect = target.getBoundingClientRect();
                     const positionFromTop = newRect.top;
+                    const expectedTop = headerHeight + 5; // +5px de padding
 
-                    console.log('🔴 After scroll, element position:', { positionFromTop, headerHeight });
-
-                    // Se o elemento não está na posição certa (headerHeight - 20px até headerHeight + 20px from top)
-                    const expectedTop = headerHeight;
-                    const tolerance = 30;
-
-                    if (Math.abs(positionFromTop - expectedTop) > tolerance) {
-                        console.log('🔴 Position off by ' + Math.abs(positionFromTop - expectedTop) + 'px, adjusting...');
-
-                        // Ajusta scroll para corrigir
-                        const adjustment = positionFromTop - expectedTop;
-                        window.scrollBy(0, adjustment);
-                    } else {
-                        console.log('✅ Scroll position PERFECT!');
-                    }
-                }, 100);
-
-                // Log final com verificação
-                setTimeout(() => {
-                    const finalRect = target.getBoundingClientRect();
-                    const finalScroll = window.pageYOffset;
-                    console.log('🔴 Final state:', {
-                        finalScroll,
-                        targetScroll,
-                        elementTop: finalRect.top,
-                        headerHeight,
+                    console.log(`🔴 Adjustment attempt ${adjustAttempt}:`, {
+                        positionFromTop,
+                        expectedTop,
+                        difference: Math.abs(positionFromTop - expectedTop),
                     });
-                }, 500);
-            }
 
-            let resizeRaf = null;
+                    const tolerance = adjustAttempt === 1 ? 40 : 15; // Mais tolerante na primeira, rigoroso depois
+                    const diff = positionFromTop - expectedTop;
 
-            function applyScrollMarginTop() {
-                const offset = getHeaderOffset();
-                document.querySelectorAll('section[id], div[id].section-anchor').forEach((el) => {
-                    el.style.scrollMarginTop = offset + 'px';
-                });
-            }
+                    if (Math.abs(diff) > tolerance) {
+                        console.log(`🔴 Off by ${diff}px, adjusting...`);
+                        window.scrollBy(0, diff);
 
-            function queueScrollMarginUpdate() {
-                if (resizeRaf) {
-                    cancelAnimationFrame(resizeRaf);
+                        if (adjustAttempt < maxAttempts) {
+                            setTimeout(checkAndAdjust, 50 * adjustAttempt);
+                        }
+                    } else {
+                        console.log(`✅ Scroll PERFEITO! Off by only ${diff}px`);
+                    }
                 }
 
-                resizeRaf = requestAnimationFrame(() => {
-                    applyScrollMarginTop();
-                    resizeRaf = null;
-                });
+                // Primeira verificação após 80ms
+                setTimeout(checkAndAdjust, 80);
+                cancelAnimationFrame(resizeRaf);
             }
+
+            resizeRaf = requestAnimationFrame(() => {
+                applyScrollMarginTop();
+                resizeRaf = null;
+            });
+        }
 
             if (mobileToggle && nav && header) {
-                // Toggle menu
-                mobileToggle.addEventListener('click', function () {
-                    const isOpen = nav.classList.toggle('mobile-menu-open');
-                    mobileToggle.classList.toggle('active');
-                    header.classList.toggle('menu-is-open');
-                    mobileToggle.setAttribute('aria-expanded', isOpen);
-                    queueScrollMarginUpdate();
-                });
-            }
-
-            // Adiciona scroll e fecha menu para TODOS os anchor links
-            document.querySelectorAll('a[href^="#"]').forEach(link => {
-                link.addEventListener('click', function (e) {
-                    const href = this.getAttribute('href');
-                    console.log('🔴 Link clicked:', href);
-
-                    if (!href || href === '#') return;
-
-                    const target = document.querySelector(href);
-                    if (!target) {
-                        console.log('🔴 Target not found:', href);
-                        return;
-                    }
-
-                    e.preventDefault();
-
-                    // Fecha menu se estiver aberto
-                    if (mobileToggle && nav && nav.classList.contains('mobile-menu-open')) {
-                        nav.classList.remove('mobile-menu-open');
-                        mobileToggle.classList.remove('active');
-                    }
-
-                    // Faz scroll para o alvo
-                    console.log('🔴 Performing scroll to:', href);
-                    performScroll(target);
-
-                    // Atualiza o hash na barra de endereço
-                    try {
-                        history.replaceState(null, '', href);
-                    } catch (err) {
-                        window.location.hash = href;
-                    }
-                });
-            });
-
-            // Update menu display on resize
-            function updateMenuDisplay() {
-                if (!mobileToggle || !nav || !header) return;
-
-                if (window.innerWidth <= 768) {
-                    mobileToggle.style.display = 'flex';
-                } else {
-                    mobileToggle.style.display = 'none';
-                    nav.classList.remove('mobile-menu-open');
-                    mobileToggle.classList.remove('active');
-                    header.classList.remove('menu-is-open');
-                }
-            }
-
-            if (header && typeof ResizeObserver === 'function') {
-                const headerObserver = new ResizeObserver(() => {
-                    queueScrollMarginUpdate();
-                });
-                headerObserver.observe(header);
-            }
-
-            window.addEventListener('resize', function () {
-                updateMenuDisplay();
+            // Toggle menu
+            mobileToggle.addEventListener('click', function () {
+                const isOpen = nav.classList.toggle('mobile-menu-open');
+                mobileToggle.classList.toggle('active');
+                header.classList.toggle('menu-is-open');
+                mobileToggle.setAttribute('aria-expanded', isOpen);
                 queueScrollMarginUpdate();
             });
-            window.addEventListener('orientationchange', queueScrollMarginUpdate);
+        }
 
-            // Atualiza margens no load inicial e sempre que necessário
-            applyScrollMarginTop();
-            updateMenuDisplay();
+        // Adiciona scroll e fecha menu para TODOS os anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(link => {
+            link.addEventListener('click', function (e) {
+                const href = this.getAttribute('href');
+                console.log('🔴 Link clicked:', href);
 
-            // Corrige também ao abrir/fechar menu mobile
-            if (mobileToggle && nav && header) {
-                ['click', 'transitionend'].forEach(evt => {
-                    mobileToggle.addEventListener(evt, queueScrollMarginUpdate);
-                });
-                nav.addEventListener('transitionend', queueScrollMarginUpdate);
-            }
+                if (!href || href === '#') return;
 
-            // Corrige ao mudar hash manualmente (ex: user digita #services)
-            window.addEventListener('hashchange', function () {
-                setTimeout(applyScrollMarginTop, 10);
+                const target = document.querySelector(href);
+                if (!target) {
+                    console.log('🔴 Target not found:', href);
+                    return;
+                }
+
+                e.preventDefault();
+
+                // Fecha menu se estiver aberto
+                if (mobileToggle && nav && nav.classList.contains('mobile-menu-open')) {
+                    nav.classList.remove('mobile-menu-open');
+                    mobileToggle.classList.remove('active');
+                }
+
+                // Faz scroll para o alvo
+                console.log('🔴 Performing scroll to:', href);
+                performScroll(target);
+
+                // Atualiza o hash na barra de endereço
+                try {
+                    history.replaceState(null, '', href);
+                } catch (err) {
+                    window.location.hash = href;
+                }
             });
+        });
+
+        // Update menu display on resize
+        function updateMenuDisplay() {
+            if (!mobileToggle || !nav || !header) return;
+
+            if (window.innerWidth <= 768) {
+                mobileToggle.style.display = 'flex';
+            } else {
+                mobileToggle.style.display = 'none';
+                nav.classList.remove('mobile-menu-open');
+                mobileToggle.classList.remove('active');
+                header.classList.remove('menu-is-open');
+            }
+        }
+
+        if (header && typeof ResizeObserver === 'function') {
+            const headerObserver = new ResizeObserver(() => {
+                queueScrollMarginUpdate();
+            });
+            headerObserver.observe(header);
+        }
+
+        window.addEventListener('resize', function () {
+            updateMenuDisplay();
+            queueScrollMarginUpdate();
+        });
+        window.addEventListener('orientationchange', queueScrollMarginUpdate);
+
+        // Atualiza margens no load inicial e sempre que necessário
+        applyScrollMarginTop();
+        updateMenuDisplay();
+
+        // Corrige também ao abrir/fechar menu mobile
+        if (mobileToggle && nav && header) {
+            ['click', 'transitionend'].forEach(evt => {
+                mobileToggle.addEventListener(evt, queueScrollMarginUpdate);
+            });
+            nav.addEventListener('transitionend', queueScrollMarginUpdate);
+        }
+
+        // Corrige ao mudar hash manualmente (ex: user digita #services)
+        window.addEventListener('hashchange', function () {
+            setTimeout(applyScrollMarginTop, 10);
+        });
         });
     </script>
 
