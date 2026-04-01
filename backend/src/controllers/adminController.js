@@ -1158,6 +1158,26 @@ exports.deleteReview = async (req, res) => {
   }
 };
 
+// ===== HELPER: CLEANUP EXPIRED ABSENCES =====
+// Remove ausências que já passaram (data < hoje)
+async function cleanupExpiredAbsences(barber) {
+  if (!barber.absences || barber.absences.length === 0) return;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const beforeCount = barber.absences.length;
+  barber.absences = barber.absences.filter((absence) => {
+    const absenceDate = new Date(absence.date);
+    absenceDate.setHours(0, 0, 0, 0);
+    return absenceDate >= today;
+  });
+
+  if (barber.absences.length < beforeCount) {
+    await barber.save();
+  }
+}
+
 // ===== ABSENCE MANAGEMENT =====
 
 exports.addBarberAbsence = async (req, res) => {
@@ -1173,6 +1193,9 @@ exports.addBarberAbsence = async (req, res) => {
     if (!barber) {
       return res.status(404).json({ error: "Barbeiro não encontrado" });
     }
+
+    // Limpa ausências expiradas
+    await cleanupExpiredAbsences(barber);
 
     if (!barber.absences) {
       barber.absences = [];
@@ -1203,6 +1226,9 @@ exports.removeBarberAbsence = async (req, res) => {
     if (!barber) {
       return res.status(404).json({ error: "Barbeiro não encontrado" });
     }
+
+    // Limpa ausências expiradas
+    await cleanupExpiredAbsences(barber);
 
     // Remover ausência por ID
     barber.absences = barber.absences.filter(

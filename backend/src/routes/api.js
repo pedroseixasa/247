@@ -76,6 +76,24 @@ router.get("/barber/absences", authMiddleware, async (req, res) => {
     if (!barber) {
       return res.status(404).json({ error: "Perfil não encontrado" });
     }
+
+    // Limpa ausências expiradas
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const beforeCount = barber.absences?.length || 0;
+
+    if (barber.absences && barber.absences.length > 0) {
+      barber.absences = barber.absences.filter((absence) => {
+        const absenceDate = new Date(absence.date);
+        absenceDate.setHours(0, 0, 0, 0);
+        return absenceDate >= today;
+      });
+
+      if (barber.absences.length < beforeCount) {
+        await barber.save();
+      }
+    }
+
     res.json({
       barberId: req.user._id,
       barberName: barber.name,
@@ -105,6 +123,17 @@ router.delete(
       const barber = await Barber.findById(barberId);
       if (!barber) {
         return res.status(404).json({ error: "Barbeiro não encontrado" });
+      }
+
+      // Limpa ausências expiradas
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (barber.absences && barber.absences.length > 0) {
+        barber.absences = barber.absences.filter((absence) => {
+          const absenceDate = new Date(absence.date);
+          absenceDate.setHours(0, 0, 0, 0);
+          return absenceDate >= today;
+        });
       }
 
       const absenceIndex = barber.absences?.findIndex(
