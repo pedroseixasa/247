@@ -2146,27 +2146,6 @@
                             <small style="color: var(--text-light);">Selecione uma imagem (será otimizada e guardada na BD)</small>
                             ${settings.barberCards?.barber1CoverImage ? `<p style="margin-top: 0.5rem; color: var(--text-light); font-size: 0.9rem;">Imagem atual: <strong>${settings.barberCards.barber1CoverImage.split('/').pop()}</strong></p>` : ''}
                         </div>
-                        
-                        <div class="form-group">
-                            <label>Barbeiro 2: Nome</label>
-                            <input type="text" id="barber2Name" value="${settings.barberCards?.barber2Name || ''}">
-                        </div>
-                        <div class="form-group">
-                            <label>Barbeiro 2: Descrição</label>
-                            <textarea id="barber2Description" rows="3">${settings.barberCards?.barber2Description || ''}</textarea>
-                        </div>
-                        <div class="form-group">
-                            <label>Barbeiro 2: Imagem 3D</label>
-                            <input type="file" id="barber2Image" accept="image/*">
-                            <small style="color: var(--text-light);">Selecione uma imagem (será otimizada e guardada na BD)</small>
-                            ${settings.barberCards?.barber2Image ? `<p style="margin-top: 0.5rem; color: var(--text-light); font-size: 0.9rem;">Imagem atual: <strong>${settings.barberCards.barber2Image.split('/').pop()}</strong></p>` : ''}
-                        </div>
-                        <div class="form-group">
-                            <label>Barbeiro 2: Imagem de Fundo</label>
-                            <input type="file" id="barber2CoverImage" accept="image/*">
-                            <small style="color: var(--text-light);">Selecione uma imagem (será otimizada e guardada na BD)</small>
-                            ${settings.barberCards?.barber2CoverImage ? `<p style="margin-top: 0.5rem; color: var(--text-light); font-size: 0.9rem;">Imagem atual: <strong>${settings.barberCards.barber2CoverImage.split('/').pop()}</strong></p>` : ''}
-                        </div>
 
                         <div class="form-group">
                             <label>Rodapé</label>
@@ -2295,20 +2274,6 @@
                         formData.append('barber1CoverImageUrl', settings.barberCards?.barber1CoverImage || '');
                     }
 
-                    const barber2ImageFile = document.getElementById('barber2Image').files[0];
-                    if (barber2ImageFile) {
-                        formData.append('barber2Image', barber2ImageFile);
-                    } else {
-                        formData.append('barber2ImageUrl', settings.barberCards?.barber2Image || '');
-                    }
-
-                    const barber2CoverFile = document.getElementById('barber2CoverImage').files[0];
-                    if (barber2CoverFile) {
-                        formData.append('barber2CoverImage', barber2CoverFile);
-                    } else {
-                        formData.append('barber2CoverImageUrl', settings.barberCards?.barber2CoverImage || '');
-                    }
-
                     const aboutHighlights = document.getElementById('aboutHighlights').value
                         .split('\n')
                         .map(item => item.trim())
@@ -2407,10 +2372,9 @@
                             barber1Description: document.getElementById('barber1Description').value,
                             barber1Image: settings.barberCards?.barber1Image || '',
                             barber1CoverImage: settings.barberCards?.barber1CoverImage || '',
-                            barber2Name: document.getElementById('barber2Name').value,
-                            barber2Description: document.getElementById('barber2Description').value,
-                            barber2Image: settings.barberCards?.barber2Image || '',
-                            barber2CoverImage: settings.barberCards?.barber2CoverImage || ''
+                            barber1LunchBreak: {
+                                enabled: false
+                            }
                         },
                         showcase: {
                             cards: showcaseCards
