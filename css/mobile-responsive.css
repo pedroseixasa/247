@@ -129,7 +129,6 @@
   /* Consistent button sizing */
   .btn,
   button:not(.mobile-menu-toggle):not(.booking-close):not(.calendar-nav) {
-    font-size: 0.82rem !important;
     padding: 0.6rem 1.1rem !important;
     min-height: 44px;
   }
@@ -683,7 +682,7 @@
   }
 
   .service-info {
-    padding: 0.5rem !important;
+    padding: 0.5rem 0.5rem 0.6rem 0.5rem !important;
     gap: 0.15rem !important;
     flex-direction: column !important;
     align-items: center !important;
