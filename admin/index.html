@@ -574,6 +574,8 @@
                 margin-bottom: 70px;
                 padding: 0.5rem;
                 overflow-x: hidden;
+                width: 100% !important;
+                max-width: 100% !important;
             }
 
             header {
@@ -641,15 +643,16 @@
             }
 
             .table-container {
-                overflow-x: auto;
+                overflow-x: hidden;
                 -webkit-overflow-scrolling: touch;
-                width: 100%;
+                width: 100% !important;
+                max-width: 100% !important;
             }
 
             table {
                 font-size: 0.75rem;
-                width: 100%;
-                min-width: 520px;
+                width: 100% !important;
+                max-width: 100% !important;
             }
 
             th,
@@ -1426,7 +1429,7 @@
                             
                             <!-- Vista Mensal -->
                             <div class="history-view-container" data-view="monthly" style="overflow-x: auto;">
-                                <table style="width: 100%; border-collapse: collapse; min-width: 600px;">
+                                <table style="width: 100%; border-collapse: collapse;">
                                     <thead>
                                         <tr style="background: #f8f9fa; border-bottom: 1px solid #e0e0e0;">
                                             <th style="text-align: left; padding: 1rem; color: #666; font-weight: 600; font-size: 0.9rem;">Mês</th>
@@ -1460,7 +1463,7 @@
 
                             <!-- Vista Semanal -->
                             <div class="history-view-container" data-view="weekly" style="overflow-x: auto; display: none;">
-                                <table style="width: 100%; border-collapse: collapse; min-width: 700px;">
+                                <table style="width: 100%; border-collapse: collapse;">
                                     <thead>
                                         <tr style="background: #f8f9fa; border-bottom: 1px solid #e0e0e0;">
                                             <th style="text-align: left; padding: 1rem; color: #666; font-weight: 600; font-size: 0.9rem;">Semana</th>
