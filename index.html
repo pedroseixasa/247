@@ -4929,12 +4929,18 @@
             const mobileToggle = document.querySelector('.mobile-menu-toggle');
             const nav = document.querySelector('nav');
             const header = document.querySelector('header');
-            const supportsNativeSmoothScroll = 'scrollBehavior' in document.documentElement.style;
+            const prefersReducedMotionQuery = typeof window.matchMedia === 'function'
+                ? window.matchMedia('(prefers-reduced-motion: reduce)')
+                : null;
             // Seleciona todos os elementos de secção relevantes com id (section, div.section-anchor, etc)
             function getAnchorElements() {
                 return Array.from(document.querySelectorAll('[id].section-anchor, section[id], div[id].section-anchor'));
             }
             let resizeRaf = null;
+
+            function shouldReduceMotion() {
+                return prefersReducedMotionQuery ? prefersReducedMotionQuery.matches : false;
+            }
 
             function getHeaderOffset() {
                 const headerHeight = header ? Math.ceil(header.getBoundingClientRect().height) : 0;
@@ -4951,6 +4957,34 @@
             }
 
             function smoothScrollTo(targetPosition, duration) {
+                const root = document.documentElement;
+                const body = document.body || root;
+                const previousRootBehavior = root.style.scrollBehavior;
+                const previousBodyBehavior = body.style.scrollBehavior;
+
+                root.style.scrollBehavior = 'auto';
+                body.style.scrollBehavior = 'auto';
+
+                function restoreScrollBehavior() {
+                    if (previousRootBehavior) {
+                        root.style.scrollBehavior = previousRootBehavior;
+                    } else {
+                        root.style.removeProperty('scroll-behavior');
+                    }
+
+                    if (previousBodyBehavior) {
+                        body.style.scrollBehavior = previousBodyBehavior;
+                    } else {
+                        body.style.removeProperty('scroll-behavior');
+                    }
+                }
+
+                if (!duration || duration <= 0) {
+                    window.scrollTo(0, targetPosition);
+                    restoreScrollBehavior();
+                    return;
+                }
+
                 const startPosition = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
                 const distance = targetPosition - startPosition;
                 const startTime = performance.now();
@@ -4969,10 +5003,20 @@
 
                     if (progress < 1) {
                         requestAnimationFrame(step);
+                    } else {
+                        restoreScrollBehavior();
                     }
                 }
 
                 requestAnimationFrame(step);
+            }
+
+            function scrollToWithOffset(targetPosition) {
+                if (shouldReduceMotion()) {
+                    window.scrollTo(0, targetPosition);
+                } else {
+                    smoothScrollTo(targetPosition, 650);
+                }
             }
 
             function queueScrollMarginUpdate() {
@@ -5020,11 +5064,7 @@
                     // Calcula posição absoluta do topo do destino
                     const targetTop = target.getBoundingClientRect().top + window.pageYOffset - offset;
                     // Faz scroll manualmente para o topo correto
-                    if (supportsNativeSmoothScroll) {
-                        window.scrollTo({ top: targetTop, behavior: 'smooth' });
-                    } else {
-                        smoothScrollTo(targetTop, 650);
-                    }
+                    scrollToWithOffset(targetTop);
 
                     // Atualiza o hash na barra de endereço
                     try {
