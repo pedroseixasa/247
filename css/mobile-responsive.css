@@ -716,9 +716,24 @@
   .service-card-new .service-book-btn {
     display: block !important;
     width: 100% !important;
-    padding: 0.4rem 0.8rem !important;
-    margin: 0.25rem 0 0 0 !important;
-    font-size: 0.7rem !important;
+    padding: 0.6rem 1rem !important;
+    margin: 0.4rem 0 0 0 !important;
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.08em !important;
+    background: #1a1a1a !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 0.5rem !important;
+    cursor: pointer !important;
+    transition: all 0.25s ease !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
+  }
+
+  .service-card-new .service-book-btn:active {
+    background: #c9a961 !important;
+    box-shadow: 0 4px 12px rgba(201, 169, 97, 0.2) !important;
+    transform: translateY(-1px) !important;
   }
 }
 
