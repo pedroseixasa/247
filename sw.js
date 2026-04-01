@@ -1,5 +1,5 @@
 // Service Worker: Network-first strategy for all requests
-const CACHE_NAME = "247barbearia-v23";
+const CACHE_NAME = "247barbearia-v24";
 
 self.addEventListener("install", (event) => {
   self.skipWaiting();
