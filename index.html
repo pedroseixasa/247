@@ -4950,50 +4950,65 @@
                 const headerHeight = header ? header.getBoundingClientRect().height : 0;
                 const navHeight = nav ? nav.getBoundingClientRect().height : 0;
 
-                // Scroll final = posição da section - altura do header - altura da nav + 150px extra
-                const scrollPosition = sectionTop - headerHeight - navHeight + 150;
+                // Scroll final = posição da section - altura do header - altura da nav
+                const scrollPosition = sectionTop - headerHeight - navHeight;
 
                 console.log('SCROLL:', { sectionTop, headerHeight, navHeight, scrollPosition });
 
-                window.scrollTo({ top: scrollPosition, behavior: 'smooth' });
-            }
+                // FORÇA: Remove qualquer overflow bloqueado
+                document.body.style.overflow = 'auto';
+                document.documentElement.style.overflow = 'auto';
 
-            function applyScrollMarginTop() {
-                const offset = getHeaderOffset();
-                document.querySelectorAll('section[id], div[id].section-anchor').forEach((el) => {
-                    el.style.scrollMarginTop = offset + 'px';
-                });
-            }
+                // Método 1: Tenta scroll em ambos
+                window.scrollTo(0, scrollPosition);
+                document.body.scrollTop = scrollPosition;
+                document.documentElement.scrollTop = scrollPosition;
 
-            function queueScrollMarginUpdate() {
-                if (resizeRaf) cancelAnimationFrame(resizeRaf);
-                resizeRaf = requestAnimationFrame(() => {
-                    applyScrollMarginTop();
-                    resizeRaf = null;
-                });
+                // Método 2: Usa setTimeout para garantir
+                setTimeout(() => {
+                    window.scrollTo(0, scrollPosition);
+                    setTimeout(() => {
+                        window.scrollTo({ top: scrollPosition, behavior: 'smooth' });
+                    }, 50);
+                }, 10);
             }
 
             // Menu toggle
+            console.log('🟢 Checking menu setup:', { mobileToggle: !!mobileToggle, nav: !!nav, header: !!header });
             if (mobileToggle && nav && header) {
+                console.log('🟢 Menu toggle listener added');
                 mobileToggle.addEventListener('click', function () {
+                    console.log('🔴 Menu clicked!');
                     const isOpen = nav.classList.toggle('mobile-menu-open');
                     mobileToggle.classList.toggle('active');
                     header.classList.toggle('menu-is-open');
                     mobileToggle.setAttribute('aria-expanded', isOpen);
                     queueScrollMarginUpdate();
                 });
+            } else {
+                console.log('🔴 Menu setup FAILED - elements not found');
             }
 
             // Anchor links scroll
-            document.querySelectorAll('a[href^="#"]').forEach(link => {
+            console.log('🟢 Setting up anchor links');
+            document.querySelectorAll('a[href^="#"]').forEach((link, i) => {
                 link.addEventListener('click', function (e) {
                     const href = this.getAttribute('href');
+                    console.log('🔴 Anchor clicked:', href);
                     if (!href || href === '#') return;
 
                     const target = document.querySelector(href);
-                    if (!target) return;
+                    if (!target) {
+                        console.log('🔴 Target not found:', href);
+                        return;
+                    }
 
                     e.preventDefault();
+                    console.log('🔴 Performing scroll to:', href);
+
+                    // FORÇA: Remove overflow bloqueado
+                    document.body.style.overflow = 'auto';
+                    document.documentElement.style.overflow = 'auto';
 
                     // Fecha menu
                     if (mobileToggle && nav && nav.classList.contains('mobile-menu-open')) {
