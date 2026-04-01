@@ -204,12 +204,6 @@ const FILMING_MODE_OVERRIDES = {
     barber1CoverImage:
       "https://images.pexels.com/photos/1453005/pexels-photo-1453005.jpeg?auto=compress&cs=tinysrgb&w=900",
     barber1Image: "https://pngimg.com/d/man_PNG6511.png",
-    barber2Name: "Miguel Ferreira",
-    barber2Description:
-      "Detail-oriented Barber Specialist in modern cuts and beard styling, with a strong focus on client experience.",
-    barber2CoverImage:
-      "https://images.pexels.com/photos/1453005/pexels-photo-1453005.jpeg?auto=compress&cs=tinysrgb&w=900",
-    barber2Image: "https://pngimg.com/d/man_PNG6511.png",
   },
   galleryImages: [
     "https://images.pexels.com/photos/1453005/pexels-photo-1453005.jpeg?auto=compress&cs=tinysrgb&w=900",
@@ -375,20 +369,6 @@ function applyFilmingStaffOverrides() {
   setImageWithFallback(cover1, sharedCoverSrc, "images/cunhacorte.png");
   const char1 = document.getElementById("staffCharacterImage1");
   setImageWithFallback(char1, sharedCharacterSrc, "images/cunha.png");
-
-  const name2 = document.getElementById("staffName2");
-  if (name2) name2.textContent = staff.barber2Name;
-  const desc2 = document.getElementById("staffDescription2");
-  if (desc2) desc2.textContent = staff.barber2Description;
-  const cover2 = document.getElementById("staffCoverImage2");
-  setImageWithFallback(cover2, sharedCoverSrc, "images/cunhacorte.png");
-  const char2 = document.getElementById("staffCharacterImage2");
-  setImageWithFallback(char2, sharedCharacterSrc, "images/cunha.png");
-
-  const bookingBarberName = document.querySelector(
-    '.barber-card[data-barber="ricardo-silva"] .barber-name',
-  );
-  if (bookingBarberName) bookingBarberName.textContent = staff.barber2Name;
 }
 
 function applyFilmingGalleryOverrides() {
@@ -965,12 +945,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const barberIds = [
       "6998aaf59119a721cdc1e136", // Diogo Cunha
-      "6998aaf59119a721cdc1e137", // Ricardo Silva
     ];
 
     const barberKeyMap = {
       "6998aaf59119a721cdc1e136": "diogo-cunha",
-      "6998aaf59119a721cdc1e137": "ricardo-silva",
     };
 
     for (const barberId of barberIds) {
@@ -1037,16 +1015,6 @@ document.addEventListener("DOMContentLoaded", function () {
     "diogo-cunha": {
       id: "6998aaf59119a721cdc1e136",
       name: "Diogo Cunha",
-      workingHours: null,
-      lunchBreak: {
-        enabled: undefined,
-        startTime: "12:00",
-        endTime: "13:00",
-      },
-    },
-    "ricardo-silva": {
-      id: "6998aaf59119a721cdc1e137",
-      name: FILMING_MODE_ACTIVE ? "Miguel Ferreira" : "Ricardo Silva",
       workingHours: null,
       lunchBreak: {
         enabled: undefined,
@@ -1189,11 +1157,6 @@ document.addEventListener("DOMContentLoaded", function () {
       barber1.name = barberSettings.barber1Name;
     }
 
-    const barber2 = barbers["ricardo-silva"];
-    if (barber2 && barberSettings.barber2Name) {
-      barber2.name = barberSettings.barber2Name;
-    }
-
     const barber1Card = document.querySelector(
       '.barber-card[data-barber="diogo-cunha"]',
     );
@@ -1204,18 +1167,6 @@ document.addEventListener("DOMContentLoaded", function () {
     if (barber1Card && barberSettings.barber1Role) {
       const roleEl = barber1Card.querySelector(".barber-role");
       if (roleEl) roleEl.textContent = barberSettings.barber1Role;
-    }
-
-    const barber2Card = document.querySelector(
-      '.barber-card[data-barber="ricardo-silva"]',
-    );
-    if (barber2Card && barberSettings.barber2Name) {
-      const nameEl = barber2Card.querySelector(".barber-name");
-      if (nameEl) nameEl.textContent = barberSettings.barber2Name;
-    }
-    if (barber2Card && barberSettings.barber2Role) {
-      const roleEl = barber2Card.querySelector(".barber-role");
-      if (roleEl) roleEl.textContent = barberSettings.barber2Role;
     }
 
     // Keep booking card name synced with filming override
@@ -2237,24 +2188,6 @@ document.addEventListener("DOMContentLoaded", function () {
       if (barberCards.barber1Image) {
         const char1 = document.getElementById("staffCharacterImage1");
         if (char1) char1.src = barberCards.barber1Image;
-      }
-
-      // Update Barbeiro 2
-      if (barberCards.barber2Name) {
-        const name2 = document.getElementById("staffName2");
-        if (name2) name2.textContent = barberCards.barber2Name;
-      }
-      if (barberCards.barber2Description) {
-        const desc2 = document.getElementById("staffDescription2");
-        if (desc2) desc2.textContent = barberCards.barber2Description;
-      }
-      if (barberCards.barber2CoverImage) {
-        const img2 = document.getElementById("staffCoverImage2");
-        if (img2) img2.src = barberCards.barber2CoverImage;
-      }
-      if (barberCards.barber2Image) {
-        const char2 = document.getElementById("staffCharacterImage2");
-        if (char2) char2.src = barberCards.barber2Image;
       }
 
       applyFilmingStaffOverrides();
