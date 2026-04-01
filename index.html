@@ -148,6 +148,7 @@
             color: var(--text-dark);
             line-height: 1.6;
             animation: fade-in 500ms ease-out;
+            scroll-behavior: smooth;
         }
 
         a {
@@ -4942,35 +4943,29 @@
             function performScroll(target) {
                 if (!target) return;
 
-                // Calcula a posição exata da section no documento
-                const sectionRect = target.getBoundingClientRect();
-                const sectionTop = window.scrollY + sectionRect.top;
+                const isMobile = window.innerWidth <= 768;
 
-                // Calcula altura do header + navbar
-                const headerHeight = header ? header.getBoundingClientRect().height : 0;
-                const navHeight = nav ? nav.getBoundingClientRect().height : 0;
+                if (isMobile) {
+                    // Mobile: usa window.scrollTo com retry
+                    const headerOffset = getHeaderOffset();
+                    const elementTop = target.getBoundingClientRect().top + window.scrollY;
+                    const targetScroll = elementTop - headerOffset;
 
-                // Scroll final = posição da section - altura do header - altura da nav
-                const scrollPosition = sectionTop - headerHeight - navHeight;
+                    function doScroll() {
+                        window.scrollTo({
+                            top: targetScroll,
+                            left: 0,
+                            behavior: 'smooth'
+                        });
+                    }
 
-                console.log('SCROLL:', { sectionTop, headerHeight, navHeight, scrollPosition });
-
-                // FORÇA: Remove qualquer overflow bloqueado
-                document.body.style.overflow = 'auto';
-                document.documentElement.style.overflow = 'auto';
-
-                // Método 1: Tenta scroll em ambos
-                window.scrollTo(0, scrollPosition);
-                document.body.scrollTop = scrollPosition;
-                document.documentElement.scrollTop = scrollPosition;
-
-                // Método 2: Usa setTimeout para garantir
-                setTimeout(() => {
-                    window.scrollTo(0, scrollPosition);
-                    setTimeout(() => {
-                        window.scrollTo({ top: scrollPosition, behavior: 'smooth' });
-                    }, 50);
-                }, 10);
+                    doScroll();
+                    setTimeout(doScroll, 50);
+                    setTimeout(doScroll, 150);
+                } else {
+                    // Desktop: usa scrollIntoView que funciona bem
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
             }
 
             // Menu toggle
