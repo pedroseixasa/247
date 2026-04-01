@@ -4938,8 +4938,10 @@
 
             function performScroll(target) {
                 if (!target) return;
-                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                console.log('✅ Scroll to:', target.id);
+                const headerHeight = header.getBoundingClientRect().height;
+                const rect = target.getBoundingClientRect();
+                const targetTop = window.pageYOffset + rect.top - headerHeight - 80; // 80px extra abaixo do header
+                window.scrollTo({ top: targetTop, behavior: 'smooth' });
             }
 
             function applyScrollMarginTop() {
