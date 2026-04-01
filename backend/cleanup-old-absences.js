@@ -1,18 +1,18 @@
-require('dotenv').config();
-const mongoose = require('mongoose');
-const Barber = require('./src/models/Barber');
+require("dotenv").config();
+const mongoose = require("mongoose");
+const Barber = require("./src/models/Barber");
 
 const mongoUrl = process.env.MONGODB_URI;
 
 async function cleanupOldAbsences() {
   try {
-    console.log('🔍 Conectando à base de dados...');
+    console.log("🔍 Conectando à base de dados...");
     await mongoose.connect(mongoUrl, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
 
-    console.log('✅ Conectado com sucesso!');
+    console.log("✅ Conectado com sucesso!");
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -48,9 +48,9 @@ async function cleanupOldAbsences() {
     console.log(`   Total de ausências removidas: ${totalRemoved}`);
 
     await mongoose.connection.close();
-    console.log('📴 Desligado da BD');
+    console.log("📴 Desligado da BD");
   } catch (error) {
-    console.error('❌ Erro:', error.message);
+    console.error("❌ Erro:", error.message);
     process.exit(1);
   }
 }
