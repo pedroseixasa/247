@@ -688,6 +688,7 @@
     align-items: center !important;
     flex: 1 !important;
     display: flex !important;
+    justify-content: space-between !important;
   }
 
   .service-card-new .service-main-line {
