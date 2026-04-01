@@ -4926,13 +4926,10 @@
 
     <!-- Unified Scroll and Menu Script -->
     <script>
-        console.log('🟢 Scroll script loaded');
         document.addEventListener('DOMContentLoaded', function () {
-            console.log('🟢 DOMContentLoaded fired');
             const mobileToggle = document.querySelector('.mobile-menu-toggle');
             const nav = document.querySelector('nav');
             const header = document.querySelector('header');
-            console.log('🟢 Elements:', { mobileToggle: !!mobileToggle, nav: !!nav, header: !!header });
             let resizeRaf = null;
 
             function getHeaderOffset() {
@@ -4944,64 +4941,44 @@
                 if (!target) return;
 
                 const isMobile = window.innerWidth <= 768;
+                const headerOffset = getHeaderOffset();
+                const elementTop = target.getBoundingClientRect().top + window.scrollY;
+                const targetScroll = Math.max(0, elementTop - headerOffset);
 
                 if (isMobile) {
-                    // Mobile: usa window.scrollTo com retry
-                    const headerOffset = getHeaderOffset();
-                    const elementTop = target.getBoundingClientRect().top + window.scrollY;
-                    const targetScroll = elementTop - headerOffset;
-
-                    function doScroll() {
-                        window.scrollTo({
-                            top: targetScroll,
-                            left: 0,
-                            behavior: 'smooth'
-                        });
-                    }
-
-                    doScroll();
-                    setTimeout(doScroll, 50);
-                    setTimeout(doScroll, 150);
+                    // Mobile: scroll imediato com scrollTop
+                    document.documentElement.scrollTop = targetScroll;
+                    document.body.scrollTop = targetScroll;
+                    window.scrollTo(0, targetScroll);
                 } else {
-                    // Desktop: usa scrollIntoView que funciona bem
+                    // Desktop: smooth scroll
                     target.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
             }
 
             // Menu toggle
-            console.log('🟢 Checking menu setup:', { mobileToggle: !!mobileToggle, nav: !!nav, header: !!header });
             if (mobileToggle && nav && header) {
-                console.log('🟢 Menu toggle listener added');
                 mobileToggle.addEventListener('click', function () {
-                    console.log('🔴 Menu clicked!');
                     const isOpen = nav.classList.toggle('mobile-menu-open');
                     mobileToggle.classList.toggle('active');
                     header.classList.toggle('menu-is-open');
                     mobileToggle.setAttribute('aria-expanded', isOpen);
                     queueScrollMarginUpdate();
                 });
-            } else {
-                console.log('🔴 Menu setup FAILED - elements not found');
             }
 
             // Anchor links scroll
-            console.log('🟢 Setting up anchor links');
-            document.querySelectorAll('a[href^="#"]').forEach((link, i) => {
+            document.querySelectorAll('a[href^="#"]').forEach((link) => {
                 link.addEventListener('click', function (e) {
                     const href = this.getAttribute('href');
-                    console.log('🔴 Anchor clicked:', href);
                     if (!href || href === '#') return;
 
                     const target = document.querySelector(href);
-                    if (!target) {
-                        console.log('🔴 Target not found:', href);
-                        return;
-                    }
+                    if (!target) return;
 
                     e.preventDefault();
-                    console.log('🔴 Performing scroll to:', href);
 
-                    // FORÇA: Remove overflow bloqueado
+                    // Remove overflow bloqueado
                     document.body.style.overflow = 'auto';
                     document.documentElement.style.overflow = 'auto';
 
