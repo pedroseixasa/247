@@ -2122,9 +2122,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const isTablet = screenWidth >= 768 && screenWidth < 1024;
 
   if (isMobile) {
-    // Mobile (iPhone/Android) - valores mais acessíveis
-    threshold = 0.3;
-    rootMargin = "0px 0px -10% 0px";
+    // Mobile (iPhone/Android) - ativa mais tarde com mais scroll necessário
+    threshold = 0.45;
+    rootMargin = "0px 0px -20% 0px";
   } else if (isTablet) {
     // Tablet - ativa quando 70% visível com margem de -18%
     threshold = 0.7;
