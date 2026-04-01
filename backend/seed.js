@@ -39,24 +39,6 @@ async function seedDatabase() {
           sunday: { start: "closed", end: "closed" },
         },
       },
-      {
-        name: "Ricardo Silva",
-        email: "ricardo@barbearia247.pt",
-        phone: "+351987654321",
-        password: "barber123", // Mude isto depois!
-        role: "barber",
-        bio: "Barbeiro profissional",
-        avatar: "https://via.placeholder.com/150",
-        workingHours: {
-          monday: { start: "closed", end: "closed" },
-          tuesday: { start: "10:00", end: "19:00" },
-          wednesday: { start: "10:00", end: "19:00" },
-          thursday: { start: "10:00", end: "19:00" },
-          friday: { start: "10:00", end: "19:00" },
-          saturday: { start: "10:00", end: "13:00" },
-          sunday: { start: "10:00", end: "19:00" },
-        },
-      },
     ];
 
     const barbersWithHashedPasswords = await Promise.all(
