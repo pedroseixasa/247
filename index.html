@@ -4943,111 +4943,105 @@
                 const sectionRect = target.getBoundingClientRect();
                 const sectionTop = window.scrollY + sectionRect.top;
 
-                // Calcula altura do header
+                // Calcula altura do header + navbar
                 const headerHeight = header ? header.getBoundingClientRect().height : 0;
+                const navHeight = nav ? nav.getBoundingClientRect().height : 0;
 
-                // Scroll final = posição da section - altura do header - 20px de padding
-                const scrollPosition = sectionTop - headerHeight - 20;
+                // Scroll final = posição da section - altura do header - altura da nav - 20px de padding
+                const scrollPosition = sectionTop - headerHeight - navHeight - 20;
 
-                console.log('SCROLL:', { sectionTop, headerHeight, scrollPosition });
-
-                window.scrollTo({ top: scrollPosition, behavior: 'smooth' });
-            }
-
-            function applyScrollMarginTop() {
-                const offset = getHeaderOffset() + 50; // +50px extra space
-                document.querySelectorAll('section[id], div[id].section-anchor').forEach((el) => {
-                    el.style.scrollMarginTop = offset + 'px';
-                });
-            }
-
-            function queueScrollMarginUpdate() {
-                if (resizeRaf) cancelAnimationFrame(resizeRaf);
-                resizeRaf = requestAnimationFrame(() => {
-                    applyScrollMarginTop();
-                    resizeRaf = null;
-                });
-            }
-
-            // Menu toggle
-            if (mobileToggle && nav && header) {
-                mobileToggle.addEventListener('click', function () {
-                    const isOpen = nav.classList.toggle('mobile-menu-open');
-                    mobileToggle.classList.toggle('active');
-                    header.classList.toggle('menu-is-open');
-                    mobileToggle.setAttribute('aria-expanded', isOpen);
-                    queueScrollMarginUpdate();
-                });
-            }
-
-            // Anchor links scroll
-            document.querySelectorAll('a[href^="#"]').forEach(link => {
-                link.addEventListener('click', function (e) {
-                    const href = this.getAttribute('href');
-                    if (!href || href === '#') return;
-
-                    const target = document.querySelector(href);
-                    if (!target) return;
-
-                    e.preventDefault();
-
-                    // Fecha menu
-                    if (mobileToggle && nav && nav.classList.contains('mobile-menu-open')) {
-                        nav.classList.remove('mobile-menu-open');
-                        mobileToggle.classList.remove('active');
-                    }
-
-                    performScroll(target);
-
-                    try {
-                        history.replaceState(null, '', href);
-                    } catch (err) {
-                        window.location.hash = href;
-                    }
-                });
+                console.log('SCROLL:', { sectionTop, headerHeight, navHeight, scrollPosition });
+                el.style.scrollMarginTop = offset + 'px';
             });
-
-            // Menu display on resize
-            function updateMenuDisplay() {
-                if (!mobileToggle || !nav || !header) return;
-                if (window.innerWidth <= 768) {
-                    mobileToggle.style.display = 'flex';
-                } else {
-                    mobileToggle.style.display = 'none';
-                    nav.classList.remove('mobile-menu-open');
-                    mobileToggle.classList.remove('active');
-                    header.classList.remove('menu-is-open');
-                }
             }
 
-            // ResizeObserver
-            if (header && typeof ResizeObserver === 'function') {
-                const headerObserver = new ResizeObserver(() => {
-                    queueScrollMarginUpdate();
-                });
-                headerObserver.observe(header);
-            }
+        function queueScrollMarginUpdate() {
+            if (resizeRaf) cancelAnimationFrame(resizeRaf);
+            resizeRaf = requestAnimationFrame(() => {
+                applyScrollMarginTop();
+                resizeRaf = null;
+            });
+        }
 
-            window.addEventListener('resize', function () {
-                updateMenuDisplay();
+        // Menu toggle
+        if (mobileToggle && nav && header) {
+            mobileToggle.addEventListener('click', function () {
+                const isOpen = nav.classList.toggle('mobile-menu-open');
+                mobileToggle.classList.toggle('active');
+                header.classList.toggle('menu-is-open');
+                mobileToggle.setAttribute('aria-expanded', isOpen);
                 queueScrollMarginUpdate();
             });
-            window.addEventListener('orientationchange', queueScrollMarginUpdate);
+        }
 
-            // Init
-            applyScrollMarginTop();
-            updateMenuDisplay();
+        // Anchor links scroll
+        document.querySelectorAll('a[href^="#"]').forEach(link => {
+            link.addEventListener('click', function (e) {
+                const href = this.getAttribute('href');
+                if (!href || href === '#') return;
 
-            if (mobileToggle && nav && header) {
-                ['click', 'transitionend'].forEach(evt => {
-                    mobileToggle.addEventListener(evt, queueScrollMarginUpdate);
-                });
-                nav.addEventListener('transitionend', queueScrollMarginUpdate);
-            }
+                const target = document.querySelector(href);
+                if (!target) return;
 
-            window.addEventListener('hashchange', function () {
-                setTimeout(applyScrollMarginTop, 10);
+                e.preventDefault();
+
+                // Fecha menu
+                if (mobileToggle && nav && nav.classList.contains('mobile-menu-open')) {
+                    nav.classList.remove('mobile-menu-open');
+                    mobileToggle.classList.remove('active');
+                }
+
+                performScroll(target);
+
+                try {
+                    history.replaceState(null, '', href);
+                } catch (err) {
+                    window.location.hash = href;
+                }
             });
+        });
+
+        // Menu display on resize
+        function updateMenuDisplay() {
+            if (!mobileToggle || !nav || !header) return;
+            if (window.innerWidth <= 768) {
+                mobileToggle.style.display = 'flex';
+            } else {
+                mobileToggle.style.display = 'none';
+                nav.classList.remove('mobile-menu-open');
+                mobileToggle.classList.remove('active');
+                header.classList.remove('menu-is-open');
+            }
+        }
+
+        // ResizeObserver
+        if (header && typeof ResizeObserver === 'function') {
+            const headerObserver = new ResizeObserver(() => {
+                queueScrollMarginUpdate();
+            });
+            headerObserver.observe(header);
+        }
+
+        window.addEventListener('resize', function () {
+            updateMenuDisplay();
+            queueScrollMarginUpdate();
+        });
+        window.addEventListener('orientationchange', queueScrollMarginUpdate);
+
+        // Init
+        applyScrollMarginTop();
+        updateMenuDisplay();
+
+        if (mobileToggle && nav && header) {
+            ['click', 'transitionend'].forEach(evt => {
+                mobileToggle.addEventListener(evt, queueScrollMarginUpdate);
+            });
+            nav.addEventListener('transitionend', queueScrollMarginUpdate);
+        }
+
+        window.addEventListener('hashchange', function () {
+            setTimeout(applyScrollMarginTop, 10);
+        });
         });
     </script>
 
