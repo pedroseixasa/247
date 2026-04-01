@@ -1222,8 +1222,7 @@
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;
-    padding-top: max(1.5rem, env(safe-area-inset-top)) !important;
-    padding-bottom: max(1.5rem, env(safe-area-inset-bottom)) !important;
+    padding: 15px 0 !important;
   }
 
   .booking-modal-content {
