@@ -4938,15 +4938,20 @@
 
             function performScroll(target) {
                 if (!target) return;
-                const headerHeight = header.getBoundingClientRect().height;
-                const rect = target.getBoundingClientRect();
-                const targetTop = window.pageYOffset + rect.top - headerHeight - 150; // 150px extra
-                console.log('SCROLL DEBUG:', { pageYOffset: window.pageYOffset, rectTop: rect.top, headerHeight, targetTop });
-                window.scrollTo({ top: targetTop, behavior: 'smooth' });
-                // Força scroll imediato também
-                setTimeout(() => {
-                    window.scrollTo(0, targetTop);
-                }, 100);
+
+                // Calcula a posição exata da section no documento
+                const sectionRect = target.getBoundingClientRect();
+                const sectionTop = window.scrollY + sectionRect.top;
+
+                // Calcula altura do header
+                const headerHeight = header ? header.getBoundingClientRect().height : 0;
+
+                // Scroll final = posição da section - altura do header - 20px de padding
+                const scrollPosition = sectionTop - headerHeight - 20;
+
+                console.log('SCROLL:', { sectionTop, headerHeight, scrollPosition });
+
+                window.scrollTo({ top: scrollPosition, behavior: 'smooth' });
             }
 
             function applyScrollMarginTop() {
