@@ -130,7 +130,7 @@
   .btn,
   button:not(.mobile-menu-toggle):not(.booking-close):not(.calendar-nav) {
     padding: 0.6rem 1.1rem !important;
-    min-height: 44px;
+    min-height: 35px;
   }
 
   /* Header & Navigation - NÃO STICKY no mobile */
