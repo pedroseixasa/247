@@ -4943,7 +4943,7 @@
             }
 
             function applyScrollMarginTop() {
-                const offset = getHeaderOffset();
+                const offset = getHeaderOffset() + 50; // +50px extra space
                 document.querySelectorAll('section[id], div[id].section-anchor').forEach((el) => {
                     el.style.scrollMarginTop = offset + 'px';
                 });
