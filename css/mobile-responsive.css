@@ -305,7 +305,7 @@
     content: "";
     position: absolute;
     inset: 0;
-    background-image: url("../images/1.jpg");
+    background-image: var(--hero-background-image, url("../images/1.jpg"));
     background-size: cover;
     background-position: center 40%;
     background-repeat: no-repeat;
@@ -566,7 +566,6 @@
     display: flex !important;
     flex-direction: column !important;
     gap: 1rem !important;
-    margin-top: 1.5rem !important;
     padding-top: 1.5rem !important;
     border-top: 1px solid #e0e0e0 !important;
   }

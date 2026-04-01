@@ -433,6 +433,7 @@
         }
 
         .hero {
+            --hero-background-image: url('images/1.jpg');
             position: relative;
             padding: var(--spacing-xl) 0;
             background: linear-gradient(135deg, var(--secondary) 0%, var(--bg-light) 100%);
@@ -2911,6 +2912,8 @@
 
             .about-text {
                 padding: 0 0.5rem;
+                gap: 0rem;
+
             }
         }
 
@@ -4926,6 +4929,7 @@
             const mobileToggle = document.querySelector('.mobile-menu-toggle');
             const nav = document.querySelector('nav');
             const header = document.querySelector('header');
+            const supportsNativeSmoothScroll = 'scrollBehavior' in document.documentElement.style;
             // Seleciona todos os elementos de secção relevantes com id (section, div.section-anchor, etc)
             function getAnchorElements() {
                 return Array.from(document.querySelectorAll('[id].section-anchor, section[id], div[id].section-anchor'));
@@ -5016,7 +5020,11 @@
                     // Calcula posição absoluta do topo do destino
                     const targetTop = target.getBoundingClientRect().top + window.pageYOffset - offset;
                     // Faz scroll manualmente para o topo correto
-                    window.scrollTo({ top: targetTop, behavior: 'smooth' });
+                    if (supportsNativeSmoothScroll) {
+                        window.scrollTo({ top: targetTop, behavior: 'smooth' });
+                    } else {
+                        smoothScrollTo(targetTop, 650);
+                    }
 
                     // Atualiza o hash na barra de endereço
                     try {

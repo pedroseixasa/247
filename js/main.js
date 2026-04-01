@@ -630,6 +630,22 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  function setHeroBackgroundImage(value) {
+    const heroSection = document.querySelector(".hero");
+    if (!heroSection) {
+      return;
+    }
+
+    if (value) {
+      heroSection.style.setProperty(
+        "--hero-background-image",
+        `url("${value}")`,
+      );
+    } else {
+      heroSection.style.removeProperty("--hero-background-image");
+    }
+  }
+
   function applySiteSettings(settings) {
     if (!settings) return;
 
@@ -660,6 +676,7 @@ document.addEventListener("DOMContentLoaded", function () {
     setText("heroCtaSecondary", settings.hero?.ctaSecondaryText);
     setHref("heroCtaSecondary", settings.hero?.ctaSecondaryHref);
     setSrc("heroImage", settings.hero?.image);
+    setHeroBackgroundImage(settings.hero?.image);
 
     setText("aboutEyebrow", settings.about?.eyebrow);
     setText("aboutTitle", settings.about?.title);
