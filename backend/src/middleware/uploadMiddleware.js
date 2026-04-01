@@ -72,8 +72,6 @@ const optimizeUploadedImages = async (req, res, next) => {
       "loaderImage",
       "barber1Image",
       "barber1CoverImage",
-      "barber2Image",
-      "barber2CoverImage",
       "serviceImage",
     ];
 
@@ -267,8 +265,6 @@ module.exports = {
     { name: "loaderImage", maxCount: 1 },
     { name: "barber1Image", maxCount: 1 },
     { name: "barber1CoverImage", maxCount: 1 },
-    { name: "barber2Image", maxCount: 1 },
-    { name: "barber2CoverImage", maxCount: 1 },
     { name: "serviceImage", maxCount: 1 },
     { name: "showcaseCard1Images", maxCount: 3 },
     { name: "showcaseCard2Images", maxCount: 3 },

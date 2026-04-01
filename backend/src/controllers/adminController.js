@@ -123,8 +123,6 @@ const defaultSiteSettings = {
   barberCards: {
     barber1Name: "Diogo Cunha",
     barber1Role: "Barbeiro Profissional",
-    barber2Name: "Ricardo Silva",
-    barber2Role: "Barbeiro Especialista",
   },
 };
 
@@ -1012,20 +1010,6 @@ exports.updateSiteContent = async (req, res) => {
     } else if (req.barber1CoverImageUrl || req.body.barber1CoverImageUrl) {
       data.barberCards.barber1CoverImage =
         req.barber1CoverImageUrl || req.body.barber1CoverImageUrl;
-    }
-
-    if (req.barber2ImageBase64) {
-      data.barberCards.barber2Image = req.barber2ImageBase64;
-    } else if (req.barber2ImageUrl || req.body.barber2ImageUrl) {
-      data.barberCards.barber2Image =
-        req.barber2ImageUrl || req.body.barber2ImageUrl;
-    }
-
-    if (req.barber2CoverImageBase64) {
-      data.barberCards.barber2CoverImage = req.barber2CoverImageBase64;
-    } else if (req.barber2CoverImageUrl || req.body.barber2CoverImageUrl) {
-      data.barberCards.barber2CoverImage =
-        req.barber2CoverImageUrl || req.body.barber2CoverImageUrl;
     }
 
     // Showcase Cards Images (2 Cards)
