@@ -4963,37 +4963,38 @@
 
                 // Ajuste fino - faz 3 verificações progressivas
                 let adjustAttempt = 0;
-                const maxAttempts = 3;
+                const maxAttempts = 4;
 
                 function checkAndAdjust() {
                     adjustAttempt++;
                     const newRect = target.getBoundingClientRect();
                     const positionFromTop = newRect.top;
-                    const expectedTop = headerHeight + 5; // +5px de padding
+                    // Deixa a section com MUITO mais espaço abaixo do header (120px em vez de 5px)
+                    const expectedTop = headerHeight + 120;
 
                     console.log(`🔴 Adjustment attempt ${adjustAttempt}:`, {
                         positionFromTop,
                         expectedTop,
-                        difference: Math.abs(positionFromTop - expectedTop),
+                        difference: positionFromTop - expectedTop,
                     });
 
-                    const tolerance = adjustAttempt === 1 ? 40 : 15; // Mais tolerante na primeira, rigoroso depois
                     const diff = positionFromTop - expectedTop;
+                    const tolerance = 10; // Bem rigoroso
 
                     if (Math.abs(diff) > tolerance) {
-                        console.log(`🔴 Off by ${diff}px, adjusting...`);
+                        console.log(`🔴 Off by ${diff}px, scrolling...`);
                         window.scrollBy(0, diff);
 
                         if (adjustAttempt < maxAttempts) {
-                            setTimeout(checkAndAdjust, 50 * adjustAttempt);
+                            setTimeout(checkAndAdjust, 40);
                         }
                     } else {
                         console.log(`✅ Scroll PERFEITO! Off by only ${diff}px`);
                     }
                 }
 
-                // Primeira verificação após 80ms
-                setTimeout(checkAndAdjust, 80);
+                // Primeira verificação após 60ms
+                setTimeout(checkAndAdjust, 60);
                 cancelAnimationFrame(resizeRaf);
             }
 
