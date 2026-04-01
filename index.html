@@ -4938,44 +4938,68 @@
             function performScroll(target) {
                 if (!target) return;
 
-                const headerOffset = getHeaderOffset();
+                // Recalcula offset EXATAMENTE quando vai fazer scroll
+                const headerHeight = header.getBoundingClientRect().height;
+                const safeAreaTop = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--safe-area-inset-top')) || 0;
+                const headerOffset = Math.ceil(headerHeight) + 12 + safeAreaTop;
+
+                // Posição exata do elemento no documento
                 const rect = target.getBoundingClientRect();
                 const elementY = window.pageYOffset + rect.top;
                 const targetScroll = Math.max(0, elementY - headerOffset);
 
-                console.log('🔴 performScroll:', { targetScroll, currentScroll: window.pageYOffset, rect: { top: rect.top, bottom: rect.bottom } });
+                console.log('🔴 performScroll:', {
+                    headerHeight,
+                    safeAreaTop,
+                    headerOffset,
+                    elementY,
+                    targetScroll,
+                    currentScroll: window.pageYOffset,
+                    rectTop: rect.top,
+                });
 
-                // Força scroll imediato em TODOS os lugares possíveis
+                // Força scroll imediato
                 function doScroll() {
                     window.scrollTo(0, targetScroll);
                     document.body.scrollTop = targetScroll;
                     document.documentElement.scrollTop = targetScroll;
-                    window.pageYOffset === targetScroll && console.log('✅ Scroll succeeded!');
                 }
 
-                // Tentativa 1: scroll imediato
+                // Scroll imediato
                 doScroll();
 
-                // Tentativa 2: após 50ms
-                setTimeout(doScroll, 50);
-
-                // Tentativa 3: após 150ms
-                setTimeout(doScroll, 150);
-
-                // Tentativa 4: após 300ms (talvez haja reflow lento)
-                setTimeout(doScroll, 300);
-
-                // Log final
+                // Re-check e ajusta se necessário após o browser processar
                 setTimeout(() => {
-                    const finalScroll = window.pageYOffset;
-                    const diff = Math.abs(finalScroll - targetScroll);
-                    console.log('🔴 Final scroll position:', { finalScroll, targetScroll, diff });
+                    const newRect = target.getBoundingClientRect();
+                    const positionFromTop = newRect.top;
 
-                    if (diff <= 20) {
-                        console.log('✅ Scroll WORKED!');
+                    console.log('🔴 After scroll, element position:', { positionFromTop, headerHeight });
+
+                    // Se o elemento não está na posição certa (headerHeight - 20px até headerHeight + 20px from top)
+                    const expectedTop = headerHeight;
+                    const tolerance = 30;
+
+                    if (Math.abs(positionFromTop - expectedTop) > tolerance) {
+                        console.log('🔴 Position off by ' + Math.abs(positionFromTop - expectedTop) + 'px, adjusting...');
+
+                        // Ajusta scroll para corrigir
+                        const adjustment = positionFromTop - expectedTop;
+                        window.scrollBy(0, adjustment);
                     } else {
-                        console.log('❌ Scroll FAILED - still ' + diff + 'px away');
+                        console.log('✅ Scroll position PERFECT!');
                     }
+                }, 100);
+
+                // Log final com verificação
+                setTimeout(() => {
+                    const finalRect = target.getBoundingClientRect();
+                    const finalScroll = window.pageYOffset;
+                    console.log('🔴 Final state:', {
+                        finalScroll,
+                        targetScroll,
+                        elementTop: finalRect.top,
+                        headerHeight,
+                    });
                 }, 500);
             }
 
