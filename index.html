@@ -2904,7 +2904,7 @@
 
 
         /* mobile: empilha texto + card */
-        @media (max-width: 900px) {
+        @media (max-width: 767px) {
             .about {
                 padding: 3rem 0;
             }
@@ -2917,7 +2917,36 @@
             .about-text {
                 padding: 0 0.5rem;
                 gap: 0rem;
+            }
+        }
 
+        /* Tablet: intermediário entre mobile e desktop */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .about {
+                padding: 4rem 0;
+            }
+
+            .about-layout {
+                grid-template-columns: minmax(0, 0.85fr) minmax(0, 1fr);
+                gap: clamp(2rem, 5vw, 3.5rem);
+            }
+
+            .about-media {
+                aspect-ratio: 3 / 4;
+            }
+
+            .about-text {
+                gap: 1.2rem;
+                padding-top: 0;
+            }
+
+            .about-text p {
+                font-size: 0.95rem;
+                line-height: 1.65;
+            }
+
+            .about .section-title {
+                font-size: 1.75rem;
             }
         }
 
