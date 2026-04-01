@@ -1846,7 +1846,6 @@
   /* Desktop usa scroll (IntersectionObserver) como mobile e tablet */
   .about-card.is-3d .about-character-image {
     opacity: 1 !important;
-    transform: translate3d(0, -2%, 325px) !important;
   }
 
   .about-card.is-3d .about-card-wrapper {
