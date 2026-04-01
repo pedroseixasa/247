@@ -684,8 +684,11 @@
   }
 
   .service-info {
-    padding: 0.6rem !important;
-    gap: 0.2rem !important;
+    padding: 0.5rem !important;
+    gap: 0.15rem !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
   }
 
   .service-card-new .service-name {
@@ -696,12 +699,15 @@
 
   .service-card-new .service-price {
     text-align: center !important;
+    width: 100% !important;
   }
 
   .service-card-new .service-book-btn {
     display: block !important;
     width: 100% !important;
-    margin: 0.3rem 0 0 0 !important;
+    padding: 0.4rem 0.8rem !important;
+    margin: 0.25rem 0 0 0 !important;
+    font-size: 0.8rem !important;
   }
 }
     width: 100% !important;
