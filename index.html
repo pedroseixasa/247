@@ -4950,8 +4950,8 @@
                 const headerHeight = header ? header.getBoundingClientRect().height : 0;
                 const navHeight = nav ? nav.getBoundingClientRect().height : 0;
 
-                // Scroll final = posição da section - altura do header - altura da nav - 100px extra
-                const scrollPosition = sectionTop - headerHeight - navHeight - 100;
+                // Scroll final = posição da section - altura do header - altura da nav + 150px extra
+                const scrollPosition = sectionTop - headerHeight - navHeight + 150;
 
                 console.log('SCROLL:', { sectionTop, headerHeight, navHeight, scrollPosition });
 
