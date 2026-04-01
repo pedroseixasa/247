@@ -719,59 +719,6 @@
     font-size: 0.8rem !important;
   }
 }
-    width: 100% !important;
-    height: 190px !important;
-  }
-
-  .service-main-line {
-    flex-direction: column !important;
-    align-items: flex-start !important;
-    gap: 0.35rem !important;
-  }
-
-  .service-name {
-    font-size: 0.92rem !important;
-  }
-
-  .service-price {
-    font-size: 1.1rem !important;
-  }
-
-  .service-meta-line {
-    flex-direction: column !important;
-    align-items: stretch !important;
-  }
-
-  .service-book-btn {
-    width: 100% !important;
-    margin-left: 0 !important;
-    margin-top: 0.4rem !important;
-    font-size: 0.75rem !important;
-    justify-content: center !important;
-  }
-
-  .service-description {
-    font-size: 0.85rem !important;
-    line-height: 1.5 !important;
-  }
-
-  .service-info {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
-
-  .service-price {
-    font-size: 1.05rem !important;
-  }
-
-  .service-duration {
-    font-size: 0.8rem !important;
-  }
-
-  .service-details {
-    font-size: 0.85rem !important;
-  }
 
   /* Gallery - IMAGENS CENTRADAS */
   .gallery-grid {
