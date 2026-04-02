@@ -423,11 +423,13 @@ exports.createReservation = async (req, res) => {
         $lte: new Date(endOfDay),
       },
       timeSlot: timeSlot,
-      status: { $ne: 'cancelled' },
+      status: { $ne: "cancelled" },
     });
 
     if (finalConflict > 0) {
-      throw new Error('Esta hora foi reservada neste meio-tempo. Escolha outro horário.');
+      throw new Error(
+        "Esta hora foi reservada neste meio-tempo. Escolha outro horário.",
+      );
     }
 
     await reservation.save();
@@ -511,10 +513,11 @@ exports.createReservation = async (req, res) => {
     // Handle MongoDB duplicate key error (race condition: another booking at same time)
     if (error.code === 11000) {
       console.warn(
-        `Duplicate booking attempt: ${error.message} - Retry message sent to client`
+        `Duplicate booking attempt: ${error.message} - Retry message sent to client`,
       );
       return res.status(409).json({
-        error: 'Esta hora foi reservada neste meio tempo. Por favor, escolha outro horário.',
+        error:
+          "Esta hora foi reservada neste meio tempo. Por favor, escolha outro horário.",
         retry: true,
       });
     }

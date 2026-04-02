@@ -64,9 +64,9 @@ reservationSchema.index(
   {
     unique: true,
     partialFilterExpression: {
-      status: { $ne: 'cancelled' }, // Allow multiple cancelled at same slot
+      status: { $ne: "cancelled" }, // Allow multiple cancelled at same slot
     },
-  }
+  },
 );
 
 module.exports = mongoose.model("Reservation", reservationSchema);
