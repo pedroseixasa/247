@@ -36,7 +36,7 @@ async function createDiogoCunha() {
         wednesday: { start: "09:30", end: "20:00" },
         thursday: { start: "09:30", end: "20:00" },
         friday: { start: "09:30", end: "20:00" },
-        saturday: { start: "09:00", end: "18:00" },
+        saturday: { start: "09:00", end: "19:00" },
         sunday: { start: "closed", end: "closed" },
       },
     });

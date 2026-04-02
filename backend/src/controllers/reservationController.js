@@ -85,7 +85,9 @@ function parseReservationDateInput(dateInput) {
   if (!dateInput) return null;
 
   const rawValue =
-    dateInput instanceof Date ? dateInput.toISOString() : String(dateInput).trim();
+    dateInput instanceof Date
+      ? dateInput.toISOString()
+      : String(dateInput).trim();
 
   if (!rawValue) return null;
 
