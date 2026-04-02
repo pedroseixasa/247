@@ -1086,24 +1086,12 @@ document.addEventListener("DOMContentLoaded", function () {
       };
     }
 
-    // Regra: usar sempre o horário mais restritivo entre barbearia e barbeiro
+    // Regra: o horário do barbeiro é a fonte principal; a barbearia entra como fallback.
     let schedule = null;
-    if (globalSchedule?.open && barberSchedule?.open) {
-      const openMinutes = Math.max(
-        globalSchedule.openMinutes,
-        barberSchedule.openMinutes,
-      );
-      const closeMinutes = Math.min(
-        globalSchedule.closeMinutes,
-        barberSchedule.closeMinutes,
-      );
-      if (closeMinutes > openMinutes) {
-        schedule = { open: true, openMinutes, closeMinutes };
-      }
+    if (barberSchedule?.open) {
+      schedule = barberSchedule;
     } else if (globalSchedule?.open) {
       schedule = globalSchedule;
-    } else if (barberSchedule?.open) {
-      schedule = barberSchedule;
     }
 
     if (!schedule || !schedule.open) return [];

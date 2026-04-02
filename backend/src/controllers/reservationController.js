@@ -187,20 +187,11 @@ function normalizeWorkingHours(hours) {
   return { start: hours.start, end: hours.end };
 }
 
-function getRestrictiveHours(globalHours, barberHours) {
-  if (globalHours && barberHours) {
-    const openMinutes = Math.max(
-      toMinutes(globalHours.start),
-      toMinutes(barberHours.start),
-    );
-    const closeMinutes = Math.min(
-      toMinutes(globalHours.end),
-      toMinutes(barberHours.end),
-    );
-    if (closeMinutes <= openMinutes) return null;
-    return { start: toHHmm(openMinutes), end: toHHmm(closeMinutes) };
+function getEffectiveHours(globalHours, barberHours) {
+  if (barberHours && barberHours.start && barberHours.end) {
+    return barberHours;
   }
-  return globalHours || barberHours || null;
+  return globalHours || null;
 }
 
 exports.createReservation = async (req, res) => {
@@ -313,11 +304,11 @@ exports.createReservation = async (req, res) => {
     const parsedSiteHours = parseSiteHoursRows(siteSettings?.hoursRows || []);
     const globalHours = normalizeWorkingHours(parsedSiteHours[dayKey]);
 
-    // Fallback/Restrição adicional: horário específico do barbeiro
+    // Horário específico do barbeiro
     const barberHours = normalizeWorkingHours(barber.workingHours?.[dayKey]);
 
-    // Regra: se ambos existem, usa o mais restritivo
-    const todayHours = getRestrictiveHours(globalHours, barberHours);
+    // Regra: o horário do barbeiro é a fonte principal; a barbearia entra como fallback.
+    const todayHours = getEffectiveHours(globalHours, barberHours);
 
     if (!todayHours || !todayHours.start || !todayHours.end) {
       return res.status(400).json({
