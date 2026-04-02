@@ -53,7 +53,7 @@ const reservationSchema = new mongoose.Schema({
 });
 
 // Add unique index to prevent double bookings (race condition fix)
-// Allows multiple cancelled reservations at same slot but only one confirmed/pending per slot
+// Allows multiple cancelled reservations at same slot but only one confirmed/pending/completed per slot
 reservationSchema.index(
   {
     barberId: 1,
@@ -64,7 +64,7 @@ reservationSchema.index(
   {
     unique: true,
     partialFilterExpression: {
-      status: { $ne: "cancelled" }, // Allow multiple cancelled at same slot
+      status: { $in: ["confirmed", "pending", "completed"] }, // Only index active bookings
     },
   },
 );

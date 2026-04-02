@@ -35,12 +35,14 @@ The final race condition check (lines 419-432) only checks for **exact timeSlot 
 const finalConflict = await Reservation.countDocuments({
   barberId: barberIdObj,
   reservationDate: { $gte: startOfDay, $lte: endOfDay },
-  timeSlot: timeSlot,              // ← Only exact match!
+  timeSlot: timeSlot, // ← Only exact match!
   status: { $ne: "cancelled" },
 });
 
 if (finalConflict > 0) {
-  throw new Error("Esta hora foi reservada neste meio-tempo. Escolha outro horário.");
+  throw new Error(
+    "Esta hora foi reservada neste meio-tempo. Escolha outro horário.",
+  );
 }
 ```
 
@@ -53,14 +55,14 @@ Scenario: Two concurrent booking requests
 
 Timeline:
 T1: Request A checks existing reservations → finds none
-T2: Request B checks existing reservations → finds none  
+T2: Request B checks existing reservations → finds none
 T3: Request A reaches finalConflict check
-    - Query: "Is there a reservation with timeSlot='10:00'?" 
+    - Query: "Is there a reservation with timeSlot='10:00'?"
     - Answer: No (none exist yet)
     - ALLOWS REQUEST A TO PROCEED ✅
 
 T4: Request B reaches finalConflict check
-    - Query: "Is there a reservation with timeSlot='10:30'?" 
+    - Query: "Is there a reservation with timeSlot='10:30'?"
     - Answer: No (we're checking for exact "10:30", not "10:00")
     - ALLOWS REQUEST B TO PROCEED ✅ ← SHOULD FAIL!
 
@@ -79,8 +81,10 @@ const existingReservations = await Reservation.find({
 
 const hasConflict = existingReservations.some((existing) => {
   const existStart = new Date(existing.reservationDate);
-  const existEnd = new Date(existStart.getTime() + existing.serviceId.duration * 60000);
-  
+  const existEnd = new Date(
+    existStart.getTime() + existing.serviceId.duration * 60000,
+  );
+
   // ✅ Proper overlap logic: A.start < B.end && B.start < A.end
   return newStart < existEnd && existStart < newEnd;
 });
@@ -125,16 +129,16 @@ const reservationSchema = new mongoose.Schema({
 reservationSchema.index(
   {
     barberId: 1,
-    reservationDate: 1,    // Must be date-only (no time component)
+    reservationDate: 1, // Must be date-only (no time component)
     timeSlot: 1,
-    status: 1
+    status: 1,
   },
   {
     unique: true,
     partialFilterExpression: {
-      status: { $ne: "cancelled" }  // Only enforce for non-cancelled
-    }
-  }
+      status: { $ne: "cancelled" }, // Only enforce for non-cancelled
+    },
+  },
 );
 ```
 
@@ -145,7 +149,8 @@ Without this index, MongoDB will happily create duplicate reservations at the sa
 **Current Error Handler (Never Gets Triggered):**
 
 ```javascript
-if (error.code === 11000) {  // ← This condition never happens!
+if (error.code === 11000) {
+  // ← This condition never happens!
   return res.status(409).json({
     error: "Esta hora já foi reservada neste meio tempo.",
   });
@@ -210,7 +215,7 @@ This endpoint returns **all reservations including cancelled ones** when called 
 
 ```javascript
 const bookedIntervals = reservations
-  .filter((r) => r.status !== 'cancelled')  // ← Frontend fixes backend bug
+  .filter((r) => r.status !== "cancelled") // ← Frontend fixes backend bug
   .map((reservation) => {
     // ... compute intervals ...
   });
@@ -229,11 +234,11 @@ const bookedIntervals = reservations
 ```javascript
 // ❌ CURRENT - No date format validation
 if (date) {
-  const startDate = new Date(date);  // What format is `date`?
+  const startDate = new Date(date); // What format is `date`?
   startDate.setHours(0, 0, 0, 0);
   const endDate = new Date(date);
   endDate.setHours(23, 59, 59, 999);
-  
+
   query.reservationDate = { $gte: startDate, $lte: endDate };
 }
 ```
@@ -324,61 +329,63 @@ Run these queries to check current state:
 // Check for duplicate reservations (same barber, date, slot)
 db.reservations.aggregate([
   {
-    $match: { status: { $ne: "cancelled" } }
+    $match: { status: { $ne: "cancelled" } },
   },
   {
     $group: {
-      _id: { barberId: "$barberId", reservationDate: "$reservationDate", timeSlot: "$timeSlot" },
-      count: { $sum: 1 }
-    }
+      _id: {
+        barberId: "$barberId",
+        reservationDate: "$reservationDate",
+        timeSlot: "$timeSlot",
+      },
+      count: { $sum: 1 },
+    },
   },
-  { $match: { count: { $gt: 1 } } }
-])
+  { $match: { count: { $gt: 1 } } },
+]);
 
 // Check April 9 reservations
 db.reservations.find({
-  reservationDate: { 
+  reservationDate: {
     $gte: ISODate("2026-04-09T00:00:00Z"),
-    $lte: ISODate("2026-04-09T23:59:59Z")
+    $lte: ISODate("2026-04-09T23:59:59Z"),
   },
-  status: { $ne: "cancelled" }
-})
+  status: { $ne: "cancelled" },
+});
 
 // Check April 10 reservations
 db.reservations.find({
-  reservationDate: { 
+  reservationDate: {
     $gte: ISODate("2026-04-10T00:00:00Z"),
-    $lte: ISODate("2026-04-10T23:59:59Z")
+    $lte: ISODate("2026-04-10T23:59:59Z"),
   },
-  status: { $ne: "cancelled" }
-})
+  status: { $ne: "cancelled" },
+});
 
-// Check April 17 reservations  
+// Check April 17 reservations
 db.reservations.find({
-  reservationDate: { 
+  reservationDate: {
     $gte: ISODate("2026-04-17T00:00:00Z"),
-    $lte: ISODate("2026-04-17T23:59:59Z")
+    $lte: ISODate("2026-04-17T23:59:59Z"),
   },
-  status: { $ne: "cancelled" }
-})
+  status: { $ne: "cancelled" },
+});
 
 // Count cancelled vs active
-db.reservations.aggregate([
-  { $group: { _id: "$status", count: { $sum: 1 } } }
-])
+db.reservations.aggregate([{ $group: { _id: "$status", count: { $sum: 1 } } }]);
 ```
 
 ---
 
 ## SUMMARY TABLE
 
-| # | Bug | File | Lines | Severity | Impact | Fix |
-|---|-----|------|-------|----------|--------|-----|
-| 1 | Race condition check - wrong overlap logic | reservationController.js | 419-432 | 🔴 CRITICAL | Allows overbooking under race conditions | Use duration-based overlap check, not exact match |
-| 2 | Missing unique index | Reservation.js | - | 🔴 CRITICAL | Race condition bulletproof - duplicates allowed | Add compound unique index (barberId, date, slot, status) |
-| 3 | getReservationsByBarber missing status filter | reservationController.js | 644-671 | 🟡 MEDIUM | Returns cancelled bookings; API confusion | Add status filter to query |
-| 4 | Date input format not validated | reservationController.js | 650-656 | 🟡 MEDIUM | May query wrong dates (EU vs US format) | Validate date is ISO format |
-| 5 | Error response inconsistent | reservationController.js | 429-432 | 🟡 MEDIUM | Returns 500 instead of 409 | Return HTTP 409 directly instead of throw |
+| #   | Bug                                           | File                     | Lines   | Severity    | Impact                                          | Fix                                                      |
+| --- | --------------------------------------------- | ------------------------ | ------- | ----------- | ----------------------------------------------- | -------------------------------------------------------- |
+| 1   | Race condition check - wrong overlap logic    | reservationController.js | 419-432 | 🔴 CRITICAL | Allows overbooking under race conditions        | Use duration-based overlap check, not exact match        |
+| 2   | Missing unique index                          | Reservation.js           | -       | 🔴 CRITICAL | Race condition bulletproof - duplicates allowed | Add compound unique index (barberId, date, slot, status) |
+| 3   | getReservationsByBarber missing status filter | reservationController.js | 644-671 | 🟡 MEDIUM   | Returns cancelled bookings; API confusion       | Add status filter to query                               |
+| 4   | Date input format not validated               | reservationController.js | 650-656 | 🟡 MEDIUM   | May query wrong dates (EU vs US format)         | Validate date is ISO format                              |
+| 5   | Error response inconsistent                   | reservationController.js | 429-432 | 🟡 MEDIUM   | Returns 500 instead of 409                      | Return HTTP 409 directly instead of throw                |
 
 ---
 

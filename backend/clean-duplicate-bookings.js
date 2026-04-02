@@ -1,6 +1,7 @@
 require("dotenv").config();
 const mongoose = require("mongoose");
 const Reservation = require("./src/models/Reservation");
+const Service = require("./src/models/Service");
 
 async function cleanDuplicates() {
   try {
@@ -36,7 +37,7 @@ async function cleanDuplicates() {
       reservations.sort(
         (a, b) =>
           parseInt(a.timeSlot.replace(":", "")) -
-          parseInt(b.timeSlot.replace(":", ""))
+          parseInt(b.timeSlot.replace(":", "")),
       );
 
       console.log(`\n📅 Date: ${key}`);
@@ -47,10 +48,10 @@ async function cleanDuplicates() {
         const startTime = new Date(res.reservationDate);
         startTime.setHours(hours, mins, 0, 0);
         const endTime = new Date(
-          startTime.getTime() + res.serviceId.duration * 60000
+          startTime.getTime() + res.serviceId.duration * 60000,
         );
         console.log(
-          `   [${idx}] ${res.timeSlot} - ${endTime.getHours()}:${String(endTime.getMinutes()).padStart(2, "0")} (${res.serviceId.name}, Client: ${res.clientName})`
+          `   [${idx}] ${res.timeSlot} - ${endTime.getHours()}:${String(endTime.getMinutes()).padStart(2, "0")} (${res.serviceId.name}, Client: ${res.clientName})`,
         );
       });
 
@@ -63,17 +64,21 @@ async function cleanDuplicates() {
           const [hoursA, minsA] = resA.timeSlot.split(":").map(Number);
           const startA = new Date(resA.reservationDate);
           startA.setHours(hoursA, minsA, 0, 0);
-          const endA = new Date(startA.getTime() + resA.serviceId.duration * 60000);
+          const endA = new Date(
+            startA.getTime() + resA.serviceId.duration * 60000,
+          );
 
           const [hoursB, minsB] = resB.timeSlot.split(":").map(Number);
           const startB = new Date(resB.reservationDate);
           startB.setHours(hoursB, minsB, 0, 0);
-          const endB = new Date(startB.getTime() + resB.serviceId.duration * 60000);
+          const endB = new Date(
+            startB.getTime() + resB.serviceId.duration * 60000,
+          );
 
           // Check overlap: A.start < B.end AND B.start < A.end
           if (startA < endB && startB < endA) {
             console.log(
-              `   ⚠️  CONFLICT: [${i}] @ ${resA.timeSlot} overlaps with [${j}] @ ${resB.timeSlot}`
+              `   ⚠️  CONFLICT: [${i}] @ ${resA.timeSlot} overlaps with [${j}] @ ${resB.timeSlot}`,
             );
 
             // If exact same timeSlot, mark second as duplicate
@@ -83,7 +88,7 @@ async function cleanDuplicates() {
               duplicateCount++;
             } else {
               console.log(
-                `   ⚠️  MANUAL REVIEW NEEDED: Different times but overlap`
+                `   ⚠️  MANUAL REVIEW NEEDED: Different times but overlap`,
               );
               overlappingCount++;
             }
@@ -101,7 +106,7 @@ async function cleanDuplicates() {
 
     if (toDelete.length > 0) {
       console.log(
-        `\n⚠️  Confirming deletion of ${toDelete.length} duplicate records...\n`
+        `\n⚠️  Confirming deletion of ${toDelete.length} duplicate records...\n`,
       );
 
       // Delete duplicates
