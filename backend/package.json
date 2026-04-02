@@ -26,7 +26,8 @@
     "vapid:generate": "npx web-push generate-vapid-keys",
     "test:push": "node test-push-notifications.js",
     "db:rebuild-indexes": "node rebuild-indexes.js",
-    "db:clean-bookings": "node clean-duplicate-bookings.js"
+    "db:clean-bookings": "node clean-duplicate-bookings.js",
+    "db:fix-dates": "node fix-reservation-dates.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

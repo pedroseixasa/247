@@ -402,13 +402,17 @@ exports.createReservation = async (req, res) => {
     // ========== ✅ TUDO OK → Salvar reserva ==========
     const cancelToken = crypto.randomBytes(32).toString("hex");
 
+    // Normalize reservationDate to store ONLY the date (00:00:00), not the time
+    const normalizedDate = new Date(reservationDate);
+    normalizedDate.setHours(0, 0, 0, 0);
+
     const reservation = new Reservation({
       barberId: barberIdObj,
       serviceId: serviceIdObj,
       clientName,
       clientPhone,
       clientEmail,
-      reservationDate,
+      reservationDate: normalizedDate,
       timeSlot,
       notes,
       status: "confirmed",
