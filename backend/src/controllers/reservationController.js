@@ -415,18 +415,36 @@ exports.createReservation = async (req, res) => {
       cancelToken,
     });
 
-    // Final race condition check: verify slot still available just before save
-    const finalConflict = await Reservation.countDocuments({
+    // Final race condition check: verify NO OVERLAPPING slots before save
+    // This uses DURATION-aware overlap detection (not just exact timeSlot match)
+    const [slotHours, slotMinutes] = timeSlot.split(":").map(Number);
+    const finalSlotStart = new Date(reservationDate);
+    finalSlotStart.setHours(slotHours, slotMinutes, 0, 0);
+    const finalSlotEnd = new Date(
+      finalSlotStart.getTime() + service.duration * 60000,
+    );
+
+    // Check if ANY existing reservation overlaps with this time range
+    const overlappingReservations = await Reservation.find({
       barberId: barberIdObj,
       reservationDate: {
         $gte: new Date(startOfDay),
         $lte: new Date(endOfDay),
       },
-      timeSlot: timeSlot,
       status: { $ne: "cancelled" },
+    }).populate("serviceId");
+
+    const hasOverlap = overlappingReservations.some((existing) => {
+      const existStart = new Date(existing.reservationDate);
+      const existEnd = new Date(
+        existStart.getTime() + existing.serviceId.duration * 60000,
+      );
+
+      // Check actual overlap: A.start < B.end AND B.start < A.end
+      return finalSlotStart < existEnd && existStart < finalSlotEnd;
     });
 
-    if (finalConflict > 0) {
+    if (hasOverlap) {
       throw new Error(
         "Esta hora foi reservada neste meio-tempo. Escolha outro horário.",
       );
@@ -658,6 +676,8 @@ exports.getReservationsByBarber = async (req, res) => {
         $gte: startDate,
         $lte: endDate,
       };
+      // Only return active reservations for booking modal (not cancelled)
+      query.status = { $ne: "cancelled" };
     }
 
     const reservations = await Reservation.find(query)
