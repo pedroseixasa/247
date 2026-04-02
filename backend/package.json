@@ -24,7 +24,8 @@
     "api:update-ids": "node update-frontend-ids.js",
     "stats:monthly": "node aggregate-monthly-stats.js",
     "vapid:generate": "npx web-push generate-vapid-keys",
-    "test:push": "node test-push-notifications.js"
+    "test:push": "node test-push-notifications.js",
+    "db:rebuild-indexes": "node rebuild-indexes.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

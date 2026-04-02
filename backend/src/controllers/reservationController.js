@@ -415,6 +415,21 @@ exports.createReservation = async (req, res) => {
       cancelToken,
     });
 
+    // Final race condition check: verify slot still available just before save
+    const finalConflict = await Reservation.countDocuments({
+      barberId: barberIdObj,
+      reservationDate: {
+        $gte: new Date(startOfDay),
+        $lte: new Date(endOfDay),
+      },
+      timeSlot: timeSlot,
+      status: { $ne: 'cancelled' },
+    });
+
+    if (finalConflict > 0) {
+      throw new Error('Esta hora foi reservada neste meio-tempo. Escolha outro horário.');
+    }
+
     await reservation.save();
 
     // Enviar SMS de confirmação (não bloqueia)
@@ -493,6 +508,17 @@ exports.createReservation = async (req, res) => {
       reservation,
     });
   } catch (error) {
+    // Handle MongoDB duplicate key error (race condition: another booking at same time)
+    if (error.code === 11000) {
+      console.warn(
+        `Duplicate booking attempt: ${error.message} - Retry message sent to client`
+      );
+      return res.status(409).json({
+        error: 'Esta hora foi reservada neste meio tempo. Por favor, escolha outro horário.',
+        retry: true,
+      });
+    }
+
     res.status(500).json({ error: error.message });
   }
 };
