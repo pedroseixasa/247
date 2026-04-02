@@ -11,20 +11,27 @@ async function rebuildIndexes() {
 
     // Drop existing indexes (except _id)
     try {
-      await Reservation.collection.dropIndex("barberId_1_reservationDate_1_timeSlot_1_status_1");
+      await Reservation.collection.dropIndex(
+        "barberId_1_reservationDate_1_timeSlot_1_status_1",
+      );
       console.log("✅ Dropped old index");
     } catch (err) {
       console.log("ℹ️  Old index not found (OK)");
     }
 
-    // Rebuild indexes from schema
-    await Reservation.collection.deleteMany({});
+    // Rebuild indexes from schema - DROP INDEXES ONLY (DATA PRESERVED)
     await Reservation.collection.dropIndexes();
-    console.log("✅ Dropped all indexes");
+    console.log(
+      "✅ Dropped all secondary indexes (all reservation data preserved)",
+    );
 
     // Create indexes from schema definition
     await Reservation.syncIndexes();
     console.log("✅ Synced all schema indexes");
+
+    // Get document count to verify data is intact
+    const count = await Reservation.countDocuments();
+    console.log(`\n✨ Total reservations in database: ${count}`);
 
     // Verify index was created
     const indexes = await Reservation.collection.getIndexes();
@@ -33,7 +40,7 @@ async function rebuildIndexes() {
       console.log(`  - ${key}: ${JSON.stringify(indexes[key])}`);
     });
 
-    console.log("\n✨ Index rebuild complete!");
+    console.log("\n✅ Index rebuild complete! All data preserved.");
     await mongoose.connection.close();
     process.exit(0);
   } catch (error) {
