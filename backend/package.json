@@ -27,7 +27,8 @@
     "test:push": "node test-push-notifications.js",
     "db:rebuild-indexes": "node rebuild-indexes.js",
     "db:clean-bookings": "node clean-duplicate-bookings.js",
-    "db:fix-dates": "node fix-reservation-dates.js"
+    "db:fix-dates": "node fix-reservation-dates.js",
+    "db:fix-barber-hours": "node fix-barber-working-hours.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

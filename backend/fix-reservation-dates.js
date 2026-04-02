@@ -11,7 +11,7 @@ async function fixReservationDates() {
 
     // Get ALL reservations
     const allReservations = await Reservation.find({});
-    
+
     if (allReservations.length === 0) {
       console.log("✅ Nenhuma reserva encontrada");
       await mongoose.connection.close();
@@ -24,21 +24,30 @@ async function fixReservationDates() {
     // Fix each one
     for (const reservation of allReservations) {
       const currentDate = new Date(reservation.reservationDate);
-      
-      // Create normalized date (only date, no time)
-      const normalizedDate = new Date(currentDate);
-      normalizedDate.setHours(0, 0, 0, 0);
+
+      // Create normalized date (only date, no time) in UTC
+      const normalizedDate = new Date(
+        Date.UTC(
+          currentDate.getFullYear(),
+          currentDate.getMonth(),
+          currentDate.getDate(),
+          0,
+          0,
+          0,
+          0,
+        ),
+      );
 
       // Check if already correct
       if (
-        currentDate.getHours() === 0 &&
-        currentDate.getMinutes() === 0 &&
-        currentDate.getSeconds() === 0 &&
-        currentDate.getMilliseconds() === 0
+        currentDate.getUTCHours() === 0 &&
+        currentDate.getUTCMinutes() === 0 &&
+        currentDate.getUTCSeconds() === 0 &&
+        currentDate.getUTCMilliseconds() === 0
       ) {
         alreadyCorrect++;
         console.log(
-          `✅ [${reservation._id}] Já correta: ${reservation.clientName} - ${reservation.timeSlot}`
+          `✅ [${reservation._id}] Já correta: ${reservation.clientName} - ${reservation.timeSlot}`,
         );
         continue;
       }
@@ -46,19 +55,15 @@ async function fixReservationDates() {
       // Update with normalized date
       await Reservation.updateOne(
         { _id: reservation._id },
-        { $set: { reservationDate: normalizedDate } }
+        { $set: { reservationDate: normalizedDate } },
       );
 
       fixedCount++;
       console.log(
-        `🔧 [${reservation._id}] CORRIGIDA: ${reservation.clientName} - ${reservation.timeSlot}`
+        `🔧 [${reservation._id}] CORRIGIDA: ${reservation.clientName} - ${reservation.timeSlot}`,
       );
-      console.log(
-        `   De: ${currentDate.toISOString()}`
-      );
-      console.log(
-        `   Para: ${normalizedDate.toISOString()}\n`
-      );
+      console.log(`   De: ${currentDate.toISOString()}`);
+      console.log(`   Para: ${normalizedDate.toISOString()}\n`);
     }
 
     console.log(`${"=".repeat(60)}`);

@@ -74,6 +74,44 @@ function toHHmm(totalMinutes) {
   return `${h}:${m}`;
 }
 
+function formatDateKeyUtc(date) {
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(date.getUTCDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function parseReservationDateInput(dateInput) {
+  if (!dateInput) return null;
+
+  const rawValue =
+    dateInput instanceof Date ? dateInput.toISOString() : String(dateInput).trim();
+
+  if (!rawValue) return null;
+
+  const datePart = rawValue.includes("T") ? rawValue.split("T")[0] : rawValue;
+  const parts = datePart.split("-");
+  if (parts.length !== 3) return null;
+
+  const [year, month, day] = parts.map(Number);
+  if ([year, month, day].some((value) => Number.isNaN(value))) return null;
+
+  return new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
+}
+
+function buildUtcDayRange(dateInput) {
+  const normalizedDate = parseReservationDateInput(dateInput);
+  if (!normalizedDate) return null;
+
+  const startOfDay = new Date(normalizedDate);
+  startOfDay.setUTCHours(0, 0, 0, 0);
+
+  const endOfDay = new Date(normalizedDate);
+  endOfDay.setUTCHours(23, 59, 59, 999);
+
+  return { normalizedDate, startOfDay, endOfDay };
+}
+
 function parseRangeFromValue(value) {
   const text = normalizeText(value);
   if (!text || text.includes("ENCERRADO") || text.includes("FECHADO")) {
@@ -259,8 +297,13 @@ exports.createReservation = async (req, res) => {
     }
 
     // ========== VALIDAÇÃO 7: Horários de funcionamento ==========
-    const reservationDateTime = new Date(reservationDate);
-    const dayIndex = reservationDateTime.getDay();
+    const reservationDay = parseReservationDateInput(reservationDate);
+    if (!reservationDay) {
+      return res.status(400).json({ error: "Data da reserva inválida" });
+    }
+
+    const reservationDateTime = new Date(reservationDay);
+    const dayIndex = reservationDateTime.getUTCDay();
     const dayKey = DAY_KEYS[dayIndex];
 
     // Fonte principal: SiteSettings (horário da barbearia)
@@ -286,7 +329,7 @@ exports.createReservation = async (req, res) => {
     // Parsing timeSlot para criar a hora de início da nova marcação
     const [slotHour, slotMinute] = timeSlot.split(":").map(Number);
     const newStart = new Date(reservationDateTime);
-    newStart.setHours(slotHour, slotMinute, 0, 0);
+    newStart.setUTCHours(slotHour, slotMinute, 0, 0);
 
     // Duração vem SEMPRE da DB - nunca inventar
     const newEnd = new Date(newStart.getTime() + service.duration * 60000);
@@ -294,11 +337,11 @@ exports.createReservation = async (req, res) => {
     // Hora de abertura/fecho efetiva (barbearia + barbeiro, mais restritiva)
     const [openH, openM] = todayHours.start.split(":").map(Number);
     const openTime = new Date(newStart);
-    openTime.setHours(openH, openM, 0, 0);
+    openTime.setUTCHours(openH, openM, 0, 0);
 
     const [closeH, closeM] = todayHours.end.split(":").map(Number);
     const closeTime = new Date(newStart);
-    closeTime.setHours(closeH, closeM, 0, 0);
+    closeTime.setUTCHours(closeH, closeM, 0, 0);
 
     if (newStart < openTime) {
       return res.status(400).json({
@@ -323,8 +366,8 @@ exports.createReservation = async (req, res) => {
 
     // ========== VALIDAÇÃO 9: Barbeiro tem ausência? ==========
     const hasAbsence = barber.absences?.some((absence) => {
-      const absDate = new Date(absence.date).toDateString();
-      const resDate = reservationDateTime.toDateString();
+      const absDate = formatDateKeyUtc(new Date(absence.date));
+      const resDate = formatDateKeyUtc(reservationDateTime);
 
       // Data não bate
       if (absDate !== resDate) {
@@ -352,10 +395,10 @@ exports.createReservation = async (req, res) => {
         const [absEndH, absEndM] = absence.endTime.split(":").map(Number);
 
         const absStart = new Date(reservationDateTime);
-        absStart.setHours(absStartH, absStartM, 0, 0);
+        absStart.setUTCHours(absStartH, absStartM, 0, 0);
 
         const absEnd = new Date(reservationDateTime);
-        absEnd.setHours(absEndH, absEndM, 0, 0);
+        absEnd.setUTCHours(absEndH, absEndM, 0, 0);
 
         // Regra de overlap: A.start < B.end && B.start < A.end
         return newStart < absEnd && absStart < newEnd;
@@ -371,11 +414,12 @@ exports.createReservation = async (req, res) => {
     }
 
     // ========== VALIDAÇÃO 10: Existe overlap com marcação existente? ==========
-    const startOfDay = new Date(reservationDateTime);
-    startOfDay.setHours(0, 0, 0, 0);
+    const dayRange = buildUtcDayRange(reservationDate);
+    if (!dayRange) {
+      return res.status(400).json({ error: "Data da reserva inválida" });
+    }
 
-    const endOfDay = new Date(reservationDateTime);
-    endOfDay.setHours(23, 59, 59, 999);
+    const { startOfDay, endOfDay } = dayRange;
 
     // Trazer todas as reservas do dia (não canceladas)
     const existingReservations = await Reservation.find({
@@ -402,9 +446,7 @@ exports.createReservation = async (req, res) => {
     // ========== ✅ TUDO OK → Salvar reserva ==========
     const cancelToken = crypto.randomBytes(32).toString("hex");
 
-    // Normalize reservationDate to store ONLY the date (00:00:00), not the time
-    const normalizedDate = new Date(reservationDate);
-    normalizedDate.setHours(0, 0, 0, 0);
+    const normalizedDate = dayRange.normalizedDate;
 
     const reservation = new Reservation({
       barberId: barberIdObj,
@@ -422,8 +464,8 @@ exports.createReservation = async (req, res) => {
     // Final race condition check: verify NO OVERLAPPING slots before save
     // This uses DURATION-aware overlap detection (not just exact timeSlot match)
     const [slotHours, slotMinutes] = timeSlot.split(":").map(Number);
-    const finalSlotStart = new Date(reservationDate);
-    finalSlotStart.setHours(slotHours, slotMinutes, 0, 0);
+    const finalSlotStart = new Date(dayRange.normalizedDate);
+    finalSlotStart.setUTCHours(slotHours, slotMinutes, 0, 0);
     const finalSlotEnd = new Date(
       finalSlotStart.getTime() + service.duration * 60000,
     );
@@ -431,10 +473,7 @@ exports.createReservation = async (req, res) => {
     // Check if ANY existing reservation overlaps with this time range
     const overlappingReservations = await Reservation.find({
       barberId: barberIdObj,
-      reservationDate: {
-        $gte: new Date(startOfDay),
-        $lte: new Date(endOfDay),
-      },
+      reservationDate: { $gte: startOfDay, $lte: endOfDay },
       status: { $ne: "cancelled" },
     }).populate("serviceId");
 
@@ -671,10 +710,12 @@ exports.getReservationsByBarber = async (req, res) => {
     let query = { barberId };
 
     if (date) {
-      const startDate = new Date(date);
-      startDate.setHours(0, 0, 0, 0);
-      const endDate = new Date(date);
-      endDate.setHours(23, 59, 59, 999);
+      const dayRange = buildUtcDayRange(date);
+      if (!dayRange) {
+        return res.status(400).json({ error: "Data inválida" });
+      }
+
+      const { startOfDay: startDate, endOfDay: endDate } = dayRange;
 
       query.reservationDate = {
         $gte: startDate,
@@ -810,10 +851,16 @@ exports.addAbsence = async (req, res) => {
     }
 
     // Verificar se já tem ausência nesta data
-    const existingAbsence = barber.absences?.find(
-      (abs) =>
-        new Date(abs.date).toDateString() === new Date(date).toDateString(),
-    );
+    const requestDate = parseReservationDateInput(date);
+    if (!requestDate) {
+      return res.status(400).json({ error: "Data inválida" });
+    }
+
+    const existingAbsence = barber.absences?.find((abs) => {
+      const absenceKey = formatDateKeyUtc(new Date(abs.date));
+      const requestKey = formatDateKeyUtc(requestDate);
+      return absenceKey === requestKey;
+    });
 
     if (existingAbsence) {
       return res.status(409).json({ error: "Já existe ausência nesta data" });
@@ -821,7 +868,7 @@ exports.addAbsence = async (req, res) => {
 
     // Adicionar ausência
     const newAbsence = {
-      date: new Date(date),
+      date: requestDate,
       type,
       startTime: type === "specific" ? startTime : null,
       endTime: type === "specific" ? endTime : null,

@@ -31,13 +31,13 @@ async function createDiogoCunha() {
       bio: "Administrador principal da 24.7 Barbearia",
       isActive: true,
       workingHours: {
-        monday: { start: "09:00", end: "20:00" },
-        tuesday: { start: "09:00", end: "20:00" },
-        wednesday: { start: "09:00", end: "20:00" },
-        thursday: { start: "09:00", end: "20:00" },
-        friday: { start: "09:00", end: "20:00" },
+        monday: { start: "closed", end: "closed" },
+        tuesday: { start: "09:30", end: "20:00" },
+        wednesday: { start: "09:30", end: "20:00" },
+        thursday: { start: "09:30", end: "20:00" },
+        friday: { start: "09:30", end: "20:00" },
         saturday: { start: "09:00", end: "18:00" },
-        sunday: { start: "10:00", end: "14:00" },
+        sunday: { start: "closed", end: "closed" },
       },
     });
 

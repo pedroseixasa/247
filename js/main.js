@@ -1015,7 +1015,15 @@ document.addEventListener("DOMContentLoaded", function () {
     "diogo-cunha": {
       id: "6998aaf59119a721cdc1e136",
       name: "Diogo Cunha",
-      workingHours: null,
+      workingHours: {
+        monday: { start: "closed", end: "closed" },
+        tuesday: { start: "09:30", end: "20:00" },
+        wednesday: { start: "09:30", end: "20:00" },
+        thursday: { start: "09:30", end: "20:00" },
+        friday: { start: "09:30", end: "20:00" },
+        saturday: { start: "09:00", end: "18:00" },
+        sunday: { start: "closed", end: "closed" },
+      },
       lunchBreak: {
         enabled: undefined,
         startTime: "12:00",
@@ -1035,6 +1043,13 @@ document.addEventListener("DOMContentLoaded", function () {
       .padStart(2, "0");
     const m = (minutes % 60).toString().padStart(2, "0");
     return `${h}:${m}`;
+  }
+
+  function formatDateKey(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
   }
 
   function getTimeSlotsForDate(date, serviceDuration = 60, barberData = null) {
@@ -1675,7 +1690,7 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    const dateKey = bookingState.date.toISOString().split("T")[0];
+    const dateKey = formatDateKey(bookingState.date);
 
     // Obter dados do barbeiro (incluindo lunchBreak)
     const barberData = barbers[bookingState.barber];
@@ -1754,7 +1769,7 @@ document.addEventListener("DOMContentLoaded", function () {
           window["absences_" + bookingState.barber] ||
           [];
         return !absences.some((absence) => {
-          const absDate = new Date(absence.date).toISOString().split("T")[0];
+          const absDate = formatDateKey(new Date(absence.date));
           if (absDate !== dateKey) return false;
           if (absence.type === "full") return true;
           if (absence.type === "morning") return time < "13:00";
@@ -1897,13 +1912,8 @@ document.addEventListener("DOMContentLoaded", function () {
       clientName: name,
       clientPhone: phone,
       clientEmail: email,
-      // ✅ Combinar data + hora para enviar DateTime completo
-      reservationDate: (() => {
-        const dateObj = new Date(bookingState.date);
-        const [hours, minutes] = bookingState.time.split(":").map(Number);
-        dateObj.setHours(hours, minutes, 0, 0);
-        return dateObj.toISOString(); // Ex: "2026-02-22T14:25:00.000Z"
-      })(),
+      // Enviar apenas a data; a hora vem separada em timeSlot
+      reservationDate: formatDateKey(bookingState.date),
       timeSlot: bookingState.time,
       notes: "",
     };
@@ -1977,7 +1987,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     try {
-      const dateStr = bookingState.date.toISOString().split("T")[0];
+      const dateStr = formatDateKey(bookingState.date);
       const barberId = barbers[bookingState.barber].id;
       const url = `${API_BASE_URL}/reservations/barber/${barberId}?date=${dateStr}`;
 
