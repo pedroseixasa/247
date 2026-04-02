@@ -8,7 +8,7 @@ const TARGET_WORKING_HOURS = {
   wednesday: { start: "09:30", end: "20:00" },
   thursday: { start: "09:30", end: "20:00" },
   friday: { start: "09:30", end: "20:00" },
-  saturday: { start: "09:00", end: "19:00" },
+  saturday: { start: "09:00", end: "18:00" },
   sunday: { start: "closed", end: "closed" },
 };
 
@@ -41,7 +41,7 @@ async function fixBarberWorkingHours() {
     console.log(`Resumo:`);
     console.log(`  ✅ Barbeiros atualizados: ${updatedCount}`);
     console.log(`  📅 Terça a sexta: 09:30`);
-    console.log(`  📅 Sábado: 09:00-19:00`);
+    console.log(`  📅 Sábado: 09:00-18:00`);
     console.log(`  🚫 Segunda e domingo: closed`);
     console.log(`${"=".repeat(60)}\n`);
 
