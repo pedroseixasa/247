@@ -1290,7 +1290,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function bindServiceButtons() {
-      const buttons = document.querySelectorAll(".service-card-new .btn--primary");
+      const buttons = document.querySelectorAll(
+        ".service-card-new .btn--primary",
+      );
       buttons.forEach((button) => {
         if (button.dataset.bookingBound === "true") return;
         button.dataset.bookingBound = "true";
