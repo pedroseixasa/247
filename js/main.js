@@ -911,7 +911,7 @@ document.addEventListener("DOMContentLoaded", function () {
                   <span class="service-price">${price}</span>
                 </div>
                 <div class="service-meta-line">
-                  <button class="service-book-btn" type="button">Marcar</button>
+                  <button class="btn btn--primary" type="button">Marcar</button>
                 </div>
               </div>
             </div>
@@ -1290,7 +1290,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function bindServiceButtons() {
-      const buttons = document.querySelectorAll(".service-book-btn");
+      const buttons = document.querySelectorAll(".service-card-new .btn--primary");
       buttons.forEach((button) => {
         if (button.dataset.bookingBound === "true") return;
         button.dataset.bookingBound = "true";

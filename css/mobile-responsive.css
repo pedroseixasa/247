@@ -714,7 +714,7 @@
     padding-top: 0 !important;
   }
 
-  .service-card-new .service-book-btn {
+  .service-card-new .btn.btn--primary {
     display: block !important;
     width: 100% !important;
     padding: 0.6rem 1rem !important;
@@ -732,7 +732,7 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
   }
 
-  .service-card-new .service-book-btn:active {
+  .service-card-new .btn.btn--primary:active {
     background: #c9a961 !important;
     box-shadow: 0 4px 12px rgba(201, 169, 97, 0.2) !important;
     transform: translateY(-1px) !important;
@@ -943,7 +943,6 @@
     font-size: 0.85rem !important;
     padding: 0.7rem 1.25rem !important;
   }
-}
 
 /* Small Mobile (< 480px) */
 @media (max-width: 480px) {
@@ -1024,7 +1023,7 @@
     font-size: 0.95rem !important;
   }
 
-  .service-book-btn {
+  .service-card-new .btn.btn--primary {
     font-size: 0.74rem !important;
     padding: 0.4rem 0.75rem !important;
     margin-top: 0.5rem !important;
@@ -1657,7 +1656,7 @@
     gap: 1.5rem;
   }
 
-  .service-book-btn {
+  .service-card-new .btn.btn--primary {
     font-size: 0.68rem !important;
     padding: 0.35rem 0.65rem !important;
     margin-top: 0.4rem !important;
