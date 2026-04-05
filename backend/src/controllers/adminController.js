@@ -440,7 +440,7 @@ exports.syncServiceToIndexClean = async (req, res) => {
                         <span class="service-name">${service.name}</span>
                 <span class="service-price">${formatServicePrice(service.price)}</span>
                     </div>
-                    <button class="service-book-btn">Marcar</button>
+                    <button class=" btn btn--primary">Marcar</button>
                 </div>`;
 
       // Find the closing tag of services-grid and add before it
