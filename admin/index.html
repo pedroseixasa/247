@@ -1665,16 +1665,33 @@
 
                 const buildReservationsHtml = (items) => {
                     const now = new Date();
+                    const parseReservationDateTime = (reservation) => {
+                        const reservationDate = new Date(reservation.reservationDate);
+                        if (Number.isNaN(reservationDate.getTime())) {
+                            return null;
+                        }
 
-                    // Filtrar apenas reservas futuras (que ainda não passaram)
-                    const futureReservations = items.filter(res => {
-                        const resDate = new Date(res.reservationDate);
-                        return resDate > now;
+                        const [hours = '00', minutes = '00'] = String(reservation.timeSlot || '--:--').split(':');
+                        const reservationDateTime = new Date(reservationDate);
+                        reservationDateTime.setHours(Number(hours) || 0, Number(minutes) || 0, 0, 0);
+                        return reservationDateTime;
+                    };
+
+                    const visibleReservations = [...items].sort((a, b) => {
+                        const aDateTime = parseReservationDateTime(a);
+                        const bDateTime = parseReservationDateTime(b);
+
+                        if (aDateTime && bDateTime) {
+                            return aDateTime - bDateTime;
+                        }
+                        if (aDateTime) return -1;
+                        if (bDateTime) return 1;
+                        return 0;
                     });
 
                     let html = `
                         <div class="reservations-toolbar">
-                            <span><strong>Total:</strong> ${futureReservations.length}</span>
+                            <span><strong>Total:</strong> ${visibleReservations.length}</span>
                             ${userRole === 'admin' ? `
                                 <div style="display:flex; gap:0.75rem; flex-wrap: wrap;">
                                     <select id="reservationsBarberFilter">${barberOptions}</select>
@@ -1684,15 +1701,15 @@
                         </div>
                     `;
 
-                    if (!Array.isArray(futureReservations) || futureReservations.length === 0) {
-                        html += '<div class="alert alert-info">Sem reservas futuras.</div>';
+                    if (!Array.isArray(visibleReservations) || visibleReservations.length === 0) {
+                        html += '<div class="alert alert-info">Sem reservas.</div>';
                         return html;
                     }
 
                     // Agrupar por mês
                     const groupedByMonth = {};
-                    futureReservations.forEach((reservation) => {
-                        const dateObj = new Date(reservation.reservationDate);
+                    visibleReservations.forEach((reservation) => {
+                        const dateObj = parseReservationDateTime(reservation) || new Date(reservation.reservationDate);
                         const monthKey = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
 
                         if (!groupedByMonth[monthKey]) {
@@ -1755,6 +1772,8 @@
                                         </div>
                                         <div style="padding-top: 0.5rem;">
                                         ${reservasDodia.map(res => {
+                                const reservationDateTime = parseReservationDateTime(res);
+                                const isUpcoming = reservationDateTime ? reservationDateTime >= now : false;
                                 let barberName = '—';
                                 if (res.barberId) {
                                     if (typeof res.barberId === 'string') {
@@ -1777,6 +1796,7 @@
                                                     <div style="display: flex; flex-direction: column; gap: 0.5rem;">
                                                         <div style="display: flex; justify-content: space-between; align-items: center;">
                                                             <div style="font-weight: 700; color: #27ae60; font-size: 1.1rem;">${res.timeSlot || '--:--'}</div>
+                                                            <div style="font-size: 0.75rem; font-weight: 600; color: ${isUpcoming ? '#27ae60' : '#7f8c8d'};">${isUpcoming ? 'Agendada' : 'Passada'}</div>
                                                             <button class="btn-action btn-cancel" onclick="cancelReservation('${res._id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; white-space: nowrap;">Cancelar</button>
                                                         </div>
                                                         <div style="border-top: 1px solid #ddd; padding-top: 0.5rem;">
