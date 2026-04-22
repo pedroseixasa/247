@@ -21,7 +21,7 @@ const reservationSchema = new mongoose.Schema({
   },
   clientEmail: {
     type: String,
-    required: true,
+    required: false,
   },
   reservationDate: {
     type: Date,
@@ -35,6 +35,10 @@ const reservationSchema = new mongoose.Schema({
     type: String,
     enum: ["confirmed", "pending", "cancelled", "completed"],
     default: "confirmed",
+  },
+  isManual: {
+    type: Boolean,
+    default: false,
   },
   notes: String,
   reminderSent: {
@@ -65,6 +69,7 @@ reservationSchema.index(
     unique: true,
     partialFilterExpression: {
       status: { $in: ["confirmed", "pending", "completed"] }, // Only index active bookings
+      $or: [{ isManual: false }, { isManual: { $exists: false } }],
     },
   },
 );

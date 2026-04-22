@@ -23,6 +23,29 @@ const authMiddleware = (req, res, next) => {
   }
 };
 
+const optionalAuthMiddleware = (req, res, next) => {
+  const token = req.headers.authorization?.split(" ")[1];
+
+  if (!token) {
+    return next();
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.barberId = decoded.id;
+    req.barberRole = decoded.role;
+    req.user = {
+      _id: decoded.id,
+      role: decoded.role,
+      name: decoded.name,
+    };
+  } catch (error) {
+    req.authError = error;
+  }
+
+  next();
+};
+
 const adminMiddleware = (req, res, next) => {
   if (req.barberRole !== "admin") {
     return res.status(403).json({ error: "Acesso apenas para administrador" });
@@ -30,4 +53,4 @@ const adminMiddleware = (req, res, next) => {
   next();
 };
 
-module.exports = { authMiddleware, adminMiddleware };
+module.exports = { authMiddleware, adminMiddleware, optionalAuthMiddleware };

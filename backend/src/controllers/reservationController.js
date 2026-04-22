@@ -194,7 +194,94 @@ function getEffectiveHours(globalHours, barberHours) {
   return globalHours || null;
 }
 
-exports.createReservation = async (req, res) => {
+function isAuthorizedManualUser(req) {
+  return ["barber", "admin"].includes(req.user?.role);
+}
+
+async function dispatchReservationNotifications({
+  barber,
+  service,
+  clientName,
+  clientEmail,
+  clientPhone,
+  reservationDate,
+  timeSlot,
+  cancelToken,
+}) {
+  try {
+    try {
+      const twilioClient = getTwilioClient();
+      if (twilioClient && clientPhone) {
+        await twilioClient.messages.create({
+          body: `Olá ${clientName}! Sua reserva na barbearia 247 está confirmada para ${new Date(reservationDate).toLocaleDateString("pt-PT")} às ${timeSlot}. Serviço: ${service.name}. Obrigado!`,
+          from: process.env.TWILIO_PHONE_NUMBER,
+          to: clientPhone,
+        });
+      }
+    } catch (smsError) {
+      // Não falha se SMS não enviar
+    }
+
+    const emailPromises = [
+      clientEmail
+        ? sendBookingConfirmation({
+            clientName,
+            clientEmail,
+            barberName: barber.name,
+            serviceName: service.name,
+            reservationDate,
+            timeSlot,
+            cancelToken,
+          })
+        : Promise.resolve(),
+      sendAdminNotification({
+        clientName,
+        clientEmail,
+        clientPhone,
+        barberName: barber.name,
+        serviceName: service.name,
+        reservationDate,
+        timeSlot,
+      }),
+    ];
+
+    if (barber.notificationEmail) {
+      emailPromises.push(
+        sendBarberNotification({
+          barberEmail: barber.notificationEmail,
+          barberName: barber.name,
+          clientName,
+          clientPhone,
+          serviceName: service.name,
+          reservationDate,
+          timeSlot,
+        }),
+      );
+    }
+
+    Promise.all(emailPromises).catch((emailError) => {
+      console.error("Erro ao enviar emails:", emailError);
+    });
+
+    sendPushNotifications(
+      barber,
+      clientName,
+      service.name,
+      reservationDate,
+      timeSlot,
+    ).catch((pushError) => {
+      console.warn("Erro ao enviar push notifications:", pushError);
+    });
+  } catch (error) {
+    console.error("Erro ao disparar notificações:", error);
+  }
+}
+
+async function createReservationFromRequest(
+  req,
+  res,
+  { forceManual = false } = {},
+) {
   try {
     const {
       barberId,
@@ -205,21 +292,48 @@ exports.createReservation = async (req, res) => {
       reservationDate,
       timeSlot,
       notes,
+      isManual,
     } = req.body;
 
-    // ========== VALIDAÇÃO 1: Dados obrigatórios ==========
+    const manualRequested = forceManual || isManual === true;
+    const manualAllowed = manualRequested && isAuthorizedManualUser(req);
+
+    if (manualRequested && !manualAllowed) {
+      return res.status(403).json({
+        error:
+          "Apenas barbeiros ou administradores podem criar reservas manuais",
+      });
+    }
+
     if (
       !barberId ||
       !serviceId ||
       !clientName ||
-      !clientEmail ||
       !reservationDate ||
       !timeSlot
     ) {
       return res.status(400).json({ error: "Dados obrigatórios faltando" });
     }
 
-    // ========== VALIDAÇÃO 2: Telefone português ==========
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (clientEmail) {
+      if (!emailRegex.test(clientEmail)) {
+        return res.status(400).json({ error: "Email inválido" });
+      }
+
+      const domain = clientEmail.split("@")[1];
+      if (
+        !domain ||
+        domain.split(".").length < 2 ||
+        domain.endsWith(".test") ||
+        domain.endsWith(".fake")
+      ) {
+        return res.status(400).json({ error: "Por favor, use um email real" });
+      }
+    } else if (!manualAllowed) {
+      return res.status(400).json({ error: "Email inválido" });
+    }
+
     if (clientPhone) {
       const phoneRegex = /^(\+351\s?)?[29]\d{8}$/;
       const cleanPhone = clientPhone.replace(/\s/g, "");
@@ -229,29 +343,10 @@ exports.createReservation = async (req, res) => {
             "Número de telefone inválido. Use formato: +351 912345678 ou 912345678",
         });
       }
+    } else if (manualAllowed) {
+      return res.status(400).json({ error: "Número de telefone inválido" });
     }
 
-    // ========== VALIDAÇÃO 3: Email válido e domínio real ==========
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(clientEmail)) {
-      return res.status(400).json({
-        error: "Email inválido",
-      });
-    }
-
-    const domain = clientEmail.split("@")[1];
-    if (
-      !domain ||
-      domain.split(".").length < 2 ||
-      domain.endsWith(".test") ||
-      domain.endsWith(".fake")
-    ) {
-      return res.status(400).json({
-        error: "Por favor, use um email real",
-      });
-    }
-
-    // ========== VALIDAÇÃO 4: barberId e serviceId são ObjectIds válidos ==========
     let barberIdObj, serviceIdObj;
     try {
       if (typeof barberId === "string") {
@@ -277,19 +372,27 @@ exports.createReservation = async (req, res) => {
         .json({ error: "Erro ao processar IDs: " + err.message });
     }
 
-    // ========== VALIDAÇÃO 5: Barbeiro existe e isActive ==========
     const barber = await Barber.findById(barberIdObj).select("-password");
     if (!barber || !barber.isActive) {
       return res.status(404).json({ error: "Barbeiro não encontrado" });
     }
 
-    // ========== VALIDAÇÃO 6: Serviço existe e isActive ==========
+    if (
+      req.user?.role === "barber" &&
+      req.user._id.toString() !== barber._id.toString()
+    ) {
+      return res
+        .status(403)
+        .json({
+          error: "Sem permissão para criar reservas para outro barbeiro",
+        });
+    }
+
     const service = await Service.findById(serviceIdObj);
     if (!service || !service.isActive) {
       return res.status(404).json({ error: "Serviço não encontrado" });
     }
 
-    // ========== VALIDAÇÃO 7: Horários de funcionamento ==========
     const reservationDay = parseReservationDateInput(reservationDate);
     if (!reservationDay) {
       return res.status(400).json({ error: "Data da reserva inválida" });
@@ -299,35 +402,24 @@ exports.createReservation = async (req, res) => {
     const dayIndex = reservationDateTime.getUTCDay();
     const dayKey = DAY_KEYS[dayIndex];
 
-    // Fonte principal: SiteSettings (horário da barbearia)
     const siteSettings = await SiteSettings.findOne();
     const parsedSiteHours = parseSiteHoursRows(siteSettings?.hoursRows || []);
     const globalHours = normalizeWorkingHours(parsedSiteHours[dayKey]);
-
-    // Horário específico do barbeiro
     const barberHours = normalizeWorkingHours(barber.workingHours?.[dayKey]);
-
-    // Regra: o horário do barbeiro é a fonte principal; a barbearia entra como fallback.
     const todayHours = getEffectiveHours(globalHours, barberHours);
 
     if (!todayHours || !todayHours.start || !todayHours.end) {
       return res.status(400).json({
-        error: `Horários de funcionamento não definidos para ${
-          DAY_LABELS_PT[dayIndex]
-        }`,
+        error: `Horários de funcionamento não definidos para ${DAY_LABELS_PT[dayIndex]}`,
       });
     }
 
-    // ========== VALIDAÇÃO 8: Serviço cabe no horário de fecho ==========
-    // Parsing timeSlot para criar a hora de início da nova marcação
     const [slotHour, slotMinute] = timeSlot.split(":").map(Number);
     const newStart = new Date(reservationDateTime);
     newStart.setUTCHours(slotHour, slotMinute, 0, 0);
 
-    // Duração vem SEMPRE da DB - nunca inventar
     const newEnd = new Date(newStart.getTime() + service.duration * 60000);
 
-    // Hora de abertura/fecho efetiva (barbearia + barbeiro, mais restritiva)
     const [openH, openM] = todayHours.start.split(":").map(Number);
     const openTime = new Date(newStart);
     openTime.setUTCHours(openH, openM, 0, 0);
@@ -357,88 +449,88 @@ exports.createReservation = async (req, res) => {
       });
     }
 
-    // ========== VALIDAÇÃO 9: Barbeiro tem ausência? ==========
-    const hasAbsence = barber.absences?.some((absence) => {
-      const absDate = formatDateKeyUtc(new Date(absence.date));
-      const resDate = formatDateKeyUtc(reservationDateTime);
+    if (!manualAllowed) {
+      const hasAbsence = barber.absences?.some((absence) => {
+        const absDate = formatDateKeyUtc(new Date(absence.date));
+        const resDate = formatDateKeyUtc(reservationDateTime);
 
-      // Data não bate
-      if (absDate !== resDate) {
+        if (absDate !== resDate) {
+          return false;
+        }
+
+        if (absence.type === "full") {
+          return true;
+        }
+
+        if (absence.type === "morning") {
+          return slotHour < 12;
+        }
+
+        if (absence.type === "afternoon") {
+          return slotHour >= 12;
+        }
+
+        if (
+          absence.type === "specific" &&
+          absence.startTime &&
+          absence.endTime
+        ) {
+          const [absStartH, absStartM] = absence.startTime
+            .split(":")
+            .map(Number);
+          const [absEndH, absEndM] = absence.endTime.split(":").map(Number);
+
+          const absStart = new Date(reservationDateTime);
+          absStart.setUTCHours(absStartH, absStartM, 0, 0);
+
+          const absEnd = new Date(reservationDateTime);
+          absEnd.setUTCHours(absEndH, absEndM, 0, 0);
+
+          return newStart < absEnd && absStart < newEnd;
+        }
+
         return false;
-      }
-
-      // Ausência de dia inteiro
-      if (absence.type === "full") {
-        return true;
-      }
-
-      // Ausência de manhã (antes das 12:00)
-      if (absence.type === "morning") {
-        return slotHour < 12;
-      }
-
-      // Ausência de tarde (a partir das 12:00)
-      if (absence.type === "afternoon") {
-        return slotHour >= 12;
-      }
-
-      // Ausência específica (overlap real com intervalo)
-      if (absence.type === "specific" && absence.startTime && absence.endTime) {
-        const [absStartH, absStartM] = absence.startTime.split(":").map(Number);
-        const [absEndH, absEndM] = absence.endTime.split(":").map(Number);
-
-        const absStart = new Date(reservationDateTime);
-        absStart.setUTCHours(absStartH, absStartM, 0, 0);
-
-        const absEnd = new Date(reservationDateTime);
-        absEnd.setUTCHours(absEndH, absEndM, 0, 0);
-
-        // Regra de overlap: A.start < B.end && B.start < A.end
-        return newStart < absEnd && absStart < newEnd;
-      }
-
-      return false;
-    });
-
-    if (hasAbsence) {
-      return res.status(409).json({
-        error: "Barbeiro indisponível nesta data/hora. Marque outra data.",
       });
+
+      if (hasAbsence) {
+        return res.status(409).json({
+          error: "Barbeiro indisponível nesta data/hora. Marque outra data.",
+        });
+      }
+
+      const dayRange = buildUtcDayRange(reservationDate);
+      if (!dayRange) {
+        return res.status(400).json({ error: "Data da reserva inválida" });
+      }
+
+      const { startOfDay, endOfDay } = dayRange;
+
+      const existingReservations = await Reservation.find({
+        barberId: barberIdObj,
+        status: { $ne: "cancelled" },
+        reservationDate: { $gte: startOfDay, $lte: endOfDay },
+      }).populate("serviceId");
+
+      const hasConflict = existingReservations.some((existing) => {
+        const existStart = new Date(existing.reservationDate);
+        const existEnd = new Date(
+          existStart.getTime() + existing.serviceId.duration * 60000,
+        );
+
+        return newStart < existEnd && existStart < newEnd;
+      });
+
+      if (hasConflict) {
+        return res.status(409).json({ error: "Esta hora já está reservada" });
+      }
     }
 
-    // ========== VALIDAÇÃO 10: Existe overlap com marcação existente? ==========
     const dayRange = buildUtcDayRange(reservationDate);
     if (!dayRange) {
       return res.status(400).json({ error: "Data da reserva inválida" });
     }
 
-    const { startOfDay, endOfDay } = dayRange;
-
-    // Trazer todas as reservas do dia (não canceladas)
-    const existingReservations = await Reservation.find({
-      barberId: barberIdObj,
-      status: { $ne: "cancelled" },
-      reservationDate: { $gte: startOfDay, $lte: endOfDay },
-    }).populate("serviceId");
-
-    // Verificar overlap real (duration da DB)
-    const hasConflict = existingReservations.some((existing) => {
-      const existStart = new Date(existing.reservationDate);
-      const existEnd = new Date(
-        existStart.getTime() + existing.serviceId.duration * 60000,
-      );
-
-      // Regra de overlap: A.start < B.end && B.start < A.end
-      return newStart < existEnd && existStart < newEnd;
-    });
-
-    if (hasConflict) {
-      return res.status(409).json({ error: "Esta hora já está reservada" });
-    }
-
-    // ========== ✅ TUDO OK → Salvar reserva ==========
     const cancelToken = crypto.randomBytes(32).toString("hex");
-
     const normalizedDate = dayRange.normalizedDate;
 
     const reservation = new Reservation({
@@ -446,117 +538,58 @@ exports.createReservation = async (req, res) => {
       serviceId: serviceIdObj,
       clientName,
       clientPhone,
-      clientEmail,
+      clientEmail: clientEmail || "",
       reservationDate: normalizedDate,
       timeSlot,
       notes,
       status: "confirmed",
+      isManual: manualAllowed,
       cancelToken,
     });
 
-    // Final race condition check: verify NO OVERLAPPING slots before save
-    // This uses DURATION-aware overlap detection (not just exact timeSlot match)
-    const [slotHours, slotMinutes] = timeSlot.split(":").map(Number);
-    const finalSlotStart = new Date(dayRange.normalizedDate);
-    finalSlotStart.setUTCHours(slotHours, slotMinutes, 0, 0);
-    const finalSlotEnd = new Date(
-      finalSlotStart.getTime() + service.duration * 60000,
-    );
-
-    // Check if ANY existing reservation overlaps with this time range
-    const overlappingReservations = await Reservation.find({
-      barberId: barberIdObj,
-      reservationDate: { $gte: startOfDay, $lte: endOfDay },
-      status: { $ne: "cancelled" },
-    }).populate("serviceId");
-
-    const hasOverlap = overlappingReservations.some((existing) => {
-      const existStart = new Date(existing.reservationDate);
-      const existEnd = new Date(
-        existStart.getTime() + existing.serviceId.duration * 60000,
+    if (!manualAllowed) {
+      const [slotHours, slotMinutes] = timeSlot.split(":").map(Number);
+      const finalSlotStart = new Date(dayRange.normalizedDate);
+      finalSlotStart.setUTCHours(slotHours, slotMinutes, 0, 0);
+      const finalSlotEnd = new Date(
+        finalSlotStart.getTime() + service.duration * 60000,
       );
 
-      // Check actual overlap: A.start < B.end AND B.start < A.end
-      return finalSlotStart < existEnd && existStart < finalSlotEnd;
-    });
+      const overlappingReservations = await Reservation.find({
+        barberId: barberIdObj,
+        reservationDate: { $gte: dayRange.startOfDay, $lte: dayRange.endOfDay },
+        status: { $ne: "cancelled" },
+      }).populate("serviceId");
 
-    if (hasOverlap) {
-      throw new Error(
-        "Esta hora foi reservada neste meio-tempo. Escolha outro horário.",
-      );
+      const hasOverlap = overlappingReservations.some((existing) => {
+        const existStart = new Date(existing.reservationDate);
+        const existEnd = new Date(
+          existStart.getTime() + existing.serviceId.duration * 60000,
+        );
+
+        return finalSlotStart < existEnd && existStart < finalSlotEnd;
+      });
+
+      if (hasOverlap) {
+        return res.status(409).json({
+          error:
+            "Esta hora foi reservada neste meio-tempo. Escolha outro horário.",
+        });
+      }
     }
 
     await reservation.save();
-
-    // Enviar SMS de confirmação (não bloqueia)
-    try {
-      const twilioClient = getTwilioClient();
-      if (twilioClient && clientPhone) {
-        await twilioClient.messages.create({
-          body: `Olá ${clientName}! Sua reserva na barbearia 247 está confirmada para ${new Date(reservationDate).toLocaleDateString("pt-PT")} às ${timeSlot}. Serviço: ${service.name}. Obrigado!`,
-          from: process.env.TWILIO_PHONE_NUMBER,
-          to: clientPhone,
-        });
-      }
-    } catch (smsError) {
-      // Não falha se SMS não enviar
-    }
-
-    // Popular referências
     await reservation.populate("barberId serviceId");
 
-    // Enviar emails de confirmação (não bloqueia resposta)
-    const emailPromises = [
-      sendBookingConfirmation({
-        clientName,
-        clientEmail,
-        barberName: barber.name,
-        serviceName: service.name,
-        reservationDate,
-        timeSlot,
-        cancelToken,
-      }),
-      sendAdminNotification({
-        clientName,
-        clientEmail,
-        clientPhone,
-        barberName: barber.name,
-        serviceName: service.name,
-        reservationDate,
-        timeSlot,
-      }),
-    ];
-
-    // Enviar notificação ao barbeiro se tiver email pessoal configurado
-    if (barber.notificationEmail) {
-      emailPromises.push(
-        sendBarberNotification({
-          barberEmail: barber.notificationEmail,
-          barberName: barber.name,
-          clientName,
-          clientPhone,
-          serviceName: service.name,
-          reservationDate,
-          timeSlot,
-        }),
-      );
-    }
-
-    // Enviar notificações push (background, não bloqueia resposta)
-    Promise.all(emailPromises).catch((emailError) => {
-      console.error("Erro ao enviar emails:", emailError);
-    });
-
-    // Enviar push notifications em background (graceful fallback)
-    sendPushNotifications(
+    void dispatchReservationNotifications({
       barber,
+      service,
       clientName,
-      service.name,
+      clientEmail,
+      clientPhone,
       reservationDate,
       timeSlot,
-    ).catch((pushError) => {
-      console.warn("Erro ao enviar push notifications:", pushError);
-      // Não falha a reserva se push falhar
+      cancelToken,
     });
 
     res.status(201).json({
@@ -564,7 +597,6 @@ exports.createReservation = async (req, res) => {
       reservation,
     });
   } catch (error) {
-    // Handle MongoDB duplicate key error (race condition: another booking at same time)
     if (error.code === 11000) {
       console.warn(
         `Duplicate booking attempt: ${error.message} - Retry message sent to client`,
@@ -578,6 +610,15 @@ exports.createReservation = async (req, res) => {
 
     res.status(500).json({ error: error.message });
   }
+}
+
+exports.createReservation = async (req, res) => {
+  return createReservationFromRequest(req, res);
+};
+
+exports.createManualReservation = async (req, res) => {
+  req.body.isManual = true;
+  return createReservationFromRequest(req, res, { forceManual: true });
 };
 
 /**

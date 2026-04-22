@@ -347,6 +347,20 @@
             color: #721c24;
         }
 
+        .badge-manual {
+            background: rgba(52, 152, 219, 0.12);
+            color: #1f6fb2;
+        }
+
+        .btn-manual {
+            background: #3498db;
+            color: #fff;
+        }
+
+        .btn-manual:hover {
+            background: #2c80b9;
+        }
+
         .reservations-toolbar {
             display: flex;
             align-items: center;
@@ -686,6 +700,14 @@
                 padding: 0.4rem 0.5rem !important;
                 font-size: 0.8rem !important;
             }
+
+            .manual-booking-content {
+                padding: 1rem;
+            }
+
+            .manual-booking-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         /* Tablet (768px - 1024px) */
@@ -956,6 +978,85 @@
             color: #fff;
         }
 
+        .manual-booking-modal {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2002;
+        }
+
+        .manual-booking-modal.active {
+            display: flex;
+        }
+
+        .manual-booking-modal .confirm-modal-backdrop {
+            background: rgba(0, 0, 0, 0.6);
+        }
+
+        .manual-booking-content {
+            position: relative;
+            background: #fff;
+            border-radius: 12px;
+            padding: 1.5rem 1.75rem;
+            max-width: 620px;
+            width: 92%;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .manual-booking-form {
+            display: grid;
+            gap: 0.85rem;
+        }
+
+        .manual-booking-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.85rem;
+        }
+
+        .manual-booking-field {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .manual-booking-field label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .manual-booking-field input,
+        .manual-booking-field select,
+        .manual-booking-field textarea {
+            width: 100%;
+            padding: 0.65rem 0.75rem;
+            border: 1px solid #d9d9d9;
+            border-radius: 8px;
+            font: inherit;
+            color: #222;
+            background: #fff;
+            box-sizing: border-box;
+        }
+
+        .manual-booking-field textarea {
+            min-height: 96px;
+            resize: vertical;
+        }
+
+        .manual-booking-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            margin-top: 0.25rem;
+        }
+
+        .manual-booking-actions .confirm-modal-btn.confirm {
+            background: #3498db;
+        }
+
         /* Profile - Working Hours Mobile */
         @media (max-width: 768px) {
             .wh-row {
@@ -1196,6 +1297,63 @@
                                 <button type="button" class="confirm-modal-btn cancel" data-confirm="false">Cancelar</button>
                                 <button type="button" class="confirm-modal-btn confirm" data-confirm="true">Confirmar</button>
                             </div>
+                        </div>
+                    </div>
+                `);
+            }
+
+            if (!document.getElementById('manualBookingModal')) {
+                document.body.insertAdjacentHTML('beforeend', `
+                    <div id="manualBookingModal" class="manual-booking-modal">
+                        <div class="confirm-modal-backdrop" data-manual-close="true"></div>
+                        <div class="manual-booking-content" role="dialog" aria-live="polite" aria-labelledby="manualBookingTitle">
+                            <div class="confirm-modal-title" id="manualBookingTitle">Encaixar cliente</div>
+                            <form id="manualBookingForm" class="manual-booking-form">
+                                <div class="manual-booking-grid">
+                                    <div class="manual-booking-field">
+                                        <label for="manualClientName">Nome</label>
+                                        <input type="text" id="manualClientName" required>
+                                    </div>
+                                    <div class="manual-booking-field">
+                                        <label for="manualClientPhone">Telefone</label>
+                                        <input type="tel" id="manualClientPhone" placeholder="+351 912345678" required>
+                                    </div>
+                                </div>
+                                <div class="manual-booking-grid">
+                                    <div class="manual-booking-field">
+                                        <label for="manualClientEmail">Email (opcional)</label>
+                                        <input type="email" id="manualClientEmail" placeholder="cliente@email.com">
+                                    </div>
+                                    <div class="manual-booking-field">
+                                        <label for="manualBookingBarberId">Barbeiro</label>
+                                        <select id="manualBookingBarberId" required></select>
+                                    </div>
+                                </div>
+                                <div class="manual-booking-grid">
+                                    <div class="manual-booking-field">
+                                        <label for="manualBookingServiceId">Serviço</label>
+                                        <select id="manualBookingServiceId" required></select>
+                                    </div>
+                                    <div class="manual-booking-field">
+                                        <label for="manualBookingDate">Data</label>
+                                        <input type="date" id="manualBookingDate" required>
+                                    </div>
+                                </div>
+                                <div class="manual-booking-grid">
+                                    <div class="manual-booking-field" style="grid-column: 1 / -1;">
+                                        <label for="manualBookingTime">Hora</label>
+                                        <input type="time" id="manualBookingTime" step="1800" required>
+                                    </div>
+                                </div>
+                                <div class="manual-booking-field">
+                                    <label for="manualBookingNotes">Notas</label>
+                                    <textarea id="manualBookingNotes" placeholder="Opcional"></textarea>
+                                </div>
+                                <div class="manual-booking-actions">
+                                    <button type="button" class="confirm-modal-btn cancel" data-manual-close="true">Cancelar</button>
+                                    <button type="submit" class="confirm-modal-btn confirm">Criar reserva</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 `);
@@ -1638,11 +1796,11 @@
 
                 container.innerHTML = '<p>A carregar reservas...</p>';
 
-                const barbers = userRole === 'admin' ? await fetchBarbers() : [];
+                const barbers = userRole === 'admin' ? await fetchBarbers() : [currentUser];
                 const defaultBarberId = userRole === 'admin' ? getDefaultBarberId() : '';
                 const barberOptions = userRole === 'admin'
                     ? buildBarberOptions(barbers, defaultBarberId)
-                    : '';
+                    : `<option value="${currentUser._id}" selected>${currentUser.name}</option>`;
 
                 let reservationsUrl;
                 if (userRole === 'barber') {
@@ -1693,9 +1851,15 @@
                         <div class="reservations-toolbar">
                             <span><strong>Total:</strong> ${visibleReservations.length}</span>
                             ${userRole === 'admin' ? `
-                                <div style="display:flex; gap:0.75rem; flex-wrap: wrap;">
+                                <div style="display:flex; gap:0.75rem; flex-wrap: wrap; align-items: center;">
                                     <select id="reservationsBarberFilter">${barberOptions}</select>
+                                    <button id="openManualBookingModal" class="btn-action btn-manual" type="button">Encaixar cliente</button>
                                     <button id="reservationsApply">Filtrar</button>
+                                </div>
+                            ` : userRole === 'barber' ? `
+                                <div style="display:flex; gap:0.75rem; flex-wrap: wrap; align-items: center;">
+                                    <span style="font-weight: 600; color: #555;">${currentUser.name}</span>
+                                    <button id="openManualBookingModal" class="btn-action btn-manual" type="button">Encaixar cliente</button>
                                 </div>
                             ` : ''}
                         </div>
@@ -1790,12 +1954,13 @@
                                 const clientName = res.clientName || '—';
                                 const clientPhone = res.clientPhone || '';
                                 const clientLine = clientPhone ? `${clientName} • ${clientPhone}` : clientName;
+                                const manualBadge = res.isManual ? '<span class="badge badge-manual" style="margin-left: 0.5rem;">Manual</span>' : '';
 
                                 return `
                                                 <div style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 0.75rem; margin-bottom: 0.75rem; background: #f8f9fa;">
                                                     <div style="display: flex; flex-direction: column; gap: 0.5rem;">
                                                         <div style="display: flex; justify-content: space-between; align-items: center;">
-                                                            <div style="font-weight: 700; color: #27ae60; font-size: 1.1rem;">${res.timeSlot || '--:--'}</div>
+                                                            <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap: wrap; font-weight: 700; color: #27ae60; font-size: 1.1rem;">${res.timeSlot || '--:--'}${manualBadge}</div>
                                                             <div style="font-size: 0.75rem; font-weight: 600; color: ${isUpcoming ? '#27ae60' : '#7f8c8d'};">${isUpcoming ? 'Agendada' : 'Passada'}</div>
                                                             <button class="btn-action btn-cancel" onclick="cancelReservation('${res._id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; white-space: nowrap;">Cancelar</button>
                                                         </div>
@@ -1821,6 +1986,164 @@
                 };
 
                 container.innerHTML = buildReservationsHtml(reservations);
+
+                const manualBookingModal = document.getElementById('manualBookingModal');
+                const manualBookingForm = document.getElementById('manualBookingForm');
+                const manualBookingButton = document.getElementById('openManualBookingModal');
+
+                const getLocalDateString = () => {
+                    const now = new Date();
+                    const local = new Date(now.getTime() - (now.getTimezoneOffset() * 60000));
+                    return local.toISOString().slice(0, 10);
+                };
+
+                const getManualTargetBarberId = () => {
+                    if (userRole === 'barber') {
+                        return currentUser?._id || '';
+                    }
+
+                    return document.getElementById('reservationsBarberFilter')?.value
+                        || defaultBarberId
+                        || barbers[0]?._id
+                        || '';
+                };
+
+                const loadManualServices = async () => {
+                    const response = await fetchJson(`${API_URL}/admin/services`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+
+                    const services = Array.isArray(response) ? response : [];
+                    return services.filter((service) => service.isActive !== false);
+                };
+
+                const populateManualBookingModal = async () => {
+                    if (!manualBookingModal) return;
+
+                    const barberSelect = document.getElementById('manualBookingBarberId');
+                    const serviceSelect = document.getElementById('manualBookingServiceId');
+                    const dateInput = document.getElementById('manualBookingDate');
+                    const timeInput = document.getElementById('manualBookingTime');
+                    const notesInput = document.getElementById('manualBookingNotes');
+
+                    const targetBarberId = getManualTargetBarberId();
+
+                    if (barberSelect) {
+                        const manualBarbers = userRole === 'admin' ? barbers : [currentUser];
+                        barberSelect.innerHTML = manualBarbers.map((barber) => {
+                            const selected = barber._id === targetBarberId ? ' selected' : '';
+                            return `<option value="${barber._id}"${selected}>${barber.name}</option>`;
+                        }).join('');
+                        barberSelect.disabled = userRole !== 'admin';
+                    }
+
+                    if (serviceSelect) {
+                        serviceSelect.innerHTML = '<option value="">A carregar serviços...</option>';
+                        const services = await loadManualServices();
+                        serviceSelect.innerHTML = services.length > 0
+                            ? services.map((service) => `<option value="${service._id}">${service.name} · ${formatServicePrice(service.price)} · ${service.duration || 30} min</option>`).join('')
+                            : '<option value="">Sem serviços ativos</option>';
+                    }
+
+                    if (dateInput) {
+                        dateInput.value = getLocalDateString();
+                    }
+
+                    if (timeInput) {
+                        timeInput.value = '';
+                    }
+
+                    if (notesInput) {
+                        notesInput.value = '';
+                    }
+                };
+
+                const closeManualBookingModal = () => {
+                    if (manualBookingModal) {
+                        manualBookingModal.classList.remove('active');
+                    }
+                };
+
+                const openManualBookingModal = async () => {
+                    try {
+                        await populateManualBookingModal();
+                        manualBookingModal?.classList.add('active');
+                    } catch (error) {
+                        showStatusModal(`Erro ao preparar reserva manual: ${error.message}`, 'error');
+                    }
+                };
+
+                if (manualBookingModal && !manualBookingModal.dataset.bound) {
+                    manualBookingModal.querySelectorAll('[data-manual-close="true"]').forEach((element) => {
+                        element.addEventListener('click', closeManualBookingModal);
+                    });
+
+                    manualBookingModal.dataset.bound = 'true';
+                }
+
+                if (manualBookingForm && !manualBookingForm.dataset.bound) {
+                    manualBookingForm.addEventListener('submit', async (event) => {
+                        event.preventDefault();
+
+                        const barberId = document.getElementById('manualBookingBarberId')?.value || getManualTargetBarberId();
+                        const serviceId = document.getElementById('manualBookingServiceId')?.value;
+                        const clientName = document.getElementById('manualClientName')?.value.trim();
+                        const clientPhone = document.getElementById('manualClientPhone')?.value.trim();
+                        const clientEmail = document.getElementById('manualClientEmail')?.value.trim();
+                        const reservationDate = document.getElementById('manualBookingDate')?.value;
+                        const timeValue = document.getElementById('manualBookingTime')?.value || '';
+                        const timeSlot = timeValue.slice(0, 5);
+                        const notes = document.getElementById('manualBookingNotes')?.value.trim();
+
+                        if (!barberId || !serviceId || !clientName || !clientPhone || !reservationDate || !timeSlot) {
+                            showStatusModal('Preencha os campos obrigatórios da reserva manual.', 'error');
+                            return;
+                        }
+
+                        if (userRole === 'barber' && barberId !== currentUser?._id) {
+                            showStatusModal('Sem permissão para criar reservas para outro barbeiro.', 'error');
+                            return;
+                        }
+
+                        try {
+                            const response = await fetch(`${API_URL}/reservations/manual`, {
+                                method: 'POST',
+                                headers: {
+                                    'Authorization': `Bearer ${token}`,
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    barberId,
+                                    serviceId,
+                                    clientName,
+                                    clientPhone,
+                                    clientEmail,
+                                    reservationDate,
+                                    timeSlot,
+                                    notes
+                                })
+                            });
+
+                            const responseData = await response.json();
+
+                            if (!response.ok) {
+                                throw new Error(responseData.error || 'Erro ao criar reserva manual');
+                            }
+
+                            closeManualBookingModal();
+                            showStatusModal('Reserva manual criada com sucesso!', 'success');
+                            loadPage('reservations');
+                        } catch (error) {
+                            showStatusModal(`Erro: ${error.message}`, 'error');
+                        }
+                    });
+
+                    manualBookingForm.dataset.bound = 'true';
+                }
+
+                if (manualBookingButton) {
+                    manualBookingButton.addEventListener('click', openManualBookingModal);
+                }
 
                 const reservationsFilter = document.getElementById('reservationsBarberFilter');
                 if (reservationsFilter && defaultBarberId) {

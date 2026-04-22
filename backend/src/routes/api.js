@@ -3,7 +3,11 @@ const authController = require("../controllers/authController");
 const reservationController = require("../controllers/reservationController");
 const adminController = require("../controllers/adminController");
 const cronController = require("../controllers/cronController");
-const { authMiddleware, adminMiddleware } = require("../middleware/auth");
+const {
+  authMiddleware,
+  adminMiddleware,
+  optionalAuthMiddleware,
+} = require("../middleware/auth");
 const Barber = require("../models/Barber");
 const {
   upload,
@@ -29,7 +33,16 @@ router.put(
 );
 
 // ===== RESERVAS =====
-router.post("/reservations", reservationController.createReservation);
+router.post(
+  "/reservations",
+  optionalAuthMiddleware,
+  reservationController.createReservation,
+);
+router.post(
+  "/reservations/manual",
+  authMiddleware,
+  reservationController.createManualReservation,
+);
 router.get(
   "/reservations/barber/:barberId",
   reservationController.getReservationsByBarber,
