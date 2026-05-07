@@ -384,6 +384,48 @@
             background: #5a6268;
         }
 
+        .reservation-month-accordion {
+            margin-bottom: 1rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background: #fff;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        .reservation-month-summary {
+            list-style: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .reservation-month-summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .reservation-month-summary-title {
+            margin: 0;
+            color: #333;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .reservation-month-summary-meta {
+            color: #6c757d;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+
+        .reservation-month-content {
+            padding: 1rem;
+        }
+
         .recurring-rules-section {
             margin-top: 1.5rem;
             background: #fff;
@@ -1945,16 +1987,6 @@
 
                 container.innerHTML = '<p>A carregar reservas...</p>';
 
-                const showHistoricalReservations = localStorage.getItem('reservationsShowHistory') === '1';
-                const currentMonthStart = new Date();
-                currentMonthStart.setHours(0, 0, 0, 0);
-                currentMonthStart.setDate(1);
-
-                window.toggleReservationsHistory = () => {
-                    localStorage.setItem('reservationsShowHistory', showHistoricalReservations ? '0' : '1');
-                    loadPage('reservations');
-                };
-
                 const barbers = userRole === 'admin' ? await fetchBarbers() : [currentUser];
                 const defaultBarberId = userRole === 'admin' ? '' : getDefaultBarberId();
                 const barberOptions = userRole === 'admin'
@@ -1982,6 +2014,7 @@
 
                 const buildReservationsHtml = (items) => {
                     const now = new Date();
+                    const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
                     const parseReservationDateTime = (reservation) => {
                         const reservationDate = new Date(reservation.reservationDate);
                         if (Number.isNaN(reservationDate.getTime())) {
@@ -1994,24 +2027,7 @@
                         return reservationDateTime;
                     };
 
-                    const filteredReservations = showHistoricalReservations
-                        ? [...items]
-                        : [...items].filter((reservation) => {
-                            const reservationDateTime = parseReservationDateTime(reservation);
-                            if (!reservationDateTime) {
-                                return true;
-                            }
-
-                            const reservationMonthStart = new Date(
-                                reservationDateTime.getFullYear(),
-                                reservationDateTime.getMonth(),
-                                1,
-                            );
-
-                            return reservationMonthStart >= currentMonthStart;
-                        });
-
-                    const visibleReservations = filteredReservations.sort((a, b) => {
+                    const visibleReservations = [...items].sort((a, b) => {
                         const aDateTime = parseReservationDateTime(a);
                         const bDateTime = parseReservationDateTime(b);
 
@@ -2026,13 +2042,11 @@
                     let html = `
                         <div class="reservations-toolbar">
                             <span><strong>Total:</strong> ${visibleReservations.length}</span>
-                            ${!showHistoricalReservations && items.length > visibleReservations.length ? `<span style="color:#6c757d; font-size:0.85rem;">${items.length - visibleReservations.length} reserva(s) antigas ocultas</span>` : ''}
                             ${userRole === 'admin' ? `
                                 <div style="display:flex; gap:0.75rem; flex-wrap: wrap; align-items: center;">
                                     <select id="reservationsBarberFilter">${barberOptions}</select>
                                     <button id="openManualBookingModal" class="btn-action btn-manual" type="button" onclick="window.openManualBookingModal && window.openManualBookingModal()">Encaixar cliente</button>
                                     <button id="openRecurringRuleModal" class="btn-action btn-recurring" type="button" onclick="window.openRecurringRuleModal && window.openRecurringRuleModal()">Novo cliente fixo</button>
-                                    <button id="toggleReservationsHistory" class="btn-action btn-history" type="button" onclick="window.toggleReservationsHistory && window.toggleReservationsHistory()">${showHistoricalReservations ? 'Ocultar histórico' : 'Mostrar histórico'}</button>
                                     <button id="reservationsApply">Filtrar</button>
                                 </div>
                             ` : userRole === 'barber' ? `
@@ -2040,7 +2054,6 @@
                                     <span style="font-weight: 600; color: #555;">${currentUser.name}</span>
                                     <button id="openManualBookingModal" class="btn-action btn-manual" type="button" onclick="window.openManualBookingModal && window.openManualBookingModal()">Encaixar cliente</button>
                                     <button id="openRecurringRuleModal" class="btn-action btn-recurring" type="button" onclick="window.openRecurringRuleModal && window.openRecurringRuleModal()">Novo cliente fixo</button>
-                                    <button id="toggleReservationsHistory" class="btn-action btn-history" type="button" onclick="window.toggleReservationsHistory && window.toggleReservationsHistory()">${showHistoricalReservations ? 'Ocultar histórico' : 'Mostrar histórico'}</button>
                                 </div>
                             ` : ''}
                         </div>
@@ -2074,13 +2087,19 @@
                         const monthData = groupedByMonth[monthKey];
                         const monthDate = monthData.date;
                         const monthLabel = monthDate.toLocaleDateString('pt-PT', { month: 'long', year: 'numeric' }).toUpperCase();
+                        const monthReservationsCount = Object.values(monthData.reservations).reduce((sum, dayReservations) => sum + dayReservations.length, 0);
+                        const isCurrentMonth = monthKey === currentMonthKey;
 
                         const firstDay = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1).getDay();
                         const lastDay = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0).getDate();
 
-                        html += `<div style="margin-bottom: 2rem;">
-                            <h3 style="margin-bottom: 1rem; color: #333; font-size: 1.1rem;">${monthLabel}</h3>
-                            <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; background: white; padding: 1rem; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+                        html += `<details class="reservation-month-accordion"${isCurrentMonth ? ' open' : ''}>
+                            <summary class="reservation-month-summary">
+                                <h3 class="reservation-month-summary-title">${monthLabel}</h3>
+                                <div class="reservation-month-summary-meta">${monthReservationsCount} reserva${monthReservationsCount === 1 ? '' : 's'}${isCurrentMonth ? ' • mês atual aberto' : ' • tocar para abrir'}</div>
+                            </summary>
+                            <div class="reservation-month-content">
+                                <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; background: white; padding: 0; border-radius: 6px;">
                         `;
 
                         // Headers dos dias da semana
@@ -2161,7 +2180,9 @@
                             `;
                         }
 
-                        html += `</div></div>`;
+                        html += `</div>
+                            </div>
+                        </details>`;
                     });
 
                     return html;
