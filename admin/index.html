@@ -375,6 +375,15 @@
             background: #725b40;
         }
 
+        .btn-history {
+            background: #6c757d;
+            color: #fff;
+        }
+
+        .btn-history:hover {
+            background: #5a6268;
+        }
+
         .recurring-rules-section {
             margin-top: 1.5rem;
             background: #fff;
@@ -1936,6 +1945,16 @@
 
                 container.innerHTML = '<p>A carregar reservas...</p>';
 
+                const showHistoricalReservations = localStorage.getItem('reservationsShowHistory') === '1';
+                const currentMonthStart = new Date();
+                currentMonthStart.setHours(0, 0, 0, 0);
+                currentMonthStart.setDate(1);
+
+                window.toggleReservationsHistory = () => {
+                    localStorage.setItem('reservationsShowHistory', showHistoricalReservations ? '0' : '1');
+                    loadPage('reservations');
+                };
+
                 const barbers = userRole === 'admin' ? await fetchBarbers() : [currentUser];
                 const defaultBarberId = userRole === 'admin' ? '' : getDefaultBarberId();
                 const barberOptions = userRole === 'admin'
@@ -1975,7 +1994,24 @@
                         return reservationDateTime;
                     };
 
-                    const visibleReservations = [...items].sort((a, b) => {
+                    const filteredReservations = showHistoricalReservations
+                        ? [...items]
+                        : [...items].filter((reservation) => {
+                            const reservationDateTime = parseReservationDateTime(reservation);
+                            if (!reservationDateTime) {
+                                return true;
+                            }
+
+                            const reservationMonthStart = new Date(
+                                reservationDateTime.getFullYear(),
+                                reservationDateTime.getMonth(),
+                                1,
+                            );
+
+                            return reservationMonthStart >= currentMonthStart;
+                        });
+
+                    const visibleReservations = filteredReservations.sort((a, b) => {
                         const aDateTime = parseReservationDateTime(a);
                         const bDateTime = parseReservationDateTime(b);
 
@@ -1990,11 +2026,13 @@
                     let html = `
                         <div class="reservations-toolbar">
                             <span><strong>Total:</strong> ${visibleReservations.length}</span>
+                            ${!showHistoricalReservations && items.length > visibleReservations.length ? `<span style="color:#6c757d; font-size:0.85rem;">${items.length - visibleReservations.length} reserva(s) antigas ocultas</span>` : ''}
                             ${userRole === 'admin' ? `
                                 <div style="display:flex; gap:0.75rem; flex-wrap: wrap; align-items: center;">
                                     <select id="reservationsBarberFilter">${barberOptions}</select>
                                     <button id="openManualBookingModal" class="btn-action btn-manual" type="button" onclick="window.openManualBookingModal && window.openManualBookingModal()">Encaixar cliente</button>
                                     <button id="openRecurringRuleModal" class="btn-action btn-recurring" type="button" onclick="window.openRecurringRuleModal && window.openRecurringRuleModal()">Novo cliente fixo</button>
+                                    <button id="toggleReservationsHistory" class="btn-action btn-history" type="button" onclick="window.toggleReservationsHistory && window.toggleReservationsHistory()">${showHistoricalReservations ? 'Ocultar histórico' : 'Mostrar histórico'}</button>
                                     <button id="reservationsApply">Filtrar</button>
                                 </div>
                             ` : userRole === 'barber' ? `
@@ -2002,6 +2040,7 @@
                                     <span style="font-weight: 600; color: #555;">${currentUser.name}</span>
                                     <button id="openManualBookingModal" class="btn-action btn-manual" type="button" onclick="window.openManualBookingModal && window.openManualBookingModal()">Encaixar cliente</button>
                                     <button id="openRecurringRuleModal" class="btn-action btn-recurring" type="button" onclick="window.openRecurringRuleModal && window.openRecurringRuleModal()">Novo cliente fixo</button>
+                                    <button id="toggleReservationsHistory" class="btn-action btn-history" type="button" onclick="window.toggleReservationsHistory && window.toggleReservationsHistory()">${showHistoricalReservations ? 'Ocultar histórico' : 'Mostrar histórico'}</button>
                                 </div>
                             ` : ''}
                         </div>
