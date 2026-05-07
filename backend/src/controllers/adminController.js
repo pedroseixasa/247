@@ -4,6 +4,9 @@ const Service = require("../models/Service");
 const Reservation = require("../models/Reservation");
 const SiteSettings = require("../models/SiteSettings");
 const Review = require("../models/Review");
+const {
+  syncRecurringRulesForBarber,
+} = require("../services/recurringReservationService");
 
 function parsePriceNumber(value) {
   if (typeof value === "number" && Number.isFinite(value)) return value;
@@ -209,6 +212,20 @@ exports.updateBarber = async (req, res) => {
 
     if (!barber) {
       return res.status(404).json({ error: "Barbeiro não encontrado" });
+    }
+
+    if (workingHours !== undefined || isActive !== undefined) {
+      try {
+        await syncRecurringRulesForBarber(barber._id, {
+          replaceFuture: true,
+          fromDate: new Date(),
+        });
+      } catch (syncError) {
+        console.error(
+          "Erro ao sincronizar regras recorrentes após atualização do barbeiro:",
+          syncError,
+        );
+      }
     }
 
     res.json(barber);

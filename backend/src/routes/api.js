@@ -2,6 +2,7 @@ const express = require("express");
 const authController = require("../controllers/authController");
 const reservationController = require("../controllers/reservationController");
 const adminController = require("../controllers/adminController");
+const recurringController = require("../controllers/recurringController");
 const cronController = require("../controllers/cronController");
 const {
   authMiddleware,
@@ -56,6 +57,33 @@ router.delete(
   "/reservations/:reservationId",
   authMiddleware,
   reservationController.deleteReservation,
+);
+
+// ===== REGRAS RECORRENTES / CLIENTES FIXOS =====
+router.get(
+  "/admin/recurring-rules",
+  authMiddleware,
+  recurringController.getRecurringRules,
+);
+router.post(
+  "/admin/recurring-rules",
+  authMiddleware,
+  recurringController.createRecurringRule,
+);
+router.put(
+  "/admin/recurring-rules/:ruleId",
+  authMiddleware,
+  recurringController.updateRecurringRule,
+);
+router.patch(
+  "/admin/recurring-rules/:ruleId/toggle",
+  authMiddleware,
+  recurringController.toggleRecurringRule,
+);
+router.delete(
+  "/admin/recurring-rules/:ruleId",
+  authMiddleware,
+  recurringController.deleteRecurringRule,
 );
 
 // Cancelamento público (sem autenticação - via email)
@@ -313,6 +341,10 @@ router.get("/reviews/random", adminController.getRandomReviews);
 router.get("/cron/aggregate", cronController.aggregateMonthlyStats);
 router.get("/cron/clean-duplicates", cronController.cleanDuplicates);
 router.get("/cron/clear-old", cronController.clearOldReservations);
+router.get(
+  "/cron/generate-recurring",
+  cronController.generateRecurringReservations,
+);
 
 // ===== PUSH NOTIFICATIONS (AUTENTICADO) =====
 // Endpoint para registar push subscription do cliente

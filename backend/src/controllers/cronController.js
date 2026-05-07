@@ -3,6 +3,9 @@ const MonthlyStats = require("../models/MonthlyStats");
 const Barber = require("../models/Barber");
 const Service = require("../models/Service");
 const mongoose = require("mongoose");
+const {
+  syncAllActiveRecurringRules,
+} = require("../services/recurringReservationService");
 
 /**
  * Endpoint minimalista para cronjob de agregação mensal
@@ -85,6 +88,33 @@ exports.clearOldReservations = async (req, res) => {
     });
 
     res.json({ status: "ok", deleted: result.deletedCount || 0 });
+  } catch (error) {
+    res.status(500).json({ status: "error" });
+  }
+};
+
+/**
+ * Endpoint minimalista para gerar ocorrências futuras de regras recorrentes
+ */
+exports.generateRecurringReservations = async (req, res) => {
+  try {
+    const results = await syncAllActiveRecurringRules({
+      replaceFuture: false,
+      fromDate: new Date(),
+    });
+
+    const summary = results.reduce(
+      (accumulator, result) => {
+        accumulator.created += result.created || 0;
+        accumulator.skipped += result.skipped || 0;
+        accumulator.existing += result.existing || 0;
+        accumulator.rules += 1;
+        return accumulator;
+      },
+      { created: 0, skipped: 0, existing: 0, rules: 0 },
+    );
+
+    res.json({ status: "ok", ...summary });
   } catch (error) {
     res.status(500).json({ status: "error" });
   }

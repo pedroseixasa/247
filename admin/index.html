@@ -352,6 +352,11 @@
             color: #1f6fb2;
         }
 
+        .badge-recurring {
+            background: rgba(139, 115, 85, 0.12);
+            color: #7b5e3b;
+        }
+
         .btn-manual {
             background: #3498db;
             color: #fff;
@@ -359,6 +364,75 @@
 
         .btn-manual:hover {
             background: #2c80b9;
+        }
+
+        .btn-recurring {
+            background: #8b7355;
+            color: #fff;
+        }
+
+        .btn-recurring:hover {
+            background: #725b40;
+        }
+
+        .recurring-rules-section {
+            margin-top: 1.5rem;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .recurring-rules-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .recurring-rules-grid {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .recurring-rule-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 0.85rem;
+            background: #faf7f2;
+        }
+
+        .recurring-rule-card.is-inactive {
+            opacity: 0.72;
+        }
+
+        .recurring-rule-topline {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .recurring-rule-title {
+            font-weight: 700;
+            color: #222;
+        }
+
+        .recurring-rule-meta {
+            font-size: 0.85rem;
+            color: #666;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 0.6rem;
+        }
+
+        .recurring-rule-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
         }
 
         .reservations-toolbar {
@@ -1359,6 +1433,72 @@
                 `);
             }
 
+            if (!document.getElementById('recurringRuleModal')) {
+                document.body.insertAdjacentHTML('beforeend', `
+                    <div id="recurringRuleModal" class="manual-booking-modal">
+                        <div class="confirm-modal-backdrop" data-recurring-close="true"></div>
+                        <div class="manual-booking-content" role="dialog" aria-live="polite" aria-labelledby="recurringRuleTitle">
+                            <div class="confirm-modal-title" id="recurringRuleTitle">Cliente fixo / recorrência</div>
+                            <form id="recurringRuleForm" class="manual-booking-form">
+                                <input type="hidden" id="recurringRuleId" value="">
+                                <div class="manual-booking-grid">
+                                    <div class="manual-booking-field">
+                                        <label for="recurringRuleClientName">Nome do cliente</label>
+                                        <input type="text" id="recurringRuleClientName" required>
+                                    </div>
+                                    <div class="manual-booking-field">
+                                        <label for="recurringRuleClientPhone">Telefone</label>
+                                        <input type="tel" id="recurringRuleClientPhone" placeholder="+351 912345678">
+                                    </div>
+                                </div>
+                                <div class="manual-booking-grid">
+                                    <div class="manual-booking-field">
+                                        <label for="recurringRuleClientEmail">Email (opcional)</label>
+                                        <input type="email" id="recurringRuleClientEmail" placeholder="cliente@email.com">
+                                    </div>
+                                    <div class="manual-booking-field">
+                                        <label for="recurringRuleBarberId">Barbeiro</label>
+                                        <select id="recurringRuleBarberId" required></select>
+                                    </div>
+                                </div>
+                                <div class="manual-booking-grid">
+                                    <div class="manual-booking-field">
+                                        <label for="recurringRuleServiceId">Serviço</label>
+                                        <select id="recurringRuleServiceId" required></select>
+                                    </div>
+                                    <div class="manual-booking-field">
+                                        <label for="recurringRuleStartDate">Data inicial</label>
+                                        <input type="date" id="recurringRuleStartDate" required>
+                                    </div>
+                                </div>
+                                <div class="manual-booking-grid">
+                                    <div class="manual-booking-field">
+                                        <label for="recurringRuleTimeSlot">Hora</label>
+                                        <input type="time" id="recurringRuleTimeSlot" step="1800" required>
+                                    </div>
+                                    <div class="manual-booking-field">
+                                        <label for="recurringRuleFrequency">Frequência</label>
+                                        <select id="recurringRuleFrequency" required>
+                                            <option value="weekly">Semanal</option>
+                                            <option value="biweekly">Quinzenal</option>
+                                            <option value="monthly">Mensal</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="manual-booking-field">
+                                    <label for="recurringRuleNotes">Notas</label>
+                                    <textarea id="recurringRuleNotes" placeholder="Opcional"></textarea>
+                                </div>
+                                <div class="manual-booking-actions">
+                                    <button type="button" class="confirm-modal-btn cancel" data-recurring-close="true">Cancelar</button>
+                                    <button type="submit" class="confirm-modal-btn confirm">Guardar regra</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                `);
+            }
+
             // Menu listeners
             document.querySelectorAll('.menu-link').forEach(link => {
                 link.addEventListener('click', (e) => {
@@ -1797,7 +1937,7 @@
                 container.innerHTML = '<p>A carregar reservas...</p>';
 
                 const barbers = userRole === 'admin' ? await fetchBarbers() : [currentUser];
-                const defaultBarberId = userRole === 'admin' ? getDefaultBarberId() : '';
+                const defaultBarberId = userRole === 'admin' ? '' : getDefaultBarberId();
                 const barberOptions = userRole === 'admin'
                     ? buildBarberOptions(barbers, defaultBarberId)
                     : `<option value="${currentUser._id}" selected>${currentUser.name}</option>`;
@@ -1853,13 +1993,15 @@
                             ${userRole === 'admin' ? `
                                 <div style="display:flex; gap:0.75rem; flex-wrap: wrap; align-items: center;">
                                     <select id="reservationsBarberFilter">${barberOptions}</select>
-                                    <button id="openManualBookingModal" class="btn-action btn-manual" type="button">Encaixar cliente</button>
+                                    <button id="openManualBookingModal" class="btn-action btn-manual" type="button" onclick="window.openManualBookingModal && window.openManualBookingModal()">Encaixar cliente</button>
+                                    <button id="openRecurringRuleModal" class="btn-action btn-recurring" type="button" onclick="window.openRecurringRuleModal && window.openRecurringRuleModal()">Novo cliente fixo</button>
                                     <button id="reservationsApply">Filtrar</button>
                                 </div>
                             ` : userRole === 'barber' ? `
                                 <div style="display:flex; gap:0.75rem; flex-wrap: wrap; align-items: center;">
                                     <span style="font-weight: 600; color: #555;">${currentUser.name}</span>
-                                    <button id="openManualBookingModal" class="btn-action btn-manual" type="button">Encaixar cliente</button>
+                                    <button id="openManualBookingModal" class="btn-action btn-manual" type="button" onclick="window.openManualBookingModal && window.openManualBookingModal()">Encaixar cliente</button>
+                                    <button id="openRecurringRuleModal" class="btn-action btn-recurring" type="button" onclick="window.openRecurringRuleModal && window.openRecurringRuleModal()">Novo cliente fixo</button>
                                 </div>
                             ` : ''}
                         </div>
@@ -1955,12 +2097,13 @@
                                 const clientPhone = res.clientPhone || '';
                                 const clientLine = clientPhone ? `${clientName} • ${clientPhone}` : clientName;
                                 const manualBadge = res.isManual ? '<span class="badge badge-manual" style="margin-left: 0.5rem;">Manual</span>' : '';
+                                const recurringBadge = res.isRecurring ? '<span class="badge badge-recurring" style="margin-left: 0.5rem;">Recorrente</span>' : '';
 
                                 return `
                                                 <div style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 0.75rem; margin-bottom: 0.75rem; background: #f8f9fa;">
                                                     <div style="display: flex; flex-direction: column; gap: 0.5rem;">
                                                         <div style="display: flex; justify-content: space-between; align-items: center;">
-                                                            <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap: wrap; font-weight: 700; color: #27ae60; font-size: 1.1rem;">${res.timeSlot || '--:--'}${manualBadge}</div>
+                                                            <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap: wrap; font-weight: 700; color: #27ae60; font-size: 1.1rem;">${res.timeSlot || '--:--'}${manualBadge}${recurringBadge}</div>
                                                             <div style="font-size: 0.75rem; font-weight: 600; color: ${isUpcoming ? '#27ae60' : '#7f8c8d'};">${isUpcoming ? 'Agendada' : 'Passada'}</div>
                                                             <button class="btn-action btn-cancel" onclick="cancelReservation('${res._id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; white-space: nowrap;">Cancelar</button>
                                                         </div>
@@ -2073,6 +2216,8 @@
                     }
                 };
 
+                window.openManualBookingModal = openManualBookingModal;
+
                 if (manualBookingModal && !manualBookingModal.dataset.bound) {
                     manualBookingModal.querySelectorAll('[data-manual-close="true"]').forEach((element) => {
                         element.addEventListener('click', closeManualBookingModal);
@@ -2141,9 +2286,340 @@
                     manualBookingForm.dataset.bound = 'true';
                 }
 
-                if (manualBookingButton) {
-                    manualBookingButton.addEventListener('click', openManualBookingModal);
+                const recurringRuleModal = document.getElementById('recurringRuleModal');
+                const recurringRuleForm = document.getElementById('recurringRuleForm');
+                const recurringRuleButton = document.getElementById('openRecurringRuleModal');
+
+                const formatLocalDateInput = (value) => {
+                    const date = new Date(value);
+                    if (Number.isNaN(date.getTime())) return '';
+                    const local = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
+                    return local.toISOString().slice(0, 10);
+                };
+
+                const getRecurringTargetBarberId = () => {
+                    if (userRole === 'admin') {
+                        return document.getElementById('reservationsBarberFilter')?.value
+                            || barbers[0]?._id
+                            || '';
+                    }
+
+                    return currentUser?._id || '';
+                };
+
+                const renderRecurringRulesSection = (rules) => {
+                    const recurringRules = Array.isArray(rules) ? rules : [];
+                    window.recurringRulesCache = recurringRules;
+
+                    const formatDisplayDate = (value) => {
+                        const date = new Date(value);
+                        if (Number.isNaN(date.getTime())) return '--';
+                        return date.toLocaleDateString('pt-PT', { timeZone: 'UTC' });
+                    };
+
+                    if (userRole !== 'admin' && userRole !== 'barber') {
+                        return '';
+                    }
+
+                    const rulesHtml = recurringRules.length > 0
+                        ? recurringRules.map((rule) => {
+                            const barberName = rule.barberId?.name || '—';
+                            const serviceName = rule.serviceId?.name || '—';
+                            const frequencyLabel = rule.frequencyLabel || (rule.frequency === 'biweekly' ? 'Quinzenal' : rule.frequency === 'monthly' ? 'Mensal' : 'Semanal');
+                            const cardClass = rule.isActive ? 'recurring-rule-card' : 'recurring-rule-card is-inactive';
+                            return `
+                                <div class="${cardClass}">
+                                    <div class="recurring-rule-topline">
+                                        <div class="recurring-rule-title">${rule.clientName || 'Cliente'}</div>
+                                        <span class="badge ${rule.isActive ? 'badge-success' : 'badge-danger'}">${rule.isActive ? 'Ativa' : 'Inativa'}</span>
+                                    </div>
+                                    <div class="recurring-rule-meta">
+                                        <span>👨 ${barberName}</span>
+                                        <span>✂️ ${serviceName}</span>
+                                        <span>🗓️ ${formatDisplayDate(rule.startDate)}</span>
+                                        <span>⏰ ${rule.timeSlot || '--:--'}</span>
+                                        <span>🔁 ${frequencyLabel}</span>
+                                    </div>
+                                    <div class="recurring-rule-meta">
+                                        ${rule.clientPhone ? `<span>📞 ${rule.clientPhone}</span>` : ''}
+                                        ${rule.clientEmail ? `<span>✉️ ${rule.clientEmail}</span>` : ''}
+                                    </div>
+                                    <div class="recurring-rule-actions">
+                                        <button type="button" class="btn-action" onclick="editRecurringRule('${rule._id}')">Editar</button>
+                                        <button type="button" class="btn-action" onclick="toggleRecurringRuleStatus('${rule._id}')">${rule.isActive ? 'Desativar' : 'Ativar'}</button>
+                                        <button type="button" class="btn-action btn-cancel" onclick="deleteRecurringRule('${rule._id}')">Eliminar</button>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')
+                        : '<div class="alert alert-info">Sem regras recorrentes.</div>';
+
+                    return `
+                        <div id="recurringRulesSection" class="recurring-rules-section">
+                            <div class="recurring-rules-header">
+                                <div>
+                                    <h3 style="margin: 0 0 0.25rem 0; color: #1a1a1a;">Clientes fixos / recorrências</h3>
+                                    <div style="color: #666; font-size: 0.9rem;">Regra automática que gera reservas futuras e bloqueia os slots como uma marcação normal.</div>
+                                </div>
+                                <button type="button" class="btn-action btn-recurring" onclick="openRecurringRuleModal()">Nova regra</button>
+                            </div>
+                            <div class="recurring-rules-grid">
+                                ${rulesHtml}
+                            </div>
+                        </div>
+                    `;
+                };
+
+                const loadRecurringRulesSection = async () => {
+                    try {
+                        const selectedBarberId = document.getElementById('reservationsBarberFilter')?.value || '';
+                        const barberId = userRole === 'admin'
+                            ? selectedBarberId
+                            : (currentUser?._id || '');
+
+                        const url = barberId
+                            ? `${API_URL}/admin/recurring-rules?barberId=${barberId}`
+                            : `${API_URL}/admin/recurring-rules`;
+
+                        const response = await fetchJson(url, {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+
+                        const recurringRules = Array.isArray(response) ? response : [];
+                        const existingSection = document.getElementById('recurringRulesSection');
+                        if (existingSection) {
+                            existingSection.remove();
+                        }
+                        container.insertAdjacentHTML('beforeend', renderRecurringRulesSection(recurringRules));
+                    } catch (error) {
+                        console.error('Erro ao carregar regras recorrentes:', error);
+                    }
+                };
+
+                const populateRecurringRuleModal = async (rule = null) => {
+                    if (!recurringRuleModal || !recurringRuleForm) return;
+
+                    const barberSelect = document.getElementById('recurringRuleBarberId');
+                    const serviceSelect = document.getElementById('recurringRuleServiceId');
+                    const clientNameInput = document.getElementById('recurringRuleClientName');
+                    const clientPhoneInput = document.getElementById('recurringRuleClientPhone');
+                    const clientEmailInput = document.getElementById('recurringRuleClientEmail');
+                    const startDateInput = document.getElementById('recurringRuleStartDate');
+                    const timeSlotInput = document.getElementById('recurringRuleTimeSlot');
+                    const frequencyInput = document.getElementById('recurringRuleFrequency');
+                    const notesInput = document.getElementById('recurringRuleNotes');
+                    const ruleIdInput = document.getElementById('recurringRuleId');
+
+                    const manualServices = await loadManualServices();
+                    const recurringBarbers = userRole === 'admin' ? barbers : [currentUser];
+                    const targetBarberId = rule
+                        ? String(rule.barberId?._id || rule.barberId)
+                        : getRecurringTargetBarberId();
+
+                    if (barberSelect) {
+                        barberSelect.innerHTML = recurringBarbers.map((barber) => {
+                            const selected = String(barber._id) === String(targetBarberId);
+                            return `<option value="${barber._id}"${selected ? ' selected' : ''}>${barber.name}</option>`;
+                        }).join('');
+                        barberSelect.disabled = userRole !== 'admin';
+                    }
+
+                    if (serviceSelect) {
+                        const currentServiceId = rule ? String(rule.serviceId?._id || rule.serviceId) : '';
+                        const currentServiceExists = manualServices.some((service) => String(service._id) === currentServiceId);
+                        const serviceOptions = [...manualServices];
+
+                        if (rule && !currentServiceExists && rule.serviceId) {
+                            serviceOptions.unshift({
+                                _id: rule.serviceId._id || rule.serviceId,
+                                name: rule.serviceId.name || 'Serviço atual',
+                                price: rule.serviceId.price || '',
+                                duration: rule.serviceId.duration || 30,
+                            });
+                        }
+
+                        serviceSelect.innerHTML = serviceOptions.map((service) => {
+                            const selected = rule && String(rule.serviceId?._id || rule.serviceId) === String(service._id) ? ' selected' : '';
+                            return `<option value="${service._id}"${selected}>${service.name} · ${formatServicePrice(service.price)} · ${service.duration || 30} min</option>`;
+                        }).join('');
+                    }
+
+                    if (rule) {
+                        if (ruleIdInput) ruleIdInput.value = rule._id || '';
+                        if (clientNameInput) clientNameInput.value = rule.clientName || '';
+                        if (clientPhoneInput) clientPhoneInput.value = rule.clientPhone || '';
+                        if (clientEmailInput) clientEmailInput.value = rule.clientEmail || '';
+                        if (startDateInput) startDateInput.value = formatLocalDateInput(rule.startDate);
+                        if (timeSlotInput) timeSlotInput.value = (rule.timeSlot || '').slice(0, 5);
+                        if (frequencyInput) frequencyInput.value = rule.frequency || 'weekly';
+                        if (notesInput) notesInput.value = rule.notes || '';
+                        recurringRuleModal.querySelector('#recurringRuleTitle').textContent = 'Editar recorrência';
+                    } else {
+                        if (ruleIdInput) ruleIdInput.value = '';
+                        if (clientNameInput) clientNameInput.value = '';
+                        if (clientPhoneInput) clientPhoneInput.value = '';
+                        if (clientEmailInput) clientEmailInput.value = '';
+                        if (startDateInput) startDateInput.value = formatLocalDateInput(new Date());
+                        if (timeSlotInput) timeSlotInput.value = '';
+                        if (frequencyInput) frequencyInput.value = 'weekly';
+                        if (notesInput) notesInput.value = '';
+                        recurringRuleModal.querySelector('#recurringRuleTitle').textContent = 'Cliente fixo / recorrência';
+                    }
+
+                    recurringRuleModal.classList.add('active');
+                };
+
+                const closeRecurringRuleModal = () => {
+                    if (recurringRuleModal) {
+                        recurringRuleModal.classList.remove('active');
+                    }
+                };
+
+                window.openRecurringRuleModal = async () => {
+                    try {
+                        await populateRecurringRuleModal(null);
+                    } catch (error) {
+                        showStatusModal(`Erro ao preparar regra recorrente: ${error.message}`, 'error');
+                    }
+                };
+
+                window.editRecurringRule = async (ruleId) => {
+                    try {
+                        const rule = (window.recurringRulesCache || []).find((item) => String(item._id) === String(ruleId));
+                        if (!rule) {
+                            showStatusModal('Regra não encontrada.', 'error');
+                            return;
+                        }
+                        await populateRecurringRuleModal(rule);
+                    } catch (error) {
+                        showStatusModal(`Erro ao abrir regra: ${error.message}`, 'error');
+                    }
+                };
+
+                window.toggleRecurringRuleStatus = async (ruleId) => {
+                    try {
+                        const response = await fetch(`${API_URL}/admin/recurring-rules/${ruleId}/toggle`, {
+                            method: 'PATCH',
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                            }
+                        });
+
+                        const data = await response.json();
+                        if (!response.ok) {
+                            throw new Error(data.error || 'Erro ao alterar regra');
+                        }
+
+                        showStatusModal(data.message || 'Regra atualizada com sucesso.', 'success');
+                        loadPage('reservations');
+                    } catch (error) {
+                        showStatusModal(`Erro: ${error.message}`, 'error');
+                    }
+                };
+
+                window.deleteRecurringRule = async (ruleId) => {
+                    const confirmed = await showConfirmModal('Tem a certeza que quer eliminar esta regra recorrente? As reservas futuras geradas por ela serão removidas.', {
+                        confirmText: 'Eliminar'
+                    });
+                    if (!confirmed) return;
+
+                    try {
+                        const response = await fetch(`${API_URL}/admin/recurring-rules/${ruleId}`, {
+                            method: 'DELETE',
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+
+                        const data = await response.json();
+                        if (!response.ok) {
+                            throw new Error(data.error || 'Erro ao eliminar regra');
+                        }
+
+                        showStatusModal(data.message || 'Regra eliminada com sucesso.', 'success');
+                        loadPage('reservations');
+                    } catch (error) {
+                        showStatusModal(`Erro: ${error.message}`, 'error');
+                    }
+                };
+
+                if (recurringRuleModal && !recurringRuleModal.dataset.bound) {
+                    recurringRuleModal.querySelectorAll('[data-recurring-close="true"]').forEach((element) => {
+                        element.addEventListener('click', closeRecurringRuleModal);
+                    });
+                    recurringRuleModal.dataset.bound = 'true';
                 }
+
+                if (recurringRuleForm && !recurringRuleForm.dataset.bound) {
+                    recurringRuleForm.addEventListener('submit', async (event) => {
+                        event.preventDefault();
+
+                        const ruleId = document.getElementById('recurringRuleId')?.value || '';
+                        const barberId = userRole === 'admin'
+                            ? (document.getElementById('recurringRuleBarberId')?.value || '')
+                            : (currentUser?._id || '');
+                        const serviceId = document.getElementById('recurringRuleServiceId')?.value || '';
+                        const clientName = document.getElementById('recurringRuleClientName')?.value.trim();
+                        const clientPhone = document.getElementById('recurringRuleClientPhone')?.value.trim();
+                        const clientEmail = document.getElementById('recurringRuleClientEmail')?.value.trim();
+                        const startDate = document.getElementById('recurringRuleStartDate')?.value || '';
+                        const timeSlot = document.getElementById('recurringRuleTimeSlot')?.value.slice(0, 5) || '';
+                        const frequency = document.getElementById('recurringRuleFrequency')?.value || 'weekly';
+                        const notes = document.getElementById('recurringRuleNotes')?.value.trim();
+
+                        if (!barberId || !serviceId || !clientName || !startDate || !timeSlot || !frequency) {
+                            showStatusModal('Preencha os campos obrigatórios da recorrência.', 'error');
+                            return;
+                        }
+
+                        try {
+                            const isEditing = Boolean(ruleId);
+                            const url = isEditing
+                                ? `${API_URL}/admin/recurring-rules/${ruleId}`
+                                : `${API_URL}/admin/recurring-rules`;
+
+                            const response = await fetch(url, {
+                                method: isEditing ? 'PUT' : 'POST',
+                                headers: {
+                                    'Authorization': `Bearer ${token}`,
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    barberId,
+                                    serviceId,
+                                    clientName,
+                                    clientPhone,
+                                    clientEmail,
+                                    startDate,
+                                    reservationDate: startDate,
+                                    timeSlot,
+                                    frequency,
+                                    notes
+                                })
+                            });
+
+                            const data = await response.json();
+                            if (!response.ok) {
+                                throw new Error(data.error || 'Erro ao guardar regra');
+                            }
+
+                            closeRecurringRuleModal();
+                            showStatusModal(data.message || 'Regra guardada com sucesso.', 'success');
+                            loadPage('reservations');
+                        } catch (error) {
+                            showStatusModal(`Erro: ${error.message}`, 'error');
+                        }
+                    });
+
+                    recurringRuleForm.dataset.bound = 'true';
+                }
+
+                const refreshRecurringRulesSection = async () => {
+                    await loadRecurringRulesSection();
+                };
+
+                refreshRecurringRulesSection().catch((error) => {
+                    console.error('Erro ao renderizar regras recorrentes:', error);
+                });
 
                 const reservationsFilter = document.getElementById('reservationsBarberFilter');
                 if (reservationsFilter && defaultBarberId) {
@@ -2175,6 +2651,7 @@
                         if (filterSelect) {
                             filterSelect.innerHTML = updatedOptions;
                         }
+                        await loadRecurringRulesSection();
                         attachReservationsFilter();
                     });
                 };

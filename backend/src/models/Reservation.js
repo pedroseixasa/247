@@ -40,6 +40,15 @@ const reservationSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  isRecurring: {
+    type: Boolean,
+    default: false,
+  },
+  recurringRuleId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "RecurringReservationRule",
+    default: null,
+  },
   notes: String,
   reminderSent: {
     type: Boolean,

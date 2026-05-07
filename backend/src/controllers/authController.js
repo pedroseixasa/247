@@ -2,6 +2,9 @@ const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const bcryptjs = require("bcryptjs");
 const Barber = require("../models/Barber");
+const {
+  syncRecurringRulesForBarber,
+} = require("../services/recurringReservationService");
 
 exports.login = async (req, res) => {
   try {
@@ -240,6 +243,20 @@ exports.updateProfile = async (req, res) => {
       },
       { runValidators: false },
     );
+
+    if (lunchBreak !== undefined || workingHours !== undefined) {
+      try {
+        await syncRecurringRulesForBarber(req.barberId, {
+          replaceFuture: true,
+          fromDate: new Date(),
+        });
+      } catch (syncError) {
+        console.error(
+          "Erro ao sincronizar regras recorrentes após atualização do perfil:",
+          syncError,
+        );
+      }
+    }
 
     res.json({
       success: true,

@@ -3,6 +3,10 @@ const Reservation = require("../models/Reservation");
 const Barber = require("../models/Barber");
 const Service = require("../models/Service");
 const SiteSettings = require("../models/SiteSettings");
+const RecurringReservationRule = require("../models/RecurringReservationRule");
+const {
+  syncRecurringRulesForBarber,
+} = require("../services/recurringReservationService");
 const twilio = require("twilio");
 const crypto = require("crypto");
 const {
@@ -194,6 +198,18 @@ function getEffectiveHours(globalHours, barberHours) {
   return globalHours || null;
 }
 
+async function addRecurringOccurrenceException(reservation) {
+  if (!reservation?.isRecurring || !reservation.recurringRuleId) {
+    return;
+  }
+
+  const exceptionDate = formatDateKeyUtc(new Date(reservation.reservationDate));
+  await RecurringReservationRule.updateOne(
+    { _id: reservation.recurringRuleId },
+    { $addToSet: { excludedDates: exceptionDate } },
+  );
+}
+
 function isAuthorizedManualUser(req) {
   return ["barber", "admin"].includes(req.user?.role);
 }
@@ -381,11 +397,9 @@ async function createReservationFromRequest(
       req.user?.role === "barber" &&
       req.user._id.toString() !== barber._id.toString()
     ) {
-      return res
-        .status(403)
-        .json({
-          error: "Sem permissão para criar reservas para outro barbeiro",
-        });
+      return res.status(403).json({
+        error: "Sem permissão para criar reservas para outro barbeiro",
+      });
     }
 
     const service = await Service.findById(serviceIdObj);
@@ -788,6 +802,10 @@ exports.updateReservationStatus = async (req, res) => {
       return res.status(404).json({ error: "Reserva não encontrada" });
     }
 
+    if (status === "cancelled") {
+      await addRecurringOccurrenceException(reservation);
+    }
+
     res.json(reservation);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -798,10 +816,13 @@ exports.deleteReservation = async (req, res) => {
   try {
     const { reservationId } = req.params;
 
-    const reservation = await Reservation.findByIdAndDelete(reservationId);
+    const reservation = await Reservation.findById(reservationId);
     if (!reservation) {
       return res.status(404).json({ error: "Reserva não encontrada" });
     }
+
+    await addRecurringOccurrenceException(reservation);
+    await Reservation.findByIdAndDelete(reservationId);
 
     res.json({ message: "Reserva cancelada" });
   } catch (error) {
@@ -913,6 +934,18 @@ exports.addAbsence = async (req, res) => {
     barber.absences.push(newAbsence);
     await barber.save();
 
+    try {
+      await syncRecurringRulesForBarber(targetBarberId, {
+        replaceFuture: true,
+        fromDate: new Date(),
+      });
+    } catch (syncError) {
+      console.error(
+        "Erro ao sincronizar regras recorrentes após adicionar ausência:",
+        syncError,
+      );
+    }
+
     res.status(201).json({
       message: "Ausência adicionada",
       absence: newAbsence,
@@ -967,6 +1000,18 @@ exports.removeAbsence = async (req, res) => {
 
     barber.absences.splice(absenceIndex, 1);
     await barber.save();
+
+    try {
+      await syncRecurringRulesForBarber(barberId, {
+        replaceFuture: true,
+        fromDate: new Date(),
+      });
+    } catch (syncError) {
+      console.error(
+        "Erro ao sincronizar regras recorrentes após remover ausência:",
+        syncError,
+      );
+    }
 
     res.json({
       message: "Ausência removida com sucesso",
