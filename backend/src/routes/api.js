@@ -4,6 +4,8 @@ const reservationController = require("../controllers/reservationController");
 const adminController = require("../controllers/adminController");
 const recurringController = require("../controllers/recurringController");
 const cronController = require("../controllers/cronController");
+const { bookingAbusePrecheck } = require("../middleware/bookingAbuse");
+const { bookingLimiter } = require("../middleware/bookingLimiter");
 const {
   authMiddleware,
   adminMiddleware,
@@ -36,6 +38,8 @@ router.put(
 // ===== RESERVAS =====
 router.post(
   "/reservations",
+  bookingAbusePrecheck,
+  bookingLimiter,
   optionalAuthMiddleware,
   reservationController.createReservation,
 );
@@ -84,6 +88,25 @@ router.delete(
   "/admin/recurring-rules/:ruleId",
   authMiddleware,
   recurringController.deleteRecurringRule,
+);
+
+router.get(
+  "/admin/blocklist",
+  authMiddleware,
+  adminMiddleware,
+  adminController.getBlocklist,
+);
+router.post(
+  "/admin/blocklist",
+  authMiddleware,
+  adminMiddleware,
+  adminController.createBlocklistEntry,
+);
+router.delete(
+  "/admin/blocklist/:id",
+  authMiddleware,
+  adminMiddleware,
+  adminController.deleteBlocklistEntry,
 );
 
 // Cancelamento público (sem autenticação - via email)

@@ -4,9 +4,18 @@ const Barber = require("../models/Barber");
 const Service = require("../models/Service");
 const SiteSettings = require("../models/SiteSettings");
 const RecurringReservationRule = require("../models/RecurringReservationRule");
+const Blocklist = require("../models/Blocklist");
 const {
   syncRecurringRulesForBarber,
 } = require("../services/recurringReservationService");
+const {
+  normalizePhoneForComparison,
+  normalizeIpForComparison,
+  isSuspiciousName,
+  isValidPortuguesePhone,
+  isStrictPublicEmail,
+  logAbuseAttempt,
+} = require("../utils/bookingAbuse");
 const twilio = require("twilio");
 const crypto = require("crypto");
 const {
@@ -198,6 +207,46 @@ function getEffectiveHours(globalHours, barberHours) {
   return globalHours || null;
 }
 
+function getLegacyPhoneRegex() {
+  return /^(\+351\s?)?[29]\d{8}$/;
+}
+
+async function hasBlocklistMatch(req, clientPhone) {
+  const requestIp = normalizeIpForComparison(req.ip);
+  if (requestIp) {
+    const blockedIp = await Blocklist.findOne({
+      type: "ip",
+      value: requestIp,
+    }).lean();
+
+    if (blockedIp) {
+      logAbuseAttempt(req, "blocklist-ip", {
+        blocklistType: "ip",
+        blocklistValue: requestIp,
+      });
+      return true;
+    }
+  }
+
+  const phoneValue = normalizePhoneForComparison(clientPhone);
+  if (phoneValue) {
+    const blockedPhone = await Blocklist.findOne({
+      type: "phone",
+      value: phoneValue,
+    }).lean();
+
+    if (blockedPhone) {
+      logAbuseAttempt(req, "blocklist-phone", {
+        blocklistType: "phone",
+        blocklistValue: phoneValue,
+      });
+      return true;
+    }
+  }
+
+  return false;
+}
+
 async function addRecurringOccurrenceException(reservation) {
   if (!reservation?.isRecurring || !reservation.recurringRuleId) {
     return;
@@ -314,6 +363,17 @@ async function createReservationFromRequest(
     const manualRequested = forceManual || isManual === true;
     const manualAllowed = manualRequested && isAuthorizedManualUser(req);
 
+    if (!manualAllowed) {
+      if (await hasBlocklistMatch(req, clientPhone)) {
+        return res.status(403).json({ error: "Reserva não permitida." });
+      }
+
+      if (req.body?._hp) {
+        logAbuseAttempt(req, "honeypot", { honeypot: true });
+        return res.status(400).json({ error: "Reserva inválida" });
+      }
+    }
+
     if (manualRequested && !manualAllowed) {
       return res.status(403).json({
         error:
@@ -331,36 +391,48 @@ async function createReservationFromRequest(
       return res.status(400).json({ error: "Dados obrigatórios faltando" });
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (clientEmail) {
-      if (!emailRegex.test(clientEmail)) {
+    if (manualAllowed) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (clientEmail) {
+        if (!emailRegex.test(clientEmail)) {
+          return res.status(400).json({ error: "Email inválido" });
+        }
+
+        const domain = clientEmail.split("@")[1];
+        if (
+          !domain ||
+          domain.split(".").length < 2 ||
+          domain.endsWith(".test") ||
+          domain.endsWith(".fake")
+        ) {
+          return res.status(400).json({ error: "Por favor, use um email real" });
+        }
+      }
+
+      if (clientPhone) {
+        const phoneRegex = getLegacyPhoneRegex();
+        const cleanPhone = clientPhone.replace(/\s/g, "");
+        if (!phoneRegex.test(cleanPhone)) {
+          return res.status(400).json({
+            error:
+              "Número de telefone inválido. Use formato: +351 912345678 ou 912345678",
+          });
+        }
+      } else {
+        return res.status(400).json({ error: "Número de telefone inválido" });
+      }
+    } else {
+      if (isSuspiciousName(clientName)) {
+        return res.status(400).json({ error: "Nome inválido" });
+      }
+
+      if (!isValidPortuguesePhone(clientPhone)) {
+        return res.status(400).json({ error: "Número de telemóvel inválido" });
+      }
+
+      if (!isStrictPublicEmail(clientEmail)) {
         return res.status(400).json({ error: "Email inválido" });
       }
-
-      const domain = clientEmail.split("@")[1];
-      if (
-        !domain ||
-        domain.split(".").length < 2 ||
-        domain.endsWith(".test") ||
-        domain.endsWith(".fake")
-      ) {
-        return res.status(400).json({ error: "Por favor, use um email real" });
-      }
-    } else if (!manualAllowed) {
-      return res.status(400).json({ error: "Email inválido" });
-    }
-
-    if (clientPhone) {
-      const phoneRegex = /^(\+351\s?)?[29]\d{8}$/;
-      const cleanPhone = clientPhone.replace(/\s/g, "");
-      if (!phoneRegex.test(cleanPhone)) {
-        return res.status(400).json({
-          error:
-            "Número de telefone inválido. Use formato: +351 912345678 ou 912345678",
-        });
-      }
-    } else if (manualAllowed) {
-      return res.status(400).json({ error: "Número de telefone inválido" });
     }
 
     let barberIdObj, serviceIdObj;
@@ -405,6 +477,34 @@ async function createReservationFromRequest(
     const service = await Service.findById(serviceIdObj);
     if (!service || !service.isActive) {
       return res.status(404).json({ error: "Serviço não encontrado" });
+    }
+
+    if (!manualAllowed) {
+      const cooldownWindowStart = new Date(Date.now() - 2 * 60 * 60 * 1000);
+      const recentReservations = await Reservation.find({
+        status: { $in: ["pending", "confirmed"] },
+        createdAt: { $gte: cooldownWindowStart },
+      })
+        .select("clientPhone clientName createdAt")
+        .lean();
+
+      const normalizedClientPhone = normalizePhoneForComparison(clientPhone);
+      const hasRecentReservation = recentReservations.some((reservation) => {
+        return (
+          normalizePhoneForComparison(reservation.clientPhone) ===
+          normalizedClientPhone
+        );
+      });
+
+      if (hasRecentReservation) {
+        logAbuseAttempt(req, "cooldown", {
+          cooldownMinutes: 120,
+        });
+        return res.status(429).json({
+          error:
+            "Já tens uma reserva recente. Aguarda antes de fazer uma nova marcação.",
+        });
+      }
     }
 
     const reservationDay = parseReservationDateInput(reservationDate);

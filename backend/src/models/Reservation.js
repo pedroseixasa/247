@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
-const reservationSchema = new mongoose.Schema({
+const reservationSchema = new mongoose.Schema(
+  {
   barberId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Barber",
@@ -63,7 +64,11 @@ const reservationSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-});
+  },
+  {
+    timestamps: true,
+  },
+);
 
 // Add unique index to prevent double bookings (race condition fix)
 // Allows multiple cancelled reservations at same slot but only one confirmed/pending/completed per slot

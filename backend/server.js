@@ -8,6 +8,8 @@ const apiRoutes = require("./src/routes/api");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+app.set("trust proxy", 1);
+
 // Middleware
 const allowedOrigins = (process.env.CORS_ORIGIN || "*")
   .split(",")

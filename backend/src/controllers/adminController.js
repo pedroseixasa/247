@@ -4,9 +4,14 @@ const Service = require("../models/Service");
 const Reservation = require("../models/Reservation");
 const SiteSettings = require("../models/SiteSettings");
 const Review = require("../models/Review");
+const Blocklist = require("../models/Blocklist");
 const {
   syncRecurringRulesForBarber,
 } = require("../services/recurringReservationService");
+const {
+  normalizePhoneForComparison,
+  normalizeIpForComparison,
+} = require("../utils/bookingAbuse");
 
 function parsePriceNumber(value) {
   if (typeof value === "number" && Number.isFinite(value)) return value;
@@ -549,6 +554,77 @@ exports.getAllReservations = async (req, res) => {
       .lean();
 
     res.json(reservations);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// ===== BLOCKLIST =====
+exports.getBlocklist = async (req, res) => {
+  try {
+    const entries = await Blocklist.find().sort({ createdAt: -1 }).lean();
+    res.json(entries);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.createBlocklistEntry = async (req, res) => {
+  try {
+    const { type, value, reason } = req.body;
+
+    if (!type || !value) {
+      return res.status(400).json({ error: "Tipo e valor são obrigatórios" });
+    }
+
+    if (!["phone", "ip"].includes(type)) {
+      return res.status(400).json({ error: "Tipo inválido" });
+    }
+
+    const normalizedValue =
+      type === "phone"
+        ? normalizePhoneForComparison(value)
+        : normalizeIpForComparison(value);
+
+    if (!normalizedValue) {
+      return res.status(400).json({ error: "Valor inválido" });
+    }
+
+    const existing = await Blocklist.findOne({
+      type,
+      value: normalizedValue,
+    }).lean();
+
+    if (existing) {
+      return res.status(409).json({ error: "Entrada já existe" });
+    }
+
+    const entry = await Blocklist.create({
+      type,
+      value: normalizedValue,
+      reason: reason || "",
+    });
+
+    res.status(201).json(entry);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.deleteBlocklistEntry = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: "ID inválido" });
+    }
+
+    const entry = await Blocklist.findByIdAndDelete(id);
+    if (!entry) {
+      return res.status(404).json({ error: "Entrada não encontrada" });
+    }
+
+    res.json({ message: "Entrada removida com sucesso" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

@@ -1357,7 +1357,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (phoneInput) {
       phoneInput.addEventListener("input", function (e) {
         const phone = e.target.value.replace(/\s/g, "");
-        const phoneRegex = /^(\+351)?[29]\d{8}$/;
+        const phoneRegex = /^[29]\d{8}$/;
 
         if (phone.length > 0 && !phoneRegex.test(phone)) {
           e.target.style.borderColor = "#ff6b35";
@@ -1368,10 +1368,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
       phoneInput.addEventListener("blur", function (e) {
         const phone = e.target.value.replace(/\s/g, "");
-        const phoneRegex = /^(\+351)?[29]\d{8}$/;
+        const phoneRegex = /^[29]\d{8}$/;
 
         if (phone.length > 0 && !phoneRegex.test(phone)) {
-          e.target.setCustomValidity("Formato: +351 912345678 ou 912345678");
+          e.target.setCustomValidity("Número de telemóvel inválido");
         } else {
           e.target.setCustomValidity("");
         }
@@ -1393,20 +1393,29 @@ document.addEventListener("DOMContentLoaded", function () {
       });
 
       emailInput.addEventListener("blur", function (e) {
-        const email = e.target.value;
+        const email = e.target.value.trim().toLowerCase();
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         const domain = email.split("@")[1];
+        const blockedDomains = new Set([
+          "test.com",
+          "fake.com",
+          "example.com",
+          "mailinator.com",
+          "tempmail.com",
+        ]);
 
         if (email.length > 0) {
           if (!emailRegex.test(email)) {
-            e.target.setCustomValidity("Insira um email válido");
+            e.target.setCustomValidity("Email inválido");
           } else if (
             !domain ||
             domain.split(".").length < 2 ||
-            domain.endsWith(".test") ||
-            domain.endsWith(".fake")
+            blockedDomains.has(domain) ||
+            [...blockedDomains].some((blockedDomain) =>
+              domain.endsWith(`.${blockedDomain}`),
+            )
           ) {
-            e.target.setCustomValidity("Use um email real");
+            e.target.setCustomValidity("Email inválido");
           } else {
             e.target.setCustomValidity("");
           }
@@ -1475,9 +1484,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     if (step === 3) {
       const name = document.getElementById("clientName");
+      const phone = document.getElementById("clientPhone");
       const email = document.getElementById("clientEmail");
-      if (!name || !email || !name.value || !email.value) {
-        showBookingError("Por favor, preencha nome e email");
+      if (!name || !phone || !email || !name.value || !phone.value || !email.value) {
+        showBookingError("Por favor, preencha nome, telemóvel e email");
         return false;
       }
     }
@@ -1855,40 +1865,68 @@ document.addEventListener("DOMContentLoaded", function () {
     const name = document.getElementById("clientName").value;
     const phone = document.getElementById("clientPhone").value;
     const email = document.getElementById("clientEmail").value;
+    const honeypot = document.getElementById("_hp")?.value || "";
+
+    const blockedNames = new Set([
+      "test",
+      "teste",
+      "asdf",
+      "qwerty",
+      "1234",
+      "aaa",
+      "admin",
+      "bot",
+    ]);
+    const blockedEmailDomains = new Set([
+      "test.com",
+      "fake.com",
+      "example.com",
+      "mailinator.com",
+      "tempmail.com",
+    ]);
 
     if (!name || !phone || !email) {
       showBookingError("Por favor, preencha todos os dados");
       return;
     }
 
+    if (honeypot) {
+      showBookingError("Reserva inválida");
+      return;
+    }
+
+    if (blockedNames.has(name.trim().toLowerCase())) {
+      showBookingError("Nome inválido");
+      return;
+    }
+
     // Validar telefone português
-    const phoneRegex = /^(\+351\s?)?[29]\d{8}$/;
+    const phoneRegex = /^[29]\d{8}$/;
     const cleanPhone = phone.replace(/\s/g, "");
     if (!phoneRegex.test(cleanPhone)) {
-      showBookingError(
-        "Número de telefone inválido! Use formato: +351 912345678 ou 912345678",
-      );
+      showBookingError("Número de telemóvel inválido");
       return;
     }
 
     // Validar email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      showBookingError(
-        "Email inválido! Insira um email válido como: exemplo@email.com",
-      );
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!emailRegex.test(normalizedEmail)) {
+      showBookingError("Email inválido");
       return;
     }
 
     // Verificar se o email tem domínio válido (não apenas @test ou @fake)
-    const domain = email.split("@")[1];
+    const domain = normalizedEmail.split("@")[1];
     if (
       !domain ||
       domain.split(".").length < 2 ||
-      domain.endsWith(".test") ||
-      domain.endsWith(".fake")
+      blockedEmailDomains.has(domain) ||
+      [...blockedEmailDomains].some((blockedDomain) =>
+        domain.endsWith(`.${blockedDomain}`),
+      )
     ) {
-      showBookingError("Email inválido! Por favor, use um email real.");
+      showBookingError("Email inválido");
       return;
     }
 
@@ -1902,6 +1940,7 @@ document.addEventListener("DOMContentLoaded", function () {
       clientName: name,
       clientPhone: phone,
       clientEmail: email,
+      _hp: honeypot,
       // Enviar apenas a data; a hora vem separada em timeSlot
       reservationDate: formatDateKey(bookingState.date),
       timeSlot: bookingState.time,
