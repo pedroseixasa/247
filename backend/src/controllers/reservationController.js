@@ -405,7 +405,9 @@ async function createReservationFromRequest(
           domain.endsWith(".test") ||
           domain.endsWith(".fake")
         ) {
-          return res.status(400).json({ error: "Por favor, use um email real" });
+          return res
+            .status(400)
+            .json({ error: "Por favor, use um email real" });
         }
       }
 

@@ -48,7 +48,9 @@ function isSuspiciousName(value) {
 }
 
 function isValidPortuguesePhone(value) {
-  const normalized = String(value || "").trim().replace(/\s+/g, "");
+  const normalized = String(value || "")
+    .trim()
+    .replace(/\s+/g, "");
   return /^[29]\d{8}$/.test(normalized);
 }
 
