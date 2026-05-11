@@ -1486,7 +1486,14 @@ document.addEventListener("DOMContentLoaded", function () {
       const name = document.getElementById("clientName");
       const phone = document.getElementById("clientPhone");
       const email = document.getElementById("clientEmail");
-      if (!name || !phone || !email || !name.value || !phone.value || !email.value) {
+      if (
+        !name ||
+        !phone ||
+        !email ||
+        !name.value ||
+        !phone.value ||
+        !email.value
+      ) {
         showBookingError("Por favor, preencha nome, telemóvel e email");
         return false;
       }
