@@ -131,7 +131,7 @@ exports.getProfile = async (req, res) => {
 
 exports.updateProfile = async (req, res) => {
   try {
-    const { notificationEmail, lunchBreak, workingHours } = req.body;
+    const { name, email, notificationEmail, lunchBreak, workingHours } = req.body;
 
     if (!req.barberId) {
       return res.status(401).json({ error: "Utilizador não autenticado" });
@@ -140,6 +140,32 @@ exports.updateProfile = async (req, res) => {
     const barber = await Barber.findById(req.barberId);
     if (!barber) {
       return res.status(404).json({ error: "Utilizador não encontrado" });
+    }
+
+    if (name !== undefined) {
+      const normalizedName = String(name).trim();
+      if (!normalizedName) {
+        return res.status(400).json({ error: "Nome inválido" });
+      }
+      barber.name = normalizedName;
+    }
+
+    if (email !== undefined) {
+      const normalizedEmail = String(email).trim().toLowerCase();
+      if (!/^[^\s@]+@barbearia247\.pt$/.test(normalizedEmail)) {
+        return res.status(400).json({ error: "O email tem de terminar em @barbearia247.pt" });
+      }
+
+      const existingBarber = await Barber.findOne({
+        email: normalizedEmail,
+        _id: { $ne: barber._id },
+      }).select("_id");
+
+      if (existingBarber) {
+        return res.status(409).json({ error: "Este email já está em uso" });
+      }
+
+      barber.email = normalizedEmail;
     }
 
     // Atualizar email de notificação
@@ -235,15 +261,7 @@ exports.updateProfile = async (req, res) => {
       barber.workingHours = normalizedHours;
     }
 
-    await Barber.findByIdAndUpdate(
-      req.barberId,
-      {
-        notificationEmail: barber.notificationEmail,
-        lunchBreak: barber.lunchBreak,
-        workingHours: barber.workingHours,
-      },
-      { runValidators: false },
-    );
+    await barber.save();
 
     if (lunchBreak !== undefined || workingHours !== undefined) {
       try {

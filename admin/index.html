@@ -1360,6 +1360,7 @@
                     <li><a href="#profile" class="menu-link"><span class="emoji">👤</span><span>Perfil</span></a></li>
                 `
                 : `
+                    <li><a href="#dashboard" class="menu-link"><span class="emoji">📊</span><span>Dashboard</span></a></li>
                     <li><a href="#reservations" class="menu-link active"><span class="emoji">📅</span><span>Minhas Reservas</span></a></li>
                     <li><a href="#ausencias" class="menu-link"><span class="emoji">🚫</span><span>Minhas Ausências</span></a></li>
                     <li><a href="#profile" class="menu-link"><span class="emoji">👤</span><span>Perfil</span></a></li>
@@ -1380,7 +1381,7 @@
                         <header>
                             <h1 id="pageTitle">${isAdmin ? 'Dashboard' : 'Minhas Reservas'}</h1>
                             <div class="user-info">
-                                <span>Olá, <strong>${currentUser.name}</strong></span>
+                                <span>Olá, <strong id="currentUserName">${currentUser.name}</strong></span>
                                 <button class="logout-btn" onclick="logout()">Sair</button>
                             </div>
                         </header>
@@ -1714,19 +1715,25 @@
             try {
                 container.innerHTML = '<p>A carregar dashboard...</p>';
 
-                const selectedBarberId = getDefaultBarberId();
+                const isAdmin = currentUser && currentUser.role === 'admin';
+                const selectedBarberId = isAdmin ? getDefaultBarberId() : (currentUser._id || currentUser.id || '');
                 const selectedYear = new Date().getFullYear();
                 const statsUrl = buildDashboardUrl(selectedBarberId, selectedYear);
 
-                const [barbers, data] = await Promise.all([
-                    fetchBarbers(),
-                    fetchJson(statsUrl, {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    })
-                ]);
+                const fetchTasks = [fetchJson(statsUrl, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                })];
+
+                if (isAdmin) {
+                    fetchTasks.unshift(fetchBarbers());
+                }
+
+                const [barbersOrData, maybeData] = await Promise.all(fetchTasks);
+                const barbers = isAdmin ? barbersOrData : [];
+                const data = isAdmin ? maybeData : barbersOrData;
 
                 const stats = data.stats || {};
-                const barberOptions = buildBarberOptions(barbers, selectedBarberId);
+                const barberOptions = isAdmin ? buildBarberOptions(barbers, selectedBarberId) : '';
                 const yearOptions = buildYearOptions(selectedYear);
 
                 const renderDashboard = (stats, barberOptions, yearOptions) => {
@@ -1734,14 +1741,20 @@
                         <!-- Seção de Filtros -->
                         <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid #e0e0e0;">
                             <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
-                                <label style="font-weight: 600; margin: 0;">Filtros:</label>
-                                <select id="dashboardBarberFilter" style="flex: 1; min-width: 200px;">
-                                    ${barberOptions}
-                                </select>
+                                <label style="font-weight: 600; margin: 0;">${isAdmin ? 'Filtros:' : 'Ano:'}</label>
+                                ${isAdmin ? `
+                                    <select id="dashboardBarberFilter" style="flex: 1; min-width: 200px;">
+                                        ${barberOptions}
+                                    </select>
+                                ` : `
+                                    <div style="flex: 1; min-width: 200px; padding: 0.5rem 0; color: #555; font-weight: 600;">
+                                        ${currentUser.name}
+                                    </div>
+                                `}
                                 <select id="dashboardYearFilter" style="flex: 0 0 auto; min-width: 120px;">
                                     ${yearOptions}
                                 </select>
-                                <button id="dashboardApply" style="padding: 0.5rem 1.5rem; background: #555; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">Aplicar</button>
+                                ${isAdmin ? `<button id="dashboardApply" style="padding: 0.5rem 1.5rem; background: #555; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">Aplicar</button>` : `<button id="dashboardApply" style="padding: 0.5rem 1.5rem; background: #555; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">Atualizar</button>`}
                             </div>
                         </div>
 
@@ -1853,7 +1866,7 @@
                 }
 
                 const applyDashboardFilters = async () => {
-                    const barberId = document.getElementById('dashboardBarberFilter').value;
+                    const barberId = isAdmin ? document.getElementById('dashboardBarberFilter').value : selectedBarberId;
                     const year = document.getElementById('dashboardYearFilter').value;
                     const url = buildDashboardUrl(barberId, year);
 
@@ -1862,7 +1875,7 @@
                     });
 
                     const refreshStats = refreshData.stats || {};
-                    const refreshedBarberOptions = buildBarberOptions(barbers, barberId);
+                    const refreshedBarberOptions = isAdmin ? buildBarberOptions(barbers, barberId) : '';
                     const refreshedYearOptions = buildYearOptions(Number(year));
 
                     container.innerHTML = renderDashboard(refreshStats, refreshedBarberOptions, refreshedYearOptions);
@@ -1932,7 +1945,7 @@
                     monthSelect.addEventListener('change', async (e) => {
                         const selectedMonth = parseInt(e.target.value) || new Date().getMonth() + 1;
                         const year = parseInt(stats.selectedYear) || new Date().getFullYear();
-                        const barberId = document.getElementById('dashboardBarberFilter')?.value || '';
+                        const barberId = document.getElementById('dashboardBarberFilter')?.value || selectedBarberId || '';
 
                         const weeklyTableBody = document.getElementById('weeklyTableBody');
                         if (!weeklyTableBody) return;
@@ -4139,16 +4152,37 @@
                         <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid #e0e0e0;">
                             <h3 style="margin-top: 0; color: #1a1a1a; display: flex; align-items: center; gap: 0.5rem;">
                                 <span>📧</span>
-                                <span>Informações de Contato</span>
+                                <span>Dados da conta</span>
                             </h3>
                             <form id="contactInfoForm">
                                 <div class="form-group">
-                                    <label style="font-weight: 600;">Email Pessoal para Notificações</label>
-                                    <input type="email" id="notificationEmail" placeholder="seu-email@exemplo.com" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 4px;" />
-                                    <small style="color: var(--text-light); display: block; margin-top: 0.5rem;">Você receberá notificações de novas marcações neste email</small>
+                                    <label style="font-weight: 600;">Nome da conta</label>
+                                    <input type="text" id="accountName" placeholder="Nome do barbeiro" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 4px;" />
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-weight: 600;">Email da conta</label>
+                                    <input type="email" id="accountEmail" placeholder="nome@barbearia247.pt" pattern="^[^\s@]+@barbearia247\.pt$" title="O email tem de terminar em @barbearia247.pt" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 4px;" />
+                                    <small style="color: var(--text-light); display: block; margin-top: 0.5rem;">O domínio fica fixo em @barbearia247.pt.</small>
                                 </div>
                                 <button type="submit" style="background: #007bff; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 4px; cursor: pointer; font-weight: 600;">
-                                    Guardar Email
+                                    Guardar conta
+                                </button>
+                            </form>
+                        </div>
+
+                        <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid #e0e0e0;">
+                            <h3 style="margin-top: 0; color: #1a1a1a; display: flex; align-items: center; gap: 0.5rem;">
+                                <span>🔔</span>
+                                <span>Email para notificações</span>
+                            </h3>
+                            <form id="notificationEmailForm">
+                                <div class="form-group">
+                                    <label style="font-weight: 600;">Email pessoal para notificações</label>
+                                    <input type="email" id="notificationEmail" placeholder="seu-email@exemplo.com" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 4px;" />
+                                    <small style="color: var(--text-light); display: block; margin-top: 0.5rem;">Recebe alertas aqui quando houver novas marcações.</small>
+                                </div>
+                                <button type="submit" style="background: #007bff; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 4px; cursor: pointer; font-weight: 600;">
+                                    Guardar email
                                 </button>
                             </form>
                         </div>
@@ -4333,6 +4367,48 @@
             if (contactForm) {
                 contactForm.addEventListener('submit', async (e) => {
                     e.preventDefault();
+                    const name = document.getElementById('accountName').value.trim();
+                    const email = document.getElementById('accountEmail').value.trim().toLowerCase();
+
+                    if (!name) {
+                        showStatusModal('O nome da conta é obrigatório', 'error');
+                        return;
+                    }
+
+                    if (!email.match(/^[^\s@]+@barbearia247\.pt$/)) {
+                        showStatusModal('O email tem de terminar em @barbearia247.pt', 'error');
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch(`${API_URL}/auth/update-profile`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({ name, email })
+                        });
+
+                        const data = await response.json();
+                        if (!response.ok) throw new Error(data.error);
+
+                        currentUser.name = name;
+                        currentUser.email = email;
+                        localStorage.setItem('admin_user', JSON.stringify(currentUser));
+                        const currentUserName = document.getElementById('currentUserName');
+                        if (currentUserName) currentUserName.textContent = name;
+                        showStatusModal('Dados da conta guardados com sucesso!', 'success');
+                    } catch (error) {
+                        showStatusModal(error.message, 'error');
+                    }
+                });
+            }
+
+            const notificationForm = document.getElementById('notificationEmailForm');
+            if (notificationForm) {
+                notificationForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
                     const notificationEmail = document.getElementById('notificationEmail').value.trim();
 
                     if (notificationEmail && !notificationEmail.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
@@ -4353,8 +4429,9 @@
                         const data = await response.json();
                         if (!response.ok) throw new Error(data.error);
 
-                        showStatusModal('Email guardado com sucesso!', 'success');
+                        showStatusModal('Email de notificações guardado com sucesso!', 'success');
                         currentUser.notificationEmail = notificationEmail;
+                        localStorage.setItem('admin_user', JSON.stringify(currentUser));
                     } catch (error) {
                         showStatusModal(error.message, 'error');
                     }
@@ -4513,6 +4590,16 @@
                 if (!response.ok) return;
 
                 const barber = await response.json();
+
+                const accountNameInput = document.getElementById('accountName');
+                if (accountNameInput) {
+                    accountNameInput.value = barber.name || '';
+                }
+
+                const accountEmailInput = document.getElementById('accountEmail');
+                if (accountEmailInput) {
+                    accountEmailInput.value = barber.email || '';
+                }
 
                 // Preencher email pessoal
                 const notificationEmailInput = document.getElementById('notificationEmail');
