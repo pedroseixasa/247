@@ -1,228 +1,571 @@
 <!DOCTYPE html>
 <html lang="pt-PT">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>24.7 Barbearia - Painel do Barbeiro</title>
-  <meta name="theme-color" content="#141414">
-  <style>
-    :root {
-      --bg: #111317;
-      --bg-soft: #161a20;
-      --panel: rgba(20, 24, 30, 0.88);
-      --text: #f3ede4;
-      --muted: #b6ada0;
-      --accent: #c89b5c;
-      --accent-soft: rgba(200, 155, 92, 0.16);
-      --ok: #75c58f;
-      --warn: #efb366;
-      --danger: #f08e8e;
-      --border: rgba(255, 255, 255, 0.09);
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>24.7 Barbearia - Painel do Barbeiro</title>
+    <meta name="theme-color" content="#141414">
+    <style>
+        :root {
+            --bg: #111317;
+            --bg-soft: #161a20;
+            --panel: rgba(20, 24, 30, 0.88);
+            --text: #f3ede4;
+            --muted: #b6ada0;
+            --accent: #c89b5c;
+            --accent-soft: rgba(200, 155, 92, 0.16);
+            --ok: #75c58f;
+            --warn: #efb366;
+            --danger: #f08e8e;
+            --border: rgba(255, 255, 255, 0.09);
+        }
 
-    * { box-sizing: border-box; }
-    html, body { margin: 0; min-height: 100%; font-family: Arial, sans-serif; color: var(--text); background: linear-gradient(135deg, #0d1014, #151a21 48%, #101317); }
-    body { min-height: 100vh; }
-    .page { width: min(1480px, calc(100% - 32px)); margin: 16px auto; display: grid; gap: 16px; }
-    .topbar { padding: 18px 22px; background: rgba(10,12,16,.6); border: 1px solid var(--border); border-radius: 24px; display: flex; align-items: center; justify-content: space-between; gap: 18px; backdrop-filter: blur(16px); }
-    .brand { display: flex; align-items: center; gap: 14px; }
-    .brand-mark { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(135deg, #f4e1be, #c89b5c); color: #111; font-weight: 800; }
-    .brand h1 { margin: 0; font-size: 1.35rem; }
-    .brand p { margin: .15rem 0 0; color: var(--muted); font-size: .92rem; }
-    .actions { display: flex; gap: .75rem; flex-wrap: wrap; }
-    .button { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; border: 1px solid var(--border); border-radius: 14px; padding: .9rem 1rem; font: inherit; font-weight: 700; cursor: pointer; text-decoration: none; color: var(--text); background: rgba(255,255,255,.05); }
-    .button.primary { background: linear-gradient(135deg, #f0d7a9, var(--accent)); color: #111; border-color: transparent; }
-    .hero, .content-grid { display: grid; grid-template-columns: 1.3fr .7fr; gap: 16px; }
-    .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 24px; backdrop-filter: blur(18px); }
-    .hero-copy, .profile, .section { padding: 24px; }
-    .eyebrow { display: inline-flex; padding: .45rem .75rem; border-radius: 999px; background: rgba(200,155,92,.12); color: #f7d9ad; font-size: .8rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 1rem; }
-    .hero-copy h2 { margin: 0; font-size: clamp(2rem, 4vw, 3.6rem); line-height: 1; max-width: 12ch; }
-    .hero-copy p { margin: 1rem 0 0; color: var(--muted); line-height: 1.8; }
-    .status-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 16px; margin-top: 18px; }
-    .stat { padding: 18px; border-radius: 20px; background: rgba(255,255,255,.04); border: 1px solid var(--border); }
-    .stat span { display: block; color: var(--muted); font-size: .86rem; margin-bottom: .4rem; }
-    .stat strong { font-size: 1.5rem; color: var(--text); }
-    .profile-card { display: flex; align-items: center; gap: 16px; }
-    .avatar { width: 68px; height: 68px; border-radius: 50%; overflow: hidden; background: linear-gradient(135deg, #f4e1be, #c89b5c); display: grid; place-items: center; color: #111; font-weight: 800; flex-shrink: 0; }
-    .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .profile-meta h3 { margin: 0; font-size: 1.05rem; }
-    .profile-meta p { margin: .2rem 0 0; color: var(--muted); font-size: .92rem; }
-    .mini-list, .stack, .monthly-breakdown, .reservations-list, .mini-agenda, .absences-list { display: grid; gap: 10px; }
-    .mini-item, .break-item, .reservation-row { display: flex; justify-content: space-between; gap: 12px; padding: 12px 14px; border-radius: 16px; background: rgba(255,255,255,.04); border: 1px solid var(--border); color: var(--muted); }
-    .reservation-row { align-items: center; flex-wrap: wrap; }
-    .badge { display: inline-flex; align-items: center; justify-content: center; padding: .45rem .7rem; border-radius: 999px; font-size: .78rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
-    .badge.confirmed { background: rgba(117,197,143,.15); color: #8fe0a7; }
-    .badge.cancelled { background: rgba(240,142,142,.15); color: #ffb0b0; }
-    .badge.pending { background: rgba(239,179,102,.15); color: #ffd49f; }
-    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
-    label { display: grid; gap: .45rem; color: var(--text); font-size: .92rem; font-weight: 600; }
-    input, select, textarea { width: 100%; border: 1px solid rgba(255,255,255,.12); border-radius: 14px; background: rgba(8,10,14,.72); color: var(--text); font: inherit; padding: .9rem .95rem; outline: none; }
-    textarea { min-height: 110px; resize: vertical; }
-    .form-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
-    .note, .helper { color: var(--muted); font-size: .88rem; line-height: 1.6; }
-    .toast { min-height: 1.4rem; color: #ffd7b2; font-size: .92rem; }
-    .empty-state { padding: 20px; border-radius: 16px; background: rgba(255,255,255,.04); border: 1px dashed rgba(255,255,255,.15); color: var(--muted); line-height: 1.7; }
-    @media (max-width: 1180px) { .hero, .content-grid { grid-template-columns: 1fr; } .status-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } }
-    @media (max-width: 760px) { .page { width: min(100% - 20px, 1480px); margin: 10px auto; } .topbar { padding: 16px; flex-direction: column; align-items: stretch; } .actions .button { flex: 1; } .actions { width: 100%; } .status-grid, .form-grid { grid-template-columns: 1fr; } .hero-copy, .profile, .section { padding: 20px; } }
-  </style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            min-height: 100%;
+            font-family: Arial, sans-serif;
+            color: var(--text);
+            background: linear-gradient(135deg, #0d1014, #151a21 48%, #101317);
+        }
+
+        body {
+            min-height: 100vh;
+        }
+
+        .page {
+            width: min(1480px, calc(100% - 32px));
+            margin: 16px auto;
+            display: grid;
+            gap: 16px;
+        }
+
+        .topbar {
+            padding: 18px 22px;
+            background: rgba(10, 12, 16, .6);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            backdrop-filter: blur(16px);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-mark {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, #f4e1be, #c89b5c);
+            color: #111;
+            font-weight: 800;
+        }
+
+        .brand h1 {
+            margin: 0;
+            font-size: 1.35rem;
+        }
+
+        .brand p {
+            margin: .15rem 0 0;
+            color: var(--muted);
+            font-size: .92rem;
+        }
+
+        .actions {
+            display: flex;
+            gap: .75rem;
+            flex-wrap: wrap;
+        }
+
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: .5rem;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: .9rem 1rem;
+            font: inherit;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--text);
+            background: rgba(255, 255, 255, .05);
+        }
+
+        .button.primary {
+            background: linear-gradient(135deg, #f0d7a9, var(--accent));
+            color: #111;
+            border-color: transparent;
+        }
+
+        .hero,
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1.3fr .7fr;
+            gap: 16px;
+        }
+
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            backdrop-filter: blur(18px);
+        }
+
+        .hero-copy,
+        .profile,
+        .section {
+            padding: 24px;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            padding: .45rem .75rem;
+            border-radius: 999px;
+            background: rgba(200, 155, 92, .12);
+            color: #f7d9ad;
+            font-size: .8rem;
+            font-weight: 700;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+
+        .hero-copy h2 {
+            margin: 0;
+            font-size: clamp(2rem, 4vw, 3.6rem);
+            line-height: 1;
+            max-width: 12ch;
+        }
+
+        .hero-copy p {
+            margin: 1rem 0 0;
+            color: var(--muted);
+            line-height: 1.8;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 16px;
+            margin-top: 18px;
+        }
+
+        .stat {
+            padding: 18px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, .04);
+            border: 1px solid var(--border);
+        }
+
+        .stat span {
+            display: block;
+            color: var(--muted);
+            font-size: .86rem;
+            margin-bottom: .4rem;
+        }
+
+        .stat strong {
+            font-size: 1.5rem;
+            color: var(--text);
+        }
+
+        .profile-card {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .avatar {
+            width: 68px;
+            height: 68px;
+            border-radius: 50%;
+            overflow: hidden;
+            background: linear-gradient(135deg, #f4e1be, #c89b5c);
+            display: grid;
+            place-items: center;
+            color: #111;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .profile-meta h3 {
+            margin: 0;
+            font-size: 1.05rem;
+        }
+
+        .profile-meta p {
+            margin: .2rem 0 0;
+            color: var(--muted);
+            font-size: .92rem;
+        }
+
+        .mini-list,
+        .stack,
+        .monthly-breakdown,
+        .reservations-list,
+        .mini-agenda,
+        .absences-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .mini-item,
+        .break-item,
+        .reservation-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 14px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, .04);
+            border: 1px solid var(--border);
+            color: var(--muted);
+        }
+
+        .reservation-row {
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: .45rem .7rem;
+            border-radius: 999px;
+            font-size: .78rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+        }
+
+        .badge.confirmed {
+            background: rgba(117, 197, 143, .15);
+            color: #8fe0a7;
+        }
+
+        .badge.cancelled {
+            background: rgba(240, 142, 142, .15);
+            color: #ffb0b0;
+        }
+
+        .badge.pending {
+            background: rgba(239, 179, 102, .15);
+            color: #ffd49f;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        label {
+            display: grid;
+            gap: .45rem;
+            color: var(--text);
+            font-size: .92rem;
+            font-weight: 600;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, .12);
+            border-radius: 14px;
+            background: rgba(8, 10, 14, .72);
+            color: var(--text);
+            font: inherit;
+            padding: .9rem .95rem;
+            outline: none;
+        }
+
+        textarea {
+            min-height: 110px;
+            resize: vertical;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 6px;
+        }
+
+        .note,
+        .helper {
+            color: var(--muted);
+            font-size: .88rem;
+            line-height: 1.6;
+        }
+
+        .toast {
+            min-height: 1.4rem;
+            color: #ffd7b2;
+            font-size: .92rem;
+        }
+
+        .empty-state {
+            padding: 20px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, .04);
+            border: 1px dashed rgba(255, 255, 255, .15);
+            color: var(--muted);
+            line-height: 1.7;
+        }
+
+        @media (max-width: 1180px) {
+
+            .hero,
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .status-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 760px) {
+            .page {
+                width: min(100% - 20px, 1480px);
+                margin: 10px auto;
+            }
+
+            .topbar {
+                padding: 16px;
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .actions .button {
+                flex: 1;
+            }
+
+            .actions {
+                width: 100%;
+            }
+
+            .status-grid,
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-copy,
+            .profile,
+            .section {
+                padding: 20px;
+            }
+        }
+    </style>
 </head>
+
 <body>
-  <main class="page">
-    <header class="topbar">
-      <div class="brand">
-        <div class="brand-mark">24</div>
-        <div>
-          <h1>24.7 Barbearia</h1>
-          <p>Painel do barbeiro</p>
-        </div>
-      </div>
-      <div class="actions">
-        <a class="button" href="../index.html">Voltar ao site</a>
-        <button class="button primary" id="logoutButton" type="button">Terminar sessão</button>
-      </div>
-    </header>
-
-    <section class="hero">
-      <article class="panel hero-copy">
-        <div class="eyebrow">Resumo operacional</div>
-        <h2>Hoje está a um clique de distância.</h2>
-        <p>Consulte o que está reservado, ajuste ausências e mantenha a pausa de almoço em dia. O painel mostra apenas os seus dados.</p>
-        <div class="status-grid" aria-live="polite">
-          <div class="stat"><span>Reservas no mês</span><strong id="statReservations">-</strong></div>
-          <div class="stat"><span>Receita</span><strong id="statRevenue">-</strong></div>
-          <div class="stat"><span>Canceladas</span><strong id="statCancelled">-</strong></div>
-          <div class="stat"><span>Mês atual</span><strong id="statMonth">-</strong></div>
-        </div>
-      </article>
-
-      <aside class="panel profile">
-        <div class="profile-card">
-          <div class="avatar" id="profileAvatar">B</div>
-          <div class="profile-meta">
-            <h3 id="profileName">A carregar...</h3>
-            <p id="profileEmail">A validar sessão...</p>
-          </div>
-        </div>
-        <div class="mini-list">
-          <div class="mini-item"><span>Estado da conta</span><strong id="profileRole">-</strong></div>
-          <div class="mini-item"><span>Telefone</span><strong id="profilePhone">-</strong></div>
-          <div class="mini-item"><span>Pausa de almoço</span><strong id="profileLunchBreak">-</strong></div>
-        </div>
-      </aside>
-    </section>
-
-    <section class="content-grid">
-      <article class="panel section">
-        <h3>Reservas recentes</h3>
-        <p class="helper">Lista filtrada apenas para a sua conta. Os estados são actualizados pelo backend.</p>
-        <div class="reservations-list" id="reservationsList"><div class="empty-state">A carregar reservas...</div></div>
-      </article>
-
-      <article class="panel section stack">
-        <div>
-          <h3>Resumo mensal</h3>
-          <p class="helper">Uma leitura rápida da atividade atual e do fecho do mês.</p>
-          <div class="monthly-breakdown" id="monthlyBreakdown"><div class="empty-state">A carregar dados...</div></div>
-        </div>
-        <div>
-          <h3>Pausa de almoço</h3>
-          <p class="helper">Atualize a janela de almoço sem entrar no painel administrativo.</p>
-          <form id="lunchBreakForm">
-            <div class="form-grid">
-              <label>Ativa<select id="lunchEnabled"><option value="true">Sim</option><option value="false">Não</option></select></label>
-              <label>Início<input id="lunchStart" type="time" value="12:00"></label>
-              <label>Fim<input id="lunchEnd" type="time" value="13:00"></label>
+    <main class="page">
+        <header class="topbar">
+            <div class="brand">
+                <div class="brand-mark">24</div>
+                <div>
+                    <h1>24.7 Barbearia</h1>
+                    <p>Painel do barbeiro</p>
+                </div>
             </div>
-            <div class="form-actions"><button class="button primary" type="submit">Guardar pausa</button></div>
-            <div class="toast" id="lunchBreakMessage" role="status" aria-live="polite"></div>
-          </form>
-        </div>
-      </article>
-    </section>
+            <div class="actions">
+                <a class="button" href="../index.html">Voltar ao site</a>
+                <button class="button primary" id="logoutButton" type="button">Terminar sessão</button>
+            </div>
+        </header>
 
-    <section class="content-grid">
-      <article class="panel section">
-        <h3>Ausências</h3>
-        <p class="helper">Crie e remova ausências para manter a agenda alinhada com a sua disponibilidade.</p>
-        <form id="absenceForm">
-          <div class="form-grid">
-            <label>Tipo<select id="absenceType" required><option value="full">Dia inteiro</option><option value="morning">Manhã</option><option value="afternoon">Tarde</option><option value="specific">Específica</option></select></label>
-            <label>Data<input id="absenceDate" type="date" required></label>
-            <label>Início<input id="absenceStartTime" type="time" value="09:00"></label>
-            <label>Fim<input id="absenceEndTime" type="time" value="12:00"></label>
-          </div>
-          <label style="margin-top: 12px;">Motivo<textarea id="absenceReason" placeholder="Ex.: folga, formação, consulta..."></textarea></label>
-          <div class="form-actions"><button class="button primary" type="submit">Adicionar ausência</button></div>
-          <div class="toast" id="absenceMessage" role="status" aria-live="polite"></div>
-        </form>
-        <div class="absences-list" id="absencesList" style="margin-top: 18px;"><div class="empty-state">A carregar ausências...</div></div>
-      </article>
+        <section class="hero">
+            <article class="panel hero-copy">
+                <div class="eyebrow">Resumo operacional</div>
+                <h2>Hoje está a um clique de distância.</h2>
+                <p>Consulte o que está reservado, ajuste ausências e mantenha a pausa de almoço em dia. O painel mostra
+                    apenas os seus dados.</p>
+                <div class="status-grid" aria-live="polite">
+                    <div class="stat"><span>Reservas no mês</span><strong id="statReservations">-</strong></div>
+                    <div class="stat"><span>Receita</span><strong id="statRevenue">-</strong></div>
+                    <div class="stat"><span>Canceladas</span><strong id="statCancelled">-</strong></div>
+                    <div class="stat"><span>Mês atual</span><strong id="statMonth">-</strong></div>
+                </div>
+            </article>
 
-      <article class="panel section">
-        <h3>Agenda rápida</h3>
-        <p class="helper">Vista compacta das próximas entradas para o dia selecionado.</p>
-        <div class="mini-agenda" id="todayAgenda"><div class="empty-state">A carregar reservas do dia...</div></div>
-      </article>
-    </section>
-  </main>
+            <aside class="panel profile">
+                <div class="profile-card">
+                    <div class="avatar" id="profileAvatar">B</div>
+                    <div class="profile-meta">
+                        <h3 id="profileName">A carregar...</h3>
+                        <p id="profileEmail">A validar sessão...</p>
+                    </div>
+                </div>
+                <div class="mini-list">
+                    <div class="mini-item"><span>Estado da conta</span><strong id="profileRole">-</strong></div>
+                    <div class="mini-item"><span>Telefone</span><strong id="profilePhone">-</strong></div>
+                    <div class="mini-item"><span>Pausa de almoço</span><strong id="profileLunchBreak">-</strong></div>
+                </div>
+            </aside>
+        </section>
 
-  <script>
-    const API_BASE_URL = "https://two4-7-barbearia.onrender.com/api";
-    const STORAGE_TOKEN_KEYS = ["barberToken", "admin_token", "authToken", "token"];
-    const STORAGE_USER_KEYS = ["barberUser", "admin_user", "authUser", "user"];
-    const currentDate = new Date();
-    const currentMonth = currentDate.getMonth() + 1;
-    const currentYear = currentDate.getFullYear();
+        <section class="content-grid">
+            <article class="panel section">
+                <h3>Reservas recentes</h3>
+                <p class="helper">Lista filtrada apenas para a sua conta. Os estados são actualizados pelo backend.</p>
+                <div class="reservations-list" id="reservationsList">
+                    <div class="empty-state">A carregar reservas...</div>
+                </div>
+            </article>
 
-    const reservationsList = document.getElementById("reservationsList");
-    const absencesList = document.getElementById("absencesList");
-    const monthlyBreakdown = document.getElementById("monthlyBreakdown");
-    const todayAgenda = document.getElementById("todayAgenda");
-    const lunchBreakMessage = document.getElementById("lunchBreakMessage");
-    const absenceMessage = document.getElementById("absenceMessage");
+            <article class="panel section stack">
+                <div>
+                    <h3>Resumo mensal</h3>
+                    <p class="helper">Uma leitura rápida da atividade atual e do fecho do mês.</p>
+                    <div class="monthly-breakdown" id="monthlyBreakdown">
+                        <div class="empty-state">A carregar dados...</div>
+                    </div>
+                </div>
+                <div>
+                    <h3>Pausa de almoço</h3>
+                    <p class="helper">Atualize a janela de almoço sem entrar no painel administrativo.</p>
+                    <form id="lunchBreakForm">
+                        <div class="form-grid">
+                            <label>Ativa<select id="lunchEnabled">
+                                    <option value="true">Sim</option>
+                                    <option value="false">Não</option>
+                                </select></label>
+                            <label>Início<input id="lunchStart" type="time" value="12:00"></label>
+                            <label>Fim<input id="lunchEnd" type="time" value="13:00"></label>
+                        </div>
+                        <div class="form-actions"><button class="button primary" type="submit">Guardar pausa</button>
+                        </div>
+                        <div class="toast" id="lunchBreakMessage" role="status" aria-live="polite"></div>
+                    </form>
+                </div>
+            </article>
+        </section>
 
-    function getToken() { for (const key of STORAGE_TOKEN_KEYS) { const value = localStorage.getItem(key); if (value) return value; } return null; }
-    function getStoredUser() { for (const key of STORAGE_USER_KEYS) { const rawValue = localStorage.getItem(key); if (!rawValue) continue; try { return JSON.parse(rawValue); } catch (error) {} } return null; }
-    function saveSession(token, user) { STORAGE_TOKEN_KEYS.forEach((key) => localStorage.setItem(key, token)); STORAGE_USER_KEYS.forEach((key) => localStorage.setItem(key, JSON.stringify(user))); }
-    function clearSession() { STORAGE_TOKEN_KEYS.forEach((key) => localStorage.removeItem(key)); STORAGE_USER_KEYS.forEach((key) => localStorage.removeItem(key)); }
-    function authHeaders() { const token = getToken(); return token ? { Authorization: `Bearer ${token}` } : {}; }
-    async function apiFetch(path, options = {}) { const response = await fetch(`${API_BASE_URL}${path}`, { ...options, headers: { ...(options.headers || {}), ...authHeaders(), ...(options.body ? { "Content-Type": "application/json" } : {}) } }); const data = await response.json().catch(() => ({})); if (!response.ok) throw new Error(data?.message || data?.error || `Erro ${response.status}`); return data; }
-    function resolveUser(data) { const payload = data?.data || data; return payload?.user || payload?.barber || payload || null; }
-    function initialsFromName(name) { const parts = String(name || "Barbeiro").trim().split(/\s+/); return `${parts[0]?.[0] || "B"}${parts.length > 1 ? parts[parts.length - 1]?.[0] || "" : ""}`.toUpperCase(); }
-    function formatCurrency(value) { return new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(Number(value || 0)); }
-    function formatDate(dateValue) { const date = new Date(dateValue); if (Number.isNaN(date.getTime())) return "-"; return new Intl.DateTimeFormat("pt-PT", { dateStyle: "medium" }).format(date); }
-    function formatStatus(status) { const normalized = String(status || "pending").toLowerCase(); if (normalized === "confirmed") return "confirmada"; if (normalized === "cancelled") return "cancelada"; return "pendente"; }
-    function statusClass(status) { const normalized = String(status || "pending").toLowerCase(); if (normalized === "confirmed") return "confirmed"; if (normalized === "cancelled") return "cancelled"; return "pending"; }
-    function setToast(target, message, isError = false) { if (!target) return; target.textContent = message; target.style.color = isError ? "#ffcfad" : "#bfe7c0"; }
-    function renderEmpty(target, message) { target.innerHTML = `<div class="empty-state">${message}</div>`; }
-    function renderProfile(user) { const avatar = document.getElementById("profileAvatar"); const name = document.getElementById("profileName"); const email = document.getElementById("profileEmail"); const role = document.getElementById("profileRole"); const phone = document.getElementById("profilePhone"); const lunchBreak = document.getElementById("profileLunchBreak"); if (avatar) { if (user?.photo || user?.avatar) { avatar.innerHTML = `<img src="${user.photo || user.avatar}" alt="${user?.name || 'Barbeiro'}">`; } else { avatar.textContent = initialsFromName(user?.name); } } if (name) name.textContent = user?.name || "Barbeiro"; if (email) email.textContent = user?.email || "Sem email definido"; if (role) role.textContent = user?.role === "admin" ? "Admin" : "Barbeiro"; if (phone) phone.textContent = user?.phone || "-"; if (lunchBreak) { const enabled = user?.lunchBreak?.enabled !== false; const startTime = user?.lunchBreak?.startTime || "12:00"; const endTime = user?.lunchBreak?.endTime || "13:00"; lunchBreak.textContent = enabled ? `${startTime} - ${endTime}` : "Desativada"; } }
-    function renderReservations(reservations) { if (!reservations.length) { renderEmpty(reservationsList, "Ainda não existem reservas associadas à sua conta."); renderEmpty(todayAgenda, "Sem reservas para mostrar no momento."); return; } reservationsList.innerHTML = reservations.map((reservation) => `
+        <section class="content-grid">
+            <article class="panel section">
+                <h3>Ausências</h3>
+                <p class="helper">Crie e remova ausências para manter a agenda alinhada com a sua disponibilidade.</p>
+                <form id="absenceForm">
+                    <div class="form-grid">
+                        <label>Tipo<select id="absenceType" required>
+                                <option value="full">Dia inteiro</option>
+                                <option value="morning">Manhã</option>
+                                <option value="afternoon">Tarde</option>
+                                <option value="specific">Específica</option>
+                            </select></label>
+                        <label>Data<input id="absenceDate" type="date" required></label>
+                        <label>Início<input id="absenceStartTime" type="time" value="09:00"></label>
+                        <label>Fim<input id="absenceEndTime" type="time" value="12:00"></label>
+                    </div>
+                    <label style="margin-top: 12px;">Motivo<textarea id="absenceReason"
+                            placeholder="Ex.: folga, formação, consulta..."></textarea></label>
+                    <div class="form-actions"><button class="button primary" type="submit">Adicionar ausência</button>
+                    </div>
+                    <div class="toast" id="absenceMessage" role="status" aria-live="polite"></div>
+                </form>
+                <div class="absences-list" id="absencesList" style="margin-top: 18px;">
+                    <div class="empty-state">A carregar ausências...</div>
+                </div>
+            </article>
+
+            <article class="panel section">
+                <h3>Agenda rápida</h3>
+                <p class="helper">Vista compacta das próximas entradas para o dia selecionado.</p>
+                <div class="mini-agenda" id="todayAgenda">
+                    <div class="empty-state">A carregar reservas do dia...</div>
+                </div>
+            </article>
+        </section>
+    </main>
+
+    <script>
+        const API_BASE_URL = "https://two4-7-barbearia.onrender.com/api";
+        const STORAGE_TOKEN_KEYS = ["barberToken", "admin_token", "authToken", "token"];
+        const STORAGE_USER_KEYS = ["barberUser", "admin_user", "authUser", "user"];
+        const currentDate = new Date();
+        const currentMonth = currentDate.getMonth() + 1;
+        const currentYear = currentDate.getFullYear();
+
+        const reservationsList = document.getElementById("reservationsList");
+        const absencesList = document.getElementById("absencesList");
+        const monthlyBreakdown = document.getElementById("monthlyBreakdown");
+        const todayAgenda = document.getElementById("todayAgenda");
+        const lunchBreakMessage = document.getElementById("lunchBreakMessage");
+        const absenceMessage = document.getElementById("absenceMessage");
+
+        function getToken() { for (const key of STORAGE_TOKEN_KEYS) { const value = localStorage.getItem(key); if (value) return value; } return null; }
+        function getStoredUser() { for (const key of STORAGE_USER_KEYS) { const rawValue = localStorage.getItem(key); if (!rawValue) continue; try { return JSON.parse(rawValue); } catch (error) { } } return null; }
+        function saveSession(token, user) { STORAGE_TOKEN_KEYS.forEach((key) => localStorage.setItem(key, token)); STORAGE_USER_KEYS.forEach((key) => localStorage.setItem(key, JSON.stringify(user))); }
+        function clearSession() { STORAGE_TOKEN_KEYS.forEach((key) => localStorage.removeItem(key)); STORAGE_USER_KEYS.forEach((key) => localStorage.removeItem(key)); }
+        function authHeaders() { const token = getToken(); return token ? { Authorization: `Bearer ${token}` } : {}; }
+        async function apiFetch(path, options = {}) { const response = await fetch(`${API_BASE_URL}${path}`, { ...options, headers: { ...(options.headers || {}), ...authHeaders(), ...(options.body ? { "Content-Type": "application/json" } : {}) } }); const data = await response.json().catch(() => ({})); if (!response.ok) throw new Error(data?.message || data?.error || `Erro ${response.status}`); return data; }
+        function resolveUser(data) { const payload = data?.data || data; return payload?.user || payload?.barber || payload || null; }
+        function initialsFromName(name) { const parts = String(name || "Barbeiro").trim().split(/\s+/); return `${parts[0]?.[0] || "B"}${parts.length > 1 ? parts[parts.length - 1]?.[0] || "" : ""}`.toUpperCase(); }
+        function formatCurrency(value) { return new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(Number(value || 0)); }
+        function formatDate(dateValue) { const date = new Date(dateValue); if (Number.isNaN(date.getTime())) return "-"; return new Intl.DateTimeFormat("pt-PT", { dateStyle: "medium" }).format(date); }
+        function formatStatus(status) { const normalized = String(status || "pending").toLowerCase(); if (normalized === "confirmed") return "confirmada"; if (normalized === "cancelled") return "cancelada"; return "pendente"; }
+        function statusClass(status) { const normalized = String(status || "pending").toLowerCase(); if (normalized === "confirmed") return "confirmed"; if (normalized === "cancelled") return "cancelled"; return "pending"; }
+        function setToast(target, message, isError = false) { if (!target) return; target.textContent = message; target.style.color = isError ? "#ffcfad" : "#bfe7c0"; }
+        function renderEmpty(target, message) { target.innerHTML = `<div class="empty-state">${message}</div>`; }
+        function renderProfile(user) { const avatar = document.getElementById("profileAvatar"); const name = document.getElementById("profileName"); const email = document.getElementById("profileEmail"); const role = document.getElementById("profileRole"); const phone = document.getElementById("profilePhone"); const lunchBreak = document.getElementById("profileLunchBreak"); if (avatar) { if (user?.photo || user?.avatar) { avatar.innerHTML = `<img src="${user.photo || user.avatar}" alt="${user?.name || 'Barbeiro'}">`; } else { avatar.textContent = initialsFromName(user?.name); } } if (name) name.textContent = user?.name || "Barbeiro"; if (email) email.textContent = user?.email || "Sem email definido"; if (role) role.textContent = user?.role === "admin" ? "Admin" : "Barbeiro"; if (phone) phone.textContent = user?.phone || "-"; if (lunchBreak) { const enabled = user?.lunchBreak?.enabled !== false; const startTime = user?.lunchBreak?.startTime || "12:00"; const endTime = user?.lunchBreak?.endTime || "13:00"; lunchBreak.textContent = enabled ? `${startTime} - ${endTime}` : "Desativada"; } }
+        function renderReservations(reservations) {
+            if (!reservations.length) { renderEmpty(reservationsList, "Ainda não existem reservas associadas à sua conta."); renderEmpty(todayAgenda, "Sem reservas para mostrar no momento."); return; } reservationsList.innerHTML = reservations.map((reservation) => `
         <article class="reservation-row">
           <div><strong>${formatDate(reservation.reservationDate || reservation.date)}</strong><br><span>${reservation.timeSlot || reservation.time || "--:--"}</span></div>
           <div><strong>${reservation.clientName || reservation.client?.name || "Cliente"}</strong><br><span>${reservation.clientPhone || reservation.client?.phone || ""}</span></div>
           <div><strong>${reservation.serviceName || reservation.service?.name || "Serviço"}</strong><br><span>${reservation.notes || "Sem notas"}</span></div>
           <div style="text-align:right;"><span class="badge ${statusClass(reservation.status)}">${formatStatus(reservation.status)}</span></div>
         </article>
-      `).join(""); const today = formatDate(new Date()); const todaysReservations = reservations.filter((reservation) => formatDate(reservation.reservationDate || reservation.date) === today); if (!todaysReservations.length) { renderEmpty(todayAgenda, "Não há reservas agendadas para hoje."); } else { todayAgenda.innerHTML = todaysReservations.map((reservation) => `<div class="mini-item"><span>${reservation.timeSlot || reservation.time || "--:--"} - ${reservation.clientName || reservation.client?.name || "Cliente"}</span><strong>${reservation.serviceName || reservation.service?.name || "Serviço"}</strong></div>`).join(""); } }
-    function renderAbsences(absences) { if (!absences.length) { renderEmpty(absencesList, "Sem ausências registadas."); return; } absencesList.innerHTML = absences.map((absence) => `
+      `).join(""); const today = formatDate(new Date()); const todaysReservations = reservations.filter((reservation) => formatDate(reservation.reservationDate || reservation.date) === today); if (!todaysReservations.length) { renderEmpty(todayAgenda, "Não há reservas agendadas para hoje."); } else { todayAgenda.innerHTML = todaysReservations.map((reservation) => `<div class="mini-item"><span>${reservation.timeSlot || reservation.time || "--:--"} - ${reservation.clientName || reservation.client?.name || "Cliente"}</span><strong>${reservation.serviceName || reservation.service?.name || "Serviço"}</strong></div>`).join(""); }
+        }
+        function renderAbsences(absences) {
+            if (!absences.length) { renderEmpty(absencesList, "Sem ausências registadas."); return; } absencesList.innerHTML = absences.map((absence) => `
         <article class="reservation-row" style="grid-template-columns: 1fr 1fr auto;">
           <div><strong>${formatDate(absence.date)}</strong><br><span>${absence.reason || absence.type || "Ausência"}</span></div>
           <div><strong>${absence.type || "specific"}</strong><br><span>${absence.startTime || "--:--"} - ${absence.endTime || "--:--"}</span></div>
           <div style="display:flex; gap:8px; align-items:center;"><button class="button" type="button" data-delete-absence="${absence._id || absence.id}">Remover</button></div>
         </article>
-      `).join(""); absencesList.querySelectorAll("[data-delete-absence]").forEach((button) => { button.addEventListener("click", async () => { const absenceId = button.getAttribute("data-delete-absence"); if (!absenceId) return; button.disabled = true; button.textContent = "A remover..."; try { await apiFetch(`/barber/absences/${absenceId}`, { method: "DELETE" }); await loadAbsences(); setToast(absenceMessage, "Ausência removida."); } catch (error) { setToast(absenceMessage, error.message, true); } finally { button.disabled = false; button.textContent = "Remover"; } }); }); }
-    function renderStats(stats) { document.getElementById("statReservations").textContent = Number(stats?.totalReservations || 0); document.getElementById("statRevenue").textContent = formatCurrency(stats?.totalRevenue || 0); document.getElementById("statCancelled").textContent = Number(stats?.cancelledCount || 0); const hasMonth = stats?.selectedMonth !== undefined && stats?.selectedYear !== undefined; document.getElementById("statMonth").textContent = hasMonth ? `${String(stats.selectedMonth).padStart(2, "0")}/${stats.selectedYear}` : `${String(currentMonth).padStart(2, "0")}/${currentYear}`; const breakdown = Array.isArray(stats?.monthlyBreakdown) ? stats.monthlyBreakdown : []; if (!breakdown.length) { renderEmpty(monthlyBreakdown, "Sem dados mensais disponíveis."); return; } monthlyBreakdown.innerHTML = breakdown.map((item) => `<div class="break-item"><span>${item.label || item.month || "Mês"}</span><strong>${formatCurrency(item.revenue || item.totalRevenue || 0)}</strong></div>`).join(""); }
-    async function loadProfile() { const data = await apiFetch("/auth/me"); const user = resolveUser(data); if (!user || (user.role !== "barber" && user.role !== "admin")) throw new Error("Conta sem permissão para o painel do barbeiro."); if (user.role === "admin") { window.location.href = "./index.html"; return null; } saveSession(getToken(), user); renderProfile(user); return user; }
-    async function loadStats() { try { const data = await apiFetch(`/barber/stats?month=${currentMonth}&year=${currentYear}`); renderStats(data?.data || data); } catch (error) { document.getElementById("statReservations").textContent = "-"; document.getElementById("statRevenue").textContent = "-"; document.getElementById("statCancelled").textContent = "-"; document.getElementById("statMonth").textContent = `${String(currentMonth).padStart(2, "0")}/${currentYear}`; renderEmpty(monthlyBreakdown, error.message); } }
-    async function loadReservations() { try { const data = await apiFetch("/barber/reservations"); const payload = data?.data || data; const reservations = Array.isArray(payload) ? payload : payload.reservations || payload.items || []; renderReservations(reservations); } catch (error) { renderEmpty(reservationsList, error.message); renderEmpty(todayAgenda, error.message); } }
-    async function loadAbsences() { try { const data = await apiFetch("/barber/absences"); const payload = data?.data || data; const absences = Array.isArray(payload) ? payload : payload.absences || payload.items || []; renderAbsences(absences); } catch (error) { renderEmpty(absencesList, error.message); } }
-    async function saveLunchBreak(event) { event.preventDefault(); const enabled = document.getElementById("lunchEnabled").value === "true"; const startTime = document.getElementById("lunchStart").value; const endTime = document.getElementById("lunchEnd").value; try { const payload = JSON.stringify({ enabled, startTime, endTime, lunchBreak: { enabled, startTime, endTime } }); const methods = ["PUT", "POST", "PATCH"]; let success = false; let lastError = null; for (const method of methods) { try { await apiFetch("/barber/lunch-break", { method, body: payload }); success = true; break; } catch (error) { lastError = error; } } if (!success) throw lastError || new Error("Não foi possível guardar a pausa."); setToast(lunchBreakMessage, "Pausa de almoço atualizada."); const storedUser = getStoredUser(); if (storedUser) { storedUser.lunchBreak = { enabled, startTime, endTime }; saveSession(getToken(), storedUser); renderProfile(storedUser); } } catch (error) { setToast(lunchBreakMessage, error.message, true); } }
-    async function saveAbsence(event) { event.preventDefault(); const payload = { type: document.getElementById("absenceType").value, date: document.getElementById("absenceDate").value, startTime: document.getElementById("absenceStartTime").value, endTime: document.getElementById("absenceEndTime").value, reason: document.getElementById("absenceReason").value.trim() }; try { await apiFetch("/barber/absences", { method: "POST", body: JSON.stringify(payload) }); setToast(absenceMessage, "Ausência adicionada."); document.getElementById("absenceForm").reset(); document.getElementById("absenceStartTime").value = "09:00"; document.getElementById("absenceEndTime").value = "12:00"; await loadAbsences(); } catch (error) { setToast(absenceMessage, error.message, true); } }
-    async function bootstrap() { const token = getToken(); if (!token) { window.location.href = "./barber-login.html"; return; } try { const user = await loadProfile(); if (!user) return; await Promise.all([loadStats(), loadReservations(), loadAbsences()]); } catch (error) { clearSession(); window.location.href = "./barber-login.html"; } }
-    document.getElementById("logoutButton").addEventListener("click", () => { clearSession(); window.location.href = "./barber-login.html"; });
-    document.getElementById("lunchBreakForm").addEventListener("submit", saveLunchBreak);
-    document.getElementById("absenceForm").addEventListener("submit", saveAbsence);
-    bootstrap();
-  </script>
+      `).join(""); absencesList.querySelectorAll("[data-delete-absence]").forEach((button) => { button.addEventListener("click", async () => { const absenceId = button.getAttribute("data-delete-absence"); if (!absenceId) return; button.disabled = true; button.textContent = "A remover..."; try { await apiFetch(`/barber/absences/${absenceId}`, { method: "DELETE" }); await loadAbsences(); setToast(absenceMessage, "Ausência removida."); } catch (error) { setToast(absenceMessage, error.message, true); } finally { button.disabled = false; button.textContent = "Remover"; } }); });
+        }
+        function renderStats(stats) { document.getElementById("statReservations").textContent = Number(stats?.totalReservations || 0); document.getElementById("statRevenue").textContent = formatCurrency(stats?.totalRevenue || 0); document.getElementById("statCancelled").textContent = Number(stats?.cancelledCount || 0); const hasMonth = stats?.selectedMonth !== undefined && stats?.selectedYear !== undefined; document.getElementById("statMonth").textContent = hasMonth ? `${String(stats.selectedMonth).padStart(2, "0")}/${stats.selectedYear}` : `${String(currentMonth).padStart(2, "0")}/${currentYear}`; const breakdown = Array.isArray(stats?.monthlyBreakdown) ? stats.monthlyBreakdown : []; if (!breakdown.length) { renderEmpty(monthlyBreakdown, "Sem dados mensais disponíveis."); return; } monthlyBreakdown.innerHTML = breakdown.map((item) => `<div class="break-item"><span>${item.label || item.month || "Mês"}</span><strong>${formatCurrency(item.revenue || item.totalRevenue || 0)}</strong></div>`).join(""); }
+        async function loadProfile() { const data = await apiFetch("/auth/me"); const user = resolveUser(data); if (!user || (user.role !== "barber" && user.role !== "admin")) throw new Error("Conta sem permissão para o painel do barbeiro."); if (user.role === "admin") { window.location.href = "./index.html"; return null; } saveSession(getToken(), user); renderProfile(user); return user; }
+        async function loadStats() { try { const data = await apiFetch(`/barber/stats?month=${currentMonth}&year=${currentYear}`); renderStats(data?.data || data); } catch (error) { document.getElementById("statReservations").textContent = "-"; document.getElementById("statRevenue").textContent = "-"; document.getElementById("statCancelled").textContent = "-"; document.getElementById("statMonth").textContent = `${String(currentMonth).padStart(2, "0")}/${currentYear}`; renderEmpty(monthlyBreakdown, error.message); } }
+        async function loadReservations() { try { const data = await apiFetch("/barber/reservations"); const payload = data?.data || data; const reservations = Array.isArray(payload) ? payload : payload.reservations || payload.items || []; renderReservations(reservations); } catch (error) { renderEmpty(reservationsList, error.message); renderEmpty(todayAgenda, error.message); } }
+        async function loadAbsences() { try { const data = await apiFetch("/barber/absences"); const payload = data?.data || data; const absences = Array.isArray(payload) ? payload : payload.absences || payload.items || []; renderAbsences(absences); } catch (error) { renderEmpty(absencesList, error.message); } }
+        async function saveLunchBreak(event) { event.preventDefault(); const enabled = document.getElementById("lunchEnabled").value === "true"; const startTime = document.getElementById("lunchStart").value; const endTime = document.getElementById("lunchEnd").value; try { const payload = JSON.stringify({ enabled, startTime, endTime, lunchBreak: { enabled, startTime, endTime } }); const methods = ["PUT", "POST", "PATCH"]; let success = false; let lastError = null; for (const method of methods) { try { await apiFetch("/barber/lunch-break", { method, body: payload }); success = true; break; } catch (error) { lastError = error; } } if (!success) throw lastError || new Error("Não foi possível guardar a pausa."); setToast(lunchBreakMessage, "Pausa de almoço atualizada."); const storedUser = getStoredUser(); if (storedUser) { storedUser.lunchBreak = { enabled, startTime, endTime }; saveSession(getToken(), storedUser); renderProfile(storedUser); } } catch (error) { setToast(lunchBreakMessage, error.message, true); } }
+        async function saveAbsence(event) { event.preventDefault(); const payload = { type: document.getElementById("absenceType").value, date: document.getElementById("absenceDate").value, startTime: document.getElementById("absenceStartTime").value, endTime: document.getElementById("absenceEndTime").value, reason: document.getElementById("absenceReason").value.trim() }; try { await apiFetch("/barber/absences", { method: "POST", body: JSON.stringify(payload) }); setToast(absenceMessage, "Ausência adicionada."); document.getElementById("absenceForm").reset(); document.getElementById("absenceStartTime").value = "09:00"; document.getElementById("absenceEndTime").value = "12:00"; await loadAbsences(); } catch (error) { setToast(absenceMessage, error.message, true); } }
+        async function bootstrap() { const token = getToken(); if (!token) { window.location.href = "./barber-login.html"; return; } try { const user = await loadProfile(); if (!user) return; await Promise.all([loadStats(), loadReservations(), loadAbsences()]); } catch (error) { clearSession(); window.location.href = "./barber-login.html"; } }
+        document.getElementById("logoutButton").addEventListener("click", () => { clearSession(); window.location.href = "./barber-login.html"; });
+        document.getElementById("lunchBreakForm").addEventListener("submit", saveLunchBreak);
+        document.getElementById("absenceForm").addEventListener("submit", saveAbsence);
+        bootstrap();
+    </script>
 </body>
+
 </html>
