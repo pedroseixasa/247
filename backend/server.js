@@ -3,6 +3,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const bodyParser = require("body-parser");
+const path = require("path");
 const apiRoutes = require("./src/routes/api");
 
 const app = express();
@@ -57,6 +58,29 @@ mongoose
 
 // Rotas
 app.use("/api", apiRoutes);
+
+// Static admin pages only - do not expose the public site front-end from backend
+const adminStaticPath = path.resolve(__dirname, "..", "admin");
+app.use(
+  "/admin",
+  express.static(adminStaticPath, {
+    index: false,
+    extensions: ["html"],
+    maxAge: "1h",
+  }),
+);
+
+app.get("/admin", (req, res) => {
+  res.sendFile(path.join(adminStaticPath, "index.html"));
+});
+
+app.get("/admin/barber-login", (req, res) => {
+  res.sendFile(path.join(adminStaticPath, "barber-login.html"));
+});
+
+app.get("/admin/barber-dashboard", (req, res) => {
+  res.sendFile(path.join(adminStaticPath, "barber-dashboard.html"));
+});
 
 // Health check
 app.get("/health", (req, res) => {
