@@ -146,7 +146,9 @@ async function getOrCreateSiteSettings() {
 exports.getPublicBarbers = async (req, res) => {
   try {
     const barbers = await Barber.find({ isActive: true })
-      .select("_id name email role photo avatar workingHours lunchBreak absences isActive")
+      .select(
+        "_id name email role photo avatar workingHours lunchBreak absences isActive",
+      )
       .lean();
 
     const publicBarbers = barbers

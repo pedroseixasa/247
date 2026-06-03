@@ -55,7 +55,9 @@ async function seedDatabase() {
         phone: process.env.BARBER_1_PHONE || "+351900000001",
         password: process.env.BARBER_1_PASSWORD || "barber123",
         role: "barber",
-        bio: process.env.BARBER_1_BIO || "Especialista em cortes precisos e barba alinhada.",
+        bio:
+          process.env.BARBER_1_BIO ||
+          "Especialista em cortes precisos e barba alinhada.",
         avatar: process.env.BARBER_1_PHOTO || "https://via.placeholder.com/150",
         photo: process.env.BARBER_1_PHOTO || "https://via.placeholder.com/150",
         notificationEmail: process.env.BARBER_1_NOTIFICATION_EMAIL || null,
@@ -73,7 +75,8 @@ async function seedDatabase() {
         phone: process.env.BARBER_2_PHONE || "+351900000002",
         password: process.env.BARBER_2_PASSWORD || "barber123",
         role: "barber",
-        bio: process.env.BARBER_2_BIO || "Cortes modernos, detalhe e acabamento.",
+        bio:
+          process.env.BARBER_2_BIO || "Cortes modernos, detalhe e acabamento.",
         avatar: process.env.BARBER_2_PHOTO || "https://via.placeholder.com/150",
         photo: process.env.BARBER_2_PHOTO || "https://via.placeholder.com/150",
         notificationEmail: process.env.BARBER_2_NOTIFICATION_EMAIL || null,

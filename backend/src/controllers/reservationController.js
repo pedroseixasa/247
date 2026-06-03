@@ -1134,7 +1134,8 @@ exports.removeAbsence = async (req, res) => {
 exports.getAbsences = async (req, res) => {
   try {
     const currentUser = req.user || {};
-    const requestedBarberId = req.query.barberId || req.params.barberId || currentUser._id;
+    const requestedBarberId =
+      req.query.barberId || req.params.barberId || currentUser._id;
 
     if (!requestedBarberId) {
       return res.status(400).json({ error: "Barbeiro não especificado" });
@@ -1147,9 +1148,8 @@ exports.getAbsences = async (req, res) => {
       return res.status(403).json({ error: "Sem permissão" });
     }
 
-    const barber = await Barber.findById(requestedBarberId).select(
-      "absences name",
-    );
+    const barber =
+      await Barber.findById(requestedBarberId).select("absences name");
     if (!barber) {
       return res.status(404).json({ error: "Barbeiro não encontrado" });
     }

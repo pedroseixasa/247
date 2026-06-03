@@ -22,7 +22,12 @@ const isLocalOrigin = (origin) =>
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || origin === "null" || allowedOrigins.includes("*") || isLocalOrigin(origin)) {
+      if (
+        !origin ||
+        origin === "null" ||
+        allowedOrigins.includes("*") ||
+        isLocalOrigin(origin)
+      ) {
         return callback(null, true);
       }
 
