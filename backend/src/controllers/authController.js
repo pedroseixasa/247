@@ -131,7 +131,8 @@ exports.getProfile = async (req, res) => {
 
 exports.updateProfile = async (req, res) => {
   try {
-    const { name, email, notificationEmail, lunchBreak, workingHours } = req.body;
+    const { name, email, notificationEmail, lunchBreak, workingHours } =
+      req.body;
 
     if (!req.barberId) {
       return res.status(401).json({ error: "Utilizador não autenticado" });
@@ -153,7 +154,9 @@ exports.updateProfile = async (req, res) => {
     if (email !== undefined) {
       const normalizedEmail = String(email).trim().toLowerCase();
       if (!/^[^\s@]+@barbearia247\.pt$/.test(normalizedEmail)) {
-        return res.status(400).json({ error: "O email tem de terminar em @barbearia247.pt" });
+        return res
+          .status(400)
+          .json({ error: "O email tem de terminar em @barbearia247.pt" });
       }
 
       const existingBarber = await Barber.findOne({
