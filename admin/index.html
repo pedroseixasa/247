@@ -1699,7 +1699,7 @@
             return currentUser._id || currentUser.id || '';
         }
 
-        function buildDashboardUrl(barberId, year) {
+        function buildDashboardUrl(barberId, year, isAdmin) {
             const params = new URLSearchParams();
             if (barberId) {
                 params.set('barberId', barberId);
@@ -1708,7 +1708,8 @@
                 params.set('year', year);
             }
             const query = params.toString();
-            return query ? `${API_URL}/admin/settings?${query}` : `${API_URL}/admin/settings`;
+            const baseUrl = isAdmin ? `${API_URL}/admin/settings` : `${API_URL}/barber/stats`;
+            return query ? `${baseUrl}?${query}` : baseUrl;
         }
 
         async function loadDashboard(container) {
@@ -1718,7 +1719,7 @@
                 const isAdmin = currentUser && currentUser.role === 'admin';
                 const selectedBarberId = isAdmin ? getDefaultBarberId() : (currentUser._id || currentUser.id || '');
                 const selectedYear = new Date().getFullYear();
-                const statsUrl = buildDashboardUrl(selectedBarberId, selectedYear);
+                const statsUrl = buildDashboardUrl(selectedBarberId, selectedYear, isAdmin);
 
                 const fetchTasks = [fetchJson(statsUrl, {
                     headers: { 'Authorization': `Bearer ${token}` }
@@ -1868,7 +1869,7 @@
                 const applyDashboardFilters = async () => {
                     const barberId = isAdmin ? document.getElementById('dashboardBarberFilter').value : selectedBarberId;
                     const year = document.getElementById('dashboardYearFilter').value;
-                    const url = buildDashboardUrl(barberId, year);
+                    const url = buildDashboardUrl(barberId, year, isAdmin);
 
                     const refreshData = await fetchJson(url, {
                         headers: { 'Authorization': `Bearer ${token}` }
