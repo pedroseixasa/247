@@ -23,6 +23,8 @@ const authMiddleware = (req, res, next) => {
   }
 };
 
+const protect = authMiddleware;
+
 const optionalAuthMiddleware = (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1];
 
@@ -47,10 +49,28 @@ const optionalAuthMiddleware = (req, res, next) => {
 };
 
 const adminMiddleware = (req, res, next) => {
-  if (req.barberRole !== "admin") {
+  const role = req.user?.role || req.barberRole;
+
+  if (role !== "admin") {
     return res.status(403).json({ error: "Acesso apenas para administrador" });
   }
   next();
 };
 
-module.exports = { authMiddleware, adminMiddleware, optionalAuthMiddleware };
+const barberMiddleware = (req, res, next) => {
+  const role = req.user?.role || req.barberRole;
+
+  if (!["admin", "barber"].includes(role)) {
+    return res.status(403).json({ error: "Acesso negado" });
+  }
+
+  next();
+};
+
+module.exports = {
+  authMiddleware,
+  protect,
+  adminMiddleware,
+  barberMiddleware,
+  optionalAuthMiddleware,
+};

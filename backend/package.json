@@ -19,6 +19,7 @@
     "admin:create-diogo": "node create-diogo-admin.js",
     "admin:remove-duplicate": "node remove-duplicate-admin.js",
     "admin:reset-password": "node reset-admin-password.js",
+    "createbarbers": "node scripts/createBarbers.js",
     "seed": "node seed.js",
     "seed:reviews": "node seed-reviews.js",
     "api:update-ids": "node update-frontend-ids.js",

@@ -143,9 +143,38 @@ async function getOrCreateSiteSettings() {
 }
 
 // ===== GERENCIAR BARBEIROS =====
+exports.getPublicBarbers = async (req, res) => {
+  try {
+    const barbers = await Barber.find({ isActive: true })
+      .select("_id name email role photo avatar workingHours lunchBreak absences isActive")
+      .lean();
+
+    const publicBarbers = barbers
+      .map((barber) => ({
+        ...barber,
+        photo: barber.photo || barber.avatar || null,
+        avatar: barber.avatar || barber.photo || null,
+      }))
+      .sort((left, right) => {
+        if (left.role !== right.role) {
+          return left.role === "admin" ? -1 : 1;
+        }
+
+        return left.name.localeCompare(right.name, "pt-PT");
+      });
+
+    res.json(publicBarbers);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 exports.getAllBarbers = async (req, res) => {
   try {
-    const barbers = await Barber.find().select("-password");
+    const barbers = await Barber.find().select("-password").sort({
+      role: -1,
+      name: 1,
+    });
     res.json(barbers);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -180,6 +209,7 @@ exports.updateBarber = async (req, res) => {
       email,
       phone,
       notificationEmail,
+      photo,
       avatar,
       bio,
       workingHours,
@@ -200,20 +230,26 @@ exports.updateBarber = async (req, res) => {
       return res.status(400).json({ error: "ID inválido: " + err.message });
     }
 
-    const barber = await Barber.findByIdAndUpdate(
-      barberIdObj,
-      {
-        name,
-        email,
-        phone,
-        notificationEmail,
-        avatar,
-        bio,
-        workingHours,
-        isActive,
-      },
-      { new: true },
-    ).select("-password");
+    const updateData = {};
+
+    if (name !== undefined) updateData.name = name;
+    if (email !== undefined) updateData.email = email;
+    if (phone !== undefined) updateData.phone = phone;
+    if (notificationEmail !== undefined) {
+      updateData.notificationEmail = notificationEmail;
+    }
+    if (photo !== undefined || avatar !== undefined) {
+      const resolvedPhoto = photo || avatar || null;
+      updateData.photo = resolvedPhoto;
+      updateData.avatar = resolvedPhoto;
+    }
+    if (bio !== undefined) updateData.bio = bio;
+    if (workingHours !== undefined) updateData.workingHours = workingHours;
+    if (isActive !== undefined) updateData.isActive = isActive;
+
+    const barber = await Barber.findByIdAndUpdate(barberIdObj, updateData, {
+      new: true,
+    }).select("-password");
 
     if (!barber) {
       return res.status(404).json({ error: "Barbeiro não encontrado" });

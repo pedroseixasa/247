@@ -9,6 +9,7 @@ const { bookingLimiter } = require("../middleware/bookingLimiter");
 const {
   authMiddleware,
   adminMiddleware,
+  barberMiddleware,
   optionalAuthMiddleware,
 } = require("../middleware/auth");
 const Barber = require("../models/Barber");
@@ -116,12 +117,13 @@ router.post(
 );
 
 // ===== BARBERS - DADOS PÚBLICOS =====
+router.get("/barbers", adminController.getPublicBarbers);
 // Carregar dados públicos de um barbeiro (nome, lunchBreak, etc)
 router.get("/barbers/:barberId", async (req, res) => {
   try {
     const { barberId } = req.params;
     const barber = await Barber.findById(barberId).select(
-      "name role lunchBreak avatar workingHours absences",
+      "name role lunchBreak avatar photo workingHours absences isActive",
     );
     if (!barber) {
       return res.status(404).json({ error: "Barbeiro não encontrado" });
@@ -133,96 +135,54 @@ router.get("/barbers/:barberId", async (req, res) => {
 });
 
 // ===== BARBER (não-admin) - ACESSO RESTRITO =====
-// Barber vê suas próprias ausências
-router.get("/barber/absences", authMiddleware, async (req, res) => {
-  try {
-    const barber = await Barber.findById(req.user._id).select("absences name");
-    if (!barber) {
-      return res.status(404).json({ error: "Perfil não encontrado" });
-    }
+router.get(
+  "/barber/profile",
+  authMiddleware,
+  barberMiddleware,
+  authController.getProfile,
+);
 
-    // Limpa ausências expiradas
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const beforeCount = barber.absences?.length || 0;
+router.get(
+  "/barber/reservations",
+  authMiddleware,
+  barberMiddleware,
+  reservationController.getReservationsForDashboard,
+);
 
-    if (barber.absences && barber.absences.length > 0) {
-      barber.absences = barber.absences.filter((absence) => {
-        const absenceDate = new Date(absence.date);
-        absenceDate.setHours(0, 0, 0, 0);
-        return absenceDate >= today;
-      });
+router.get(
+  "/barber/stats",
+  authMiddleware,
+  barberMiddleware,
+  reservationController.getBarberStats,
+);
 
-      if (barber.absences.length < beforeCount) {
-        await barber.save();
-      }
-    }
-
-    res.json({
-      barberId: req.user._id,
-      barberName: barber.name,
-      absences: barber.absences || [],
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+router.get(
+  "/barber/absences",
+  authMiddleware,
+  barberMiddleware,
+  reservationController.getAbsences,
+);
 
 // Barber adiciona sua própria ausência
 router.post(
   "/barber/absences",
   authMiddleware,
+  barberMiddleware,
   reservationController.addAbsence,
 );
 
-// Barber remove sua própria ausência (PATCH na rota, mas lógica é DELETE no controller)
 router.delete(
   "/barber/absences/:absenceId",
   authMiddleware,
-  async (req, res) => {
-    try {
-      const { absenceId } = req.params;
-      const barberId = req.user._id;
-
-      const barber = await Barber.findById(barberId);
-      if (!barber) {
-        return res.status(404).json({ error: "Barbeiro não encontrado" });
-      }
-
-      // Limpa ausências expiradas
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      if (barber.absences && barber.absences.length > 0) {
-        barber.absences = barber.absences.filter((absence) => {
-          const absenceDate = new Date(absence.date);
-          absenceDate.setHours(0, 0, 0, 0);
-          return absenceDate >= today;
-        });
-      }
-
-      const absenceIndex = barber.absences?.findIndex(
-        (abs) => abs._id?.toString() === absenceId,
-      );
-
-      if (absenceIndex === undefined || absenceIndex === -1) {
-        return res.status(404).json({ error: "Ausência não encontrada" });
-      }
-
-      barber.absences.splice(absenceIndex, 1);
-      await barber.save();
-
-      res.json({ message: "Ausência removida com sucesso" });
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  },
+  barberMiddleware,
+  reservationController.removeAbsence,
 );
 
-// Barber vê suas próprias reservas (dashboard)
-router.get(
-  "/barber/reservations",
+router.patch(
+  "/barber/lunch-break",
   authMiddleware,
-  reservationController.getReservationsForDashboard,
+  barberMiddleware,
+  authController.updateProfile,
 );
 
 // ===== ADMIN - BARBEIROS =====

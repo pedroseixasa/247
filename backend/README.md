@@ -38,8 +38,17 @@ node seed.js
 Isto cria:
 
 - **Admin**: diogo@barbearia247.pt / admin123
-- **Barber**: ricardo@barbearia247.pt / barber123
+- **Barber 1**: barbeiro1@247barbearia.pt / barber123
+- **Barber 2**: barbeiro2@247barbearia.pt / barber123
 - **9 Services** predefinidos
+
+Para criar/atualizar as duas contas de barbeiro com dados personalizados, usa também:
+
+```bash
+npm run createbarbers
+```
+
+Podes definir `BARBER_1_NAME`, `BARBER_1_EMAIL`, `BARBER_1_PASSWORD`, `BARBER_1_PHOTO` e os equivalentes `BARBER_2_*` no `.env`.
 
 ### 4. Iniciar servidor
 
@@ -56,6 +65,33 @@ npm start
 ```
 
 Servidor estará em `http://localhost:5000`
+
+### 5. Teste local do admin
+
+Se estiveres a abrir [admin/index.html](../admin/index.html) diretamente no browser ou via Live Server, o painel usa `http://localhost:5000/api` em vez da API de produção.
+
+- Abre primeiro o backend com `npm run dev`
+- Mantém o MongoDB local ou o `MONGODB_URI` apontado para um Atlas de teste
+- Usa as credenciais seed do admin para validar o login local sem tocar no ambiente em produção
+
+### 6. Backend em produção sem frontend
+
+Se o backend já estiver publicado em produção e o frontend ainda não, podes criar ou atualizar as duas contas de barbeiro diretamente na base de produção executando o script com as variáveis de produção carregadas:
+
+```bash
+npm run createbarbers
+```
+
+Esse script usa `BARBER_1_*` e `BARBER_2_*` para nome, email, password, telefone e foto, e faz upsert por email para não duplicar contas.
+
+### 7. Perfis de barbeiro
+
+Os barbeiros entram em [admin/barber-login.html](../admin/barber-login.html) e só veem:
+
+- `Perfil`
+- `Ausências`
+- `Reservas`
+- `Dashboard` com faturação própria
 
 ## API Endpoints
 

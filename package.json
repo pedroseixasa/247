@@ -1,0 +1,11 @@
+{
+  "name": "247-barbearia-root",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix backend run dev",
+    "start": "npm --prefix backend run start",
+    "seed": "npm --prefix backend run seed",
+    "admin:create": "npm --prefix backend run admin:create",
+    "createbarbers": "npm --prefix backend run createbarbers"
+  }
+}

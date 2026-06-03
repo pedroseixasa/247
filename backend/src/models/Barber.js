@@ -43,6 +43,10 @@ const barberSchema = new mongoose.Schema({
     default: "barber",
   },
   // Dados do perfil
+  photo: {
+    type: String,
+    default: null,
+  },
   avatar: String,
   bio: String,
   // Horários de funcionamento

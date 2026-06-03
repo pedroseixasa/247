@@ -19,25 +19,71 @@ async function seedDatabase() {
     await Service.deleteMany({});
     console.log("✓ Dados anteriores removidos");
 
-    // Criar barbeiros
+    const DEFAULT_WORKING_HOURS = {
+      monday: { start: "09:30", end: "20:00" },
+      tuesday: { start: "09:30", end: "20:00" },
+      wednesday: { start: "09:30", end: "20:00" },
+      thursday: { start: "09:30", end: "20:00" },
+      friday: { start: "09:30", end: "20:00" },
+      saturday: { start: "09:00", end: "18:00" },
+      sunday: { start: "closed", end: "closed" },
+    };
+
+    // Criar contas principais com dados personalizados por env vars
     const barbers = [
       {
-        name: "Diogo Cunha",
-        email: "diogo@barbearia247.pt",
-        phone: "+351912345678",
-        password: "admin123", // Mude isto depois!
+        name: process.env.ADMIN_NAME || "Diogo Cunha",
+        email: process.env.ADMIN_EMAIL || "diogo@barbearia247.pt",
+        phone: process.env.ADMIN_PHONE || "+351912345678",
+        password: process.env.ADMIN_PASSWORD || "admin123",
         role: "admin",
-        bio: "Fundador e barbeiro experiente",
-        avatar: "https://via.placeholder.com/150",
-        workingHours: {
-          monday: { start: "closed", end: "closed" },
-          tuesday: { start: "09:30", end: "20:00" },
-          wednesday: { start: "09:30", end: "20:00" },
-          thursday: { start: "09:30", end: "20:00" },
-          friday: { start: "09:30", end: "20:00" },
-          saturday: { start: "09:00", end: "18:00" },
-          sunday: { start: "closed", end: "closed" },
+        bio: process.env.ADMIN_BIO || "Fundador e barbeiro experiente",
+        avatar: process.env.ADMIN_PHOTO || "https://via.placeholder.com/150",
+        photo: process.env.ADMIN_PHOTO || "https://via.placeholder.com/150",
+        notificationEmail: process.env.ADMIN_NOTIFICATION_EMAIL || null,
+        workingHours: DEFAULT_WORKING_HOURS,
+        lunchBreak: {
+          enabled: false,
+          startTime: "12:00",
+          endTime: "13:00",
         },
+        isActive: true,
+      },
+      {
+        name: process.env.BARBER_1_NAME || "Barbeiro 1",
+        email: process.env.BARBER_1_EMAIL || "barbeiro1@247barbearia.pt",
+        phone: process.env.BARBER_1_PHONE || "+351900000001",
+        password: process.env.BARBER_1_PASSWORD || "barber123",
+        role: "barber",
+        bio: process.env.BARBER_1_BIO || "Especialista em cortes precisos e barba alinhada.",
+        avatar: process.env.BARBER_1_PHOTO || "https://via.placeholder.com/150",
+        photo: process.env.BARBER_1_PHOTO || "https://via.placeholder.com/150",
+        notificationEmail: process.env.BARBER_1_NOTIFICATION_EMAIL || null,
+        workingHours: DEFAULT_WORKING_HOURS,
+        lunchBreak: {
+          enabled: false,
+          startTime: "12:00",
+          endTime: "13:00",
+        },
+        isActive: true,
+      },
+      {
+        name: process.env.BARBER_2_NAME || "Barbeiro 2",
+        email: process.env.BARBER_2_EMAIL || "barbeiro2@247barbearia.pt",
+        phone: process.env.BARBER_2_PHONE || "+351900000002",
+        password: process.env.BARBER_2_PASSWORD || "barber123",
+        role: "barber",
+        bio: process.env.BARBER_2_BIO || "Cortes modernos, detalhe e acabamento.",
+        avatar: process.env.BARBER_2_PHOTO || "https://via.placeholder.com/150",
+        photo: process.env.BARBER_2_PHOTO || "https://via.placeholder.com/150",
+        notificationEmail: process.env.BARBER_2_NOTIFICATION_EMAIL || null,
+        workingHours: DEFAULT_WORKING_HOURS,
+        lunchBreak: {
+          enabled: false,
+          startTime: "12:00",
+          endTime: "13:00",
+        },
+        isActive: true,
       },
     ];
 

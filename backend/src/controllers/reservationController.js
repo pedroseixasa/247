@@ -1048,9 +1048,11 @@ exports.addAbsence = async (req, res) => {
       );
     }
 
+    const savedAbsence = barber.absences[barber.absences.length - 1];
+
     res.status(201).json({
       message: "Ausência adicionada",
-      absence: newAbsence,
+      absence: savedAbsence || newAbsence,
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -1061,18 +1063,23 @@ exports.addAbsence = async (req, res) => {
 exports.removeAbsence = async (req, res) => {
   try {
     const { barberId, absenceId } = req.params;
+    const targetBarberId = barberId || req.user?._id;
+
+    if (!targetBarberId) {
+      return res.status(400).json({ error: "Barbeiro não especificado" });
+    }
 
     // Authorization: apenas o barbeiro dele mesmo ou admin
     const currentUser = req.user;
     if (
       currentUser.role !== "admin" &&
-      currentUser._id.toString() !== barberId
+      currentUser._id.toString() !== targetBarberId.toString()
     ) {
       return res.status(403).json({ error: "Sem permissão" });
     }
 
     // Buscar barbeiro
-    const barber = await Barber.findById(barberId);
+    const barber = await Barber.findById(targetBarberId);
     if (!barber) {
       return res.status(404).json({ error: "Barbeiro não encontrado" });
     }
@@ -1104,7 +1111,7 @@ exports.removeAbsence = async (req, res) => {
     await barber.save();
 
     try {
-      await syncRecurringRulesForBarber(barberId, {
+      await syncRecurringRulesForBarber(targetBarberId, {
         replaceFuture: true,
         fromDate: new Date(),
       });
@@ -1126,17 +1133,141 @@ exports.removeAbsence = async (req, res) => {
 // Listar ausências do barbeiro (público - sem validação extra)
 exports.getAbsences = async (req, res) => {
   try {
-    const { barberId } = req.params;
+    const currentUser = req.user || {};
+    const requestedBarberId = req.query.barberId || req.params.barberId || currentUser._id;
 
-    const barber = await Barber.findById(barberId).select("absences name");
+    if (!requestedBarberId) {
+      return res.status(400).json({ error: "Barbeiro não especificado" });
+    }
+
+    if (
+      currentUser.role !== "admin" &&
+      currentUser._id?.toString() !== requestedBarberId.toString()
+    ) {
+      return res.status(403).json({ error: "Sem permissão" });
+    }
+
+    const barber = await Barber.findById(requestedBarberId).select(
+      "absences name",
+    );
     if (!barber) {
       return res.status(404).json({ error: "Barbeiro não encontrado" });
     }
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const beforeCount = barber.absences?.length || 0;
+
+    if (barber.absences && barber.absences.length > 0) {
+      barber.absences = barber.absences.filter((absence) => {
+        const absenceDate = new Date(absence.date);
+        absenceDate.setHours(0, 0, 0, 0);
+        return absenceDate >= today;
+      });
+
+      if (barber.absences.length < beforeCount) {
+        await barber.save();
+      }
+    }
+
     res.json({
-      barberId,
+      barberId: requestedBarberId,
       barberName: barber.name,
       absences: barber.absences || [],
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.getBarberStats = async (req, res) => {
+  try {
+    const currentUser = req.user || {};
+    const now = new Date();
+
+    const selectedMonth = req.query.month
+      ? parseInt(req.query.month, 10)
+      : now.getMonth() + 1;
+    const selectedYear = req.query.year
+      ? parseInt(req.query.year, 10)
+      : now.getFullYear();
+
+    if (
+      !Number.isInteger(selectedMonth) ||
+      selectedMonth < 1 ||
+      selectedMonth > 12 ||
+      !Number.isInteger(selectedYear) ||
+      selectedYear < 2000
+    ) {
+      return res.status(400).json({ error: "Mês/ano inválidos" });
+    }
+
+    let barberId = currentUser._id;
+    if (currentUser.role === "admin" && req.query.barberId) {
+      if (!mongoose.Types.ObjectId.isValid(req.query.barberId)) {
+        return res.status(400).json({ error: "Barber ID inválido" });
+      }
+
+      barberId = new mongoose.Types.ObjectId(req.query.barberId);
+    }
+
+    const yearStart = new Date(selectedYear, 0, 1);
+    yearStart.setHours(0, 0, 0, 0);
+    const yearEnd = new Date(selectedYear, 11, 31, 23, 59, 59, 999);
+
+    const reservations = await Reservation.find({
+      barberId,
+      reservationDate: { $gte: yearStart, $lte: yearEnd },
+    })
+      .populate("serviceId", "price")
+      .lean();
+
+    const monthlyBreakdown = Array.from({ length: 12 }, (_, index) => {
+      const monthReservations = reservations.filter((reservation) => {
+        const reservationDate = new Date(reservation.reservationDate);
+        return reservationDate.getMonth() === index;
+      });
+
+      const activeReservations = monthReservations.filter(
+        (reservation) => reservation.status !== "cancelled",
+      );
+      const cancelledReservations = monthReservations.filter(
+        (reservation) => reservation.status === "cancelled",
+      );
+
+      const revenue = activeReservations.reduce((sum, reservation) => {
+        if (!["confirmed", "completed"].includes(reservation.status)) {
+          return sum;
+        }
+
+        const price = reservation.serviceId?.price;
+        const numericPrice =
+          typeof price === "number" ? price : parseFloat(price) || 0;
+        return sum + numericPrice;
+      }, 0);
+
+      return {
+        month: index + 1,
+        label: new Date(selectedYear, index, 1).toLocaleDateString("pt-PT", {
+          month: "short",
+        }),
+        totalReservations: activeReservations.length,
+        cancelledCount: cancelledReservations.length,
+        totalRevenue: Math.round(revenue * 100) / 100,
+      };
+    });
+
+    const selectedMonthStats = monthlyBreakdown[selectedMonth - 1];
+
+    res.json({
+      stats: {
+        selectedMonth,
+        selectedYear,
+        totalReservations: selectedMonthStats.totalReservations,
+        totalRevenue: selectedMonthStats.totalRevenue,
+        cancelledCount: selectedMonthStats.cancelledCount,
+        monthlyBreakdown,
+      },
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
