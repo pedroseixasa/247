@@ -1084,6 +1084,14 @@ exports.updateSiteContent = async (req, res) => {
     data.gallery = data.gallery || {};
     data.barberCards = data.barberCards || {};
     const settings = await getOrCreateSiteSettings();
+    const existingBarberCards = settings.barberCards?.toObject
+      ? settings.barberCards.toObject()
+      : settings.barberCards || {};
+
+    data.barberCards = {
+      ...existingBarberCards,
+      ...data.barberCards,
+    };
 
     // Processar imagens otimizadas
     if (req.logoImageBase64) {
@@ -1225,7 +1233,13 @@ exports.updateSiteContent = async (req, res) => {
       });
     }
 
-    settings.set(data);
+    const { barberCards, ...restOfData } = data;
+    settings.set(restOfData);
+    settings.barberCards = {
+      ...existingBarberCards,
+      ...barberCards,
+    };
+    settings.markModified("barberCards");
     await settings.save();
     res.json(settings);
   } catch (error) {
