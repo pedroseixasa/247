@@ -1053,6 +1053,14 @@ document.addEventListener("DOMContentLoaded", function () {
       id: "6998aaf59119a721cdc1e136",
       name: "Diogo Cunha",
       workingHours: {
+        /* ... igual ao que já tens */
+      },
+      lunchBreak: { enabled: undefined, startTime: "12:00", endTime: "13:00" },
+    },
+    barbeiro1: {
+      id: "6a2010697f572a55a79466c7",
+      name: "barbeiro1",
+      workingHours: {
         monday: { start: "closed", end: "closed" },
         tuesday: { start: "09:30", end: "20:00" },
         wednesday: { start: "09:30", end: "20:00" },
@@ -1061,11 +1069,21 @@ document.addEventListener("DOMContentLoaded", function () {
         saturday: { start: "09:00", end: "18:00" },
         sunday: { start: "closed", end: "closed" },
       },
-      lunchBreak: {
-        enabled: undefined,
-        startTime: "12:00",
-        endTime: "13:00",
+      lunchBreak: { enabled: undefined, startTime: "12:00", endTime: "13:00" },
+    },
+    barbeiro2: {
+      id: "6a2010697f572a55a79466c8",
+      name: "barbeiro2",
+      workingHours: {
+        monday: { start: "closed", end: "closed" },
+        tuesday: { start: "09:30", end: "20:00" },
+        wednesday: { start: "09:30", end: "20:00" },
+        thursday: { start: "09:30", end: "20:00" },
+        friday: { start: "09:30", end: "20:00" },
+        saturday: { start: "09:00", end: "18:00" },
+        sunday: { start: "closed", end: "closed" },
       },
+      lunchBreak: { enabled: undefined, startTime: "12:00", endTime: "13:00" },
     },
   };
 
