@@ -136,6 +136,18 @@ const defaultSiteSettings = {
   barberCards: {
     barber1Name: "Diogo Cunha",
     barber1Role: "Barbeiro Profissional",
+    barber1Description:
+      "Especialista em cortes clássicos e modernos, com mais de 5 anos de experiência. Dedicado a criar o estilo perfeito para cada cliente.",
+    barber1Image: "images/cunha.png",
+    barber1CoverImage: "images/cunhacorte.png",
+    barber2Name: "",
+    barber2Description: "",
+    barber2Image: "",
+    barber2CoverImage: "",
+    barber3Name: "",
+    barber3Description: "",
+    barber3Image: "",
+    barber3CoverImage: "",
   },
 };
 
@@ -168,7 +180,7 @@ exports.getPublicBarbers = async (req, res) => {
   try {
     const barbers = await Barber.find({ isActive: true })
       .select(
-        "_id name email role photo avatar workingHours lunchBreak absences isActive",
+        "_id name email role photo avatar bio workingHours lunchBreak absences isActive",
       )
       .lean();
 
@@ -1162,6 +1174,34 @@ exports.updateSiteContent = async (req, res) => {
     } else if (req.barber1CoverImageUrl || req.body.barber1CoverImageUrl) {
       data.barberCards.barber1CoverImage =
         req.barber1CoverImageUrl || req.body.barber1CoverImageUrl;
+    }
+
+    if (req.barber2ImageBase64) {
+      data.barberCards.barber2Image = req.barber2ImageBase64;
+    } else if (req.barber2ImageUrl || req.body.barber2ImageUrl) {
+      data.barberCards.barber2Image =
+        req.barber2ImageUrl || req.body.barber2ImageUrl;
+    }
+
+    if (req.barber2CoverImageBase64) {
+      data.barberCards.barber2CoverImage = req.barber2CoverImageBase64;
+    } else if (req.barber2CoverImageUrl || req.body.barber2CoverImageUrl) {
+      data.barberCards.barber2CoverImage =
+        req.barber2CoverImageUrl || req.body.barber2CoverImageUrl;
+    }
+
+    if (req.barber3ImageBase64) {
+      data.barberCards.barber3Image = req.barber3ImageBase64;
+    } else if (req.barber3ImageUrl || req.body.barber3ImageUrl) {
+      data.barberCards.barber3Image =
+        req.barber3ImageUrl || req.body.barber3ImageUrl;
+    }
+
+    if (req.barber3CoverImageBase64) {
+      data.barberCards.barber3CoverImage = req.barber3CoverImageBase64;
+    } else if (req.barber3CoverImageUrl || req.body.barber3CoverImageUrl) {
+      data.barberCards.barber3CoverImage =
+        req.barber3CoverImageUrl || req.body.barber3CoverImageUrl;
     }
 
     // Showcase Cards Images (2 Cards)

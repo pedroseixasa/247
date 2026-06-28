@@ -182,7 +182,6 @@ document.querySelectorAll(".service-card").forEach((card) => {
 
       if (!isOpen) {
         card.classList.add("open");
-        toggle.setAttribute("aria-expanded", "true");
         body.style.maxHeight = body.scrollHeight + "px";
       } else {
         card.classList.remove("open");
@@ -192,58 +191,6 @@ document.querySelectorAll(".service-card").forEach((card) => {
     });
   }
 });
-
-let siteSchedule = null;
-const FILMING_MODE_ACTIVE = false;
-
-const FILMING_MODE_OVERRIDES = {
-  staff: {
-    barber1Name: "Diogo Cunha",
-    barber1Description:
-      "Senior Barber focused on clean fades and executive grooming, delivering a consistent premium finish.",
-    barber1CoverImage:
-      "https://images.pexels.com/photos/1453005/pexels-photo-1453005.jpeg?auto=compress&cs=tinysrgb&w=900",
-    barber1Image: "https://pngimg.com/d/man_PNG6511.png",
-  },
-  galleryImages: [
-    "https://images.pexels.com/photos/1453005/pexels-photo-1453005.jpeg?auto=compress&cs=tinysrgb&w=900",
-    "https://images.pexels.com/photos/3993299/pexels-photo-3993299.jpeg?auto=compress&cs=tinysrgb&w=900",
-    "https://images.pexels.com/photos/1570807/pexels-photo-1570807.jpeg?auto=compress&cs=tinysrgb&w=900",
-    "https://images.pexels.com/photos/3993464/pexels-photo-3993464.jpeg?auto=compress&cs=tinysrgb&w=900",
-    "https://images.pexels.com/photos/1805600/pexels-photo-1805600.jpeg?auto=compress&cs=tinysrgb&w=900",
-    "https://images.pexels.com/photos/2521978/pexels-photo-2521978.jpeg?auto=compress&cs=tinysrgb&w=900",
-    "https://images.pexels.com/photos/3998429/pexels-photo-3998429.jpeg?auto=compress&cs=tinysrgb&w=900",
-  ],
-  serviceImagesByKeyword: {
-    combo:
-      "https://images.pexels.com/photos/3993133/pexels-photo-3993133.jpeg?auto=compress&cs=tinysrgb&w=900",
-    social:
-      "https://images.pexels.com/photos/3993449/pexels-photo-3993449.jpeg?auto=compress&cs=tinysrgb&w=900",
-    socialBeard:
-      "https://images.pexels.com/photos/1319461/pexels-photo-1319461.jpeg?auto=compress&cs=tinysrgb&w=900",
-    color:
-      "https://images.pexels.com/photos/3993299/pexels-photo-3993299.jpeg?auto=compress&cs=tinysrgb&w=900",
-    highlights:
-      "https://images.pexels.com/photos/2521978/pexels-photo-2521978.jpeg?auto=compress&cs=tinysrgb&w=900",
-    platinum:
-      "https://images.pexels.com/photos/3998429/pexels-photo-3998429.jpeg?auto=compress&cs=tinysrgb&w=900",
-    beard:
-      "https://images.pexels.com/photos/1319461/pexels-photo-1319461.jpeg?auto=compress&cs=tinysrgb&w=900",
-    fade: "https://images.pexels.com/photos/1570807/pexels-photo-1570807.jpeg?auto=compress&cs=tinysrgb&w=900",
-    haircut:
-      "https://images.pexels.com/photos/3993449/pexels-photo-3993449.jpeg?auto=compress&cs=tinysrgb&w=900",
-    machine:
-      "https://images.pexels.com/photos/1813272/pexels-photo-1813272.jpeg?auto=compress&cs=tinysrgb&w=900",
-    child:
-      "https://images.pexels.com/photos/769739/pexels-photo-769739.jpeg?auto=compress&cs=tinysrgb&w=900",
-    eyebrow:
-      "https://images.pexels.com/photos/3993464/pexels-photo-3993464.jpeg?auto=compress&cs=tinysrgb&w=900",
-    treatment:
-      "https://images.pexels.com/photos/1805600/pexels-photo-1805600.jpeg?auto=compress&cs=tinysrgb&w=900",
-    default:
-      "https://images.pexels.com/photos/3993133/pexels-photo-3993133.jpeg?auto=compress&cs=tinysrgb&w=900",
-  },
-};
 
 function normalizeServiceName(value) {
   return (value || "")
@@ -271,23 +218,6 @@ function getServiceFilmingImage(serviceName) {
   const name = normalizeServiceName(serviceName);
   const imageMap = FILMING_MODE_OVERRIDES.serviceImagesByKeyword;
 
-  if (name.includes("social") && name.includes("barba")) {
-    return imageMap.socialBeard;
-  }
-  if (
-    name.includes("pintura") ||
-    name.includes("color") ||
-    name.includes("preto")
-  ) {
-    return imageMap.color;
-  }
-  if (
-    name.includes("madeixa") ||
-    name.includes("luzes") ||
-    name.includes("highlight")
-  ) {
-    return imageMap.highlights;
-  }
   if (
     name.includes("platin") ||
     name.includes("platina") ||
@@ -369,6 +299,27 @@ function applyFilmingStaffOverrides() {
   setImageWithFallback(cover1, sharedCoverSrc, "images/cunhacorte.png");
   const char1 = document.getElementById("staffCharacterImage1");
   setImageWithFallback(char1, sharedCharacterSrc, "images/cunha.png");
+}
+
+function applyStaffCardData(index, staffEntry) {
+  const nameEl = document.getElementById(`staffName${index}`);
+  const descEl = document.getElementById(`staffDescription${index}`);
+  const coverEl = document.getElementById(`staffCoverImage${index}`);
+  const characterEl = document.getElementById(`staffCharacterImage${index}`);
+  const cardEl = document.querySelector(
+    `.staff-member[data-staff-slot="${index}"]`,
+  );
+
+  if (nameEl) nameEl.textContent = staffEntry.name || nameEl.textContent;
+  if (descEl) descEl.textContent = staffEntry.description || descEl.textContent;
+  if (coverEl && staffEntry.coverImage) coverEl.src = staffEntry.coverImage;
+  if (characterEl && staffEntry.characterImage) {
+    characterEl.src = staffEntry.characterImage;
+  }
+
+  if (cardEl && staffEntry.name) {
+    cardEl.setAttribute("data-staff-name", staffEntry.name);
+  }
 }
 
 function applyFilmingGalleryOverrides() {
@@ -845,31 +796,171 @@ document.addEventListener("DOMContentLoaded", function () {
 
   async function loadSiteSettings() {
     try {
-      const response = await fetch(`${API_BASE_URL}/site-settings`);
-      const data = await response.json();
-      if (!response.ok) return;
-      applySiteSettings(data);
+      const [siteSettingsResponse, barbersResponse] = await Promise.all([
+        fetch(`${API_BASE_URL}/site-settings`),
+        fetch(`${API_BASE_URL}/barbers`),
+      ]);
+
+      if (!siteSettingsResponse.ok) return;
+
+      const [settings, publicBarbers] = await Promise.all([
+        siteSettingsResponse.json(),
+        barbersResponse.ok ? barbersResponse.json() : Promise.resolve([]),
+      ]);
+
+      applyFilmingGalleryOverrides();
+      applyFilmingStaffOverrides();
+
+      setText("contactTitle", settings.contact?.title);
+      setText("contactAddress", settings.contact?.addressText);
+      setText("contactPhoneText", settings.contact?.phoneText);
+      setHref("contactPhoneLink", settings.contact?.phoneHref);
+
+      const mapEl = document.getElementById("map");
+      if (mapEl && settings.contact?.mapEmbedUrl) {
+        mapEl.setAttribute("src", settings.contact.mapEmbedUrl);
+      }
+
+      const hoursTable = document.getElementById("hoursTable");
+      if (hoursTable && Array.isArray(settings.hoursRows)) {
+        hoursTable.innerHTML = settings.hoursRows
+          .map(
+            (row) =>
+              `<tr class="${row.className || ""}"><td>${row.label}</td><td style="text-align:right">${row.value}</td></tr>`,
+          )
+          .join("");
+      }
+
+      siteSchedule = parseHoursRowsToSchedule(settings.hoursRows || []);
+      window.siteSchedule = siteSchedule;
+      updateHoursStatus();
+
+      if (typeof window.refreshBookingSchedule === "function") {
+        window.refreshBookingSchedule();
+      }
+
+      setText("ctaTitle", settings.cta?.title);
+      setText("ctaText", settings.cta?.text);
+      setText("ctaButton", settings.cta?.buttonText);
+      setHref("ctaButton", settings.cta?.buttonHref);
+
+      if (settings.footerText) {
+        setHtml("footerText", settings.footerText);
+      }
+
+      if (typeof window.updateBookingBarbers === "function") {
+        window.updateBookingBarbers(settings);
+      }
+
+      // Load Showcase Cards Images
+      const showcaseCards = settings.showcase?.cards || [];
+      showcaseCards.forEach((card, cardIndex) => {
+        const images = card.images || [];
+        const cardElement =
+          document.querySelectorAll(".showcase-card")[cardIndex];
+        if (cardElement && images.length > 0) {
+          const imagesContainer = cardElement.querySelector(
+            ".showcase-card-images",
+          );
+          imagesContainer.innerHTML = images
+            .map(
+              (img, idx) => `
+            <img class="showcase-card-img ${idx === 0 ? "active" : ""}" src="${img}" alt="Showcase ${cardIndex + 1}-${idx + 1}" loading="lazy" />
+          `,
+            )
+            .join("");
+
+          // Adicionar indicadores de imagem
+          if (images.length > 1) {
+            const indicatorsHTML = `
+            <div class="showcase-card-indicators">
+              ${images.map((_, idx) => `<span class="dot ${idx === 0 ? "active" : ""}"></span>`).join("")}
+            </div>
+          `;
+            imagesContainer.insertAdjacentHTML("beforeend", indicatorsHTML);
+
+            // Carousel automático
+            let currentImageIndex = 0;
+            const rotateImages = () => {
+              const imgs = cardElement.querySelectorAll(".showcase-card-img");
+              const dots = cardElement.querySelectorAll(
+                ".showcase-card-indicators .dot",
+              );
+
+              // Remove active de todos
+              imgs.forEach((img) => img.classList.remove("active"));
+              dots.forEach((dot) => dot.classList.remove("active"));
+
+              // Próxima imagem
+              currentImageIndex = (currentImageIndex + 1) % images.length;
+              imgs[currentImageIndex].classList.add("active");
+              dots[currentImageIndex].classList.add("active");
+            };
+
+            // Auto-rotate a cada 4 segundos quando o card está visível
+            const observer = new IntersectionObserver(
+              (entries) => {
+                entries.forEach((entry) => {
+                  if (entry.isIntersecting) {
+                    cardElement.rotationInterval = setInterval(
+                      rotateImages,
+                      4000,
+                    );
+                  } else if (cardElement.rotationInterval) {
+                    clearInterval(cardElement.rotationInterval);
+                  }
+                });
+              },
+              { threshold: 0.5 },
+            );
+
+            observer.observe(cardElement);
+
+            // Click nos dots para mudar imagem manualmente
+            cardElement
+              .querySelectorAll(".showcase-card-indicators .dot")
+              .forEach((dot, idx) => {
+                dot.addEventListener("click", () => {
+                  clearInterval(cardElement.rotationInterval);
+                  currentImageIndex = idx;
+
+                  const imgs =
+                    cardElement.querySelectorAll(".showcase-card-img");
+                  const dots = cardElement.querySelectorAll(
+                    ".showcase-card-indicators .dot",
+                  );
+                  imgs.forEach((img) => img.classList.remove("active"));
+                  dots.forEach((d) => d.classList.remove("active"));
+
+                  if (imgs[idx]) imgs[idx].classList.add("active");
+                  if (dots[idx]) dots[idx].classList.add("active");
+
+                  // Reiniciar rotação automática
+                  cardElement.rotationInterval = setInterval(
+                    rotateImages,
+                    4000,
+                  );
+                });
+              });
+          }
+        }
+      });
     } catch (error) {
-      // Erro ao carregar configurações
+      console.error("Erro ao carregar site settings:", error);
     }
   }
 
   async function loadServices() {
     try {
       const response = await fetch(`${API_BASE_URL}/admin/services`);
-      if (!response.ok) {
-        console.error("Erro ao carregar serviços");
-        return;
-      }
+      if (!response.ok) return;
 
       const services = await response.json();
       const servicesGrid = document.getElementById("servicesGrid");
-
       if (!servicesGrid) return;
 
-      // Filtrar apenas serviços ativos e ordenar
-      const activeServices = services
-        .filter((s) => s.isActive !== false)
+      const activeServices = (Array.isArray(services) ? services : [])
+        .filter((service) => service && service.isActive !== false)
         .sort((a, b) => (a.order || 0) - (b.order || 0));
 
       if (activeServices.length === 0) {
@@ -881,7 +972,6 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      // Gerar HTML dos cards
       servicesGrid.innerHTML = activeServices
         .map((service) => {
           const price =
@@ -1565,29 +1655,12 @@ document.addEventListener("DOMContentLoaded", function () {
       bookingState.selectedMonth,
       1,
     );
-    const lastDay = new Date(
+    const startingDayOfWeek = firstDay.getDay();
+    const daysInMonth = new Date(
       bookingState.selectedYear,
       bookingState.selectedMonth + 1,
       0,
-    );
-    const daysInMonth = lastDay.getDate();
-    const startingDayOfWeek =
-      firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
-
-    const monthNames = [
-      "Janeiro",
-      "Fevereiro",
-      "Março",
-      "Abril",
-      "Maio",
-      "Junho",
-      "Julho",
-      "Agosto",
-      "Setembro",
-      "Outubro",
-      "Novembro",
-      "Dezembro",
-    ];
+    ).getDate();
 
     const calendarMonthEl = document.getElementById("calendarMonth");
     if (calendarMonthEl) {
@@ -2210,31 +2283,89 @@ document.addEventListener("DOMContentLoaded", function () {
   // Load staff data from backend
   async function loadStaffData() {
     try {
-      const response = await fetch(`${API_BASE_URL}/site-settings`);
-      if (!response.ok) return;
+      const [siteSettingsResponse, barbersResponse] = await Promise.all([
+        fetch(`${API_BASE_URL}/site-settings`),
+        fetch(`${API_BASE_URL}/barbers`),
+      ]);
 
-      const data = await response.json();
-      const barberCards = data?.barberCards;
+      if (!siteSettingsResponse.ok) return;
 
-      if (!barberCards) return;
+      const [settings, publicBarbers] = await Promise.all([
+        siteSettingsResponse.json(),
+        barbersResponse.ok ? barbersResponse.json() : Promise.resolve([]),
+      ]);
 
-      // Update Barbeiro 1
-      if (barberCards.barber1Name) {
-        const name1 = document.getElementById("staffName1");
-        if (name1) name1.textContent = barberCards.barber1Name;
-      }
-      if (barberCards.barber1Description) {
-        const desc1 = document.getElementById("staffDescription1");
-        if (desc1) desc1.textContent = barberCards.barber1Description;
-      }
-      if (barberCards.barber1CoverImage) {
-        const img1 = document.getElementById("staffCoverImage1");
-        if (img1) img1.src = barberCards.barber1CoverImage;
-      }
-      if (barberCards.barber1Image) {
-        const char1 = document.getElementById("staffCharacterImage1");
-        if (char1) char1.src = barberCards.barber1Image;
-      }
+      const barberCards = settings?.barberCards || {};
+      const fallbackBarbers = Array.isArray(publicBarbers)
+        ? publicBarbers.filter(
+            (barber) =>
+              normalizeText(barber?.name || "") !==
+              normalizeText(barberCards.barber1Name || "Diogo Cunha"),
+          )
+        : [];
+
+      const staffEntries = [
+        {
+          name:
+            barberCards.barber1Name ||
+            fallbackBarbers[0]?.name ||
+            "Diogo Cunha",
+          description:
+            barberCards.barber1Description ||
+            fallbackBarbers[0]?.bio ||
+            "Especialista em cortes clássicos e modernos, com mais de 5 anos de experiência. Dedicado a criar o estilo perfeito para cada cliente.",
+          coverImage:
+            barberCards.barber1CoverImage ||
+            fallbackBarbers[0]?.photo ||
+            fallbackBarbers[0]?.avatar ||
+            "images/cunhacorte.png",
+          characterImage:
+            barberCards.barber1Image ||
+            fallbackBarbers[0]?.avatar ||
+            fallbackBarbers[0]?.photo ||
+            "images/cunha.png",
+        },
+        {
+          name:
+            barberCards.barber2Name || fallbackBarbers[0]?.name || "Barbeiro 2",
+          description:
+            barberCards.barber2Description || fallbackBarbers[0]?.bio || "",
+          coverImage:
+            barberCards.barber2CoverImage ||
+            fallbackBarbers[0]?.photo ||
+            fallbackBarbers[0]?.avatar ||
+            barberCards.barber1CoverImage ||
+            "images/cunhacorte.png",
+          characterImage:
+            barberCards.barber2Image ||
+            fallbackBarbers[0]?.avatar ||
+            fallbackBarbers[0]?.photo ||
+            barberCards.barber1Image ||
+            "images/cunha.png",
+        },
+        {
+          name:
+            barberCards.barber3Name || fallbackBarbers[1]?.name || "Barbeiro 3",
+          description:
+            barberCards.barber3Description || fallbackBarbers[1]?.bio || "",
+          coverImage:
+            barberCards.barber3CoverImage ||
+            fallbackBarbers[1]?.photo ||
+            fallbackBarbers[1]?.avatar ||
+            barberCards.barber1CoverImage ||
+            "images/cunhacorte.png",
+          characterImage:
+            barberCards.barber3Image ||
+            fallbackBarbers[1]?.avatar ||
+            fallbackBarbers[1]?.photo ||
+            barberCards.barber1Image ||
+            "images/cunha.png",
+        },
+      ];
+
+      staffEntries.forEach((staffEntry, index) => {
+        applyStaffCardData(index + 1, staffEntry);
+      });
 
       applyFilmingStaffOverrides();
     } catch (error) {

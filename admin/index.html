@@ -3035,6 +3035,48 @@
                         </div>
 
                         <div class="form-group">
+                            <label>Barbeiro 2: Nome</label>
+                            <input type="text" id="barber2Name" value="${settings.barberCards?.barber2Name || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>Barbeiro 2: Descrição</label>
+                            <textarea id="barber2Description" rows="3">${settings.barberCards?.barber2Description || ''}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Barbeiro 2: Imagem 3D</label>
+                            <input type="file" id="barber2Image" accept="image/*">
+                            <small style="color: var(--text-light);">Selecione uma imagem (será otimizada e guardada na BD)</small>
+                            ${settings.barberCards?.barber2Image ? `<p style="margin-top: 0.5rem; color: var(--text-light); font-size: 0.9rem;">Imagem atual: <strong>${settings.barberCards.barber2Image.split('/').pop()}</strong></p>` : ''}
+                        </div>
+                        <div class="form-group">
+                            <label>Barbeiro 2: Imagem de Fundo</label>
+                            <input type="file" id="barber2CoverImage" accept="image/*">
+                            <small style="color: var(--text-light);">Selecione uma imagem (será otimizada e guardada na BD)</small>
+                            ${settings.barberCards?.barber2CoverImage ? `<p style="margin-top: 0.5rem; color: var(--text-light); font-size: 0.9rem;">Imagem atual: <strong>${settings.barberCards.barber2CoverImage.split('/').pop()}</strong></p>` : ''}
+                        </div>
+
+                        <div class="form-group">
+                            <label>Barbeiro 3: Nome</label>
+                            <input type="text" id="barber3Name" value="${settings.barberCards?.barber3Name || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>Barbeiro 3: Descrição</label>
+                            <textarea id="barber3Description" rows="3">${settings.barberCards?.barber3Description || ''}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Barbeiro 3: Imagem 3D</label>
+                            <input type="file" id="barber3Image" accept="image/*">
+                            <small style="color: var(--text-light);">Selecione uma imagem (será otimizada e guardada na BD)</small>
+                            ${settings.barberCards?.barber3Image ? `<p style="margin-top: 0.5rem; color: var(--text-light); font-size: 0.9rem;">Imagem atual: <strong>${settings.barberCards.barber3Image.split('/').pop()}</strong></p>` : ''}
+                        </div>
+                        <div class="form-group">
+                            <label>Barbeiro 3: Imagem de Fundo</label>
+                            <input type="file" id="barber3CoverImage" accept="image/*">
+                            <small style="color: var(--text-light);">Selecione uma imagem (será otimizada e guardada na BD)</small>
+                            ${settings.barberCards?.barber3CoverImage ? `<p style="margin-top: 0.5rem; color: var(--text-light); font-size: 0.9rem;">Imagem atual: <strong>${settings.barberCards.barber3CoverImage.split('/').pop()}</strong></p>` : ''}
+                        </div>
+
+                        <div class="form-group">
                             <label>Rodapé</label>
                             <input type="text" id="footerText" value="${settings.footerText || ''}">
                         </div>
@@ -3161,6 +3203,34 @@
                         formData.append('barber1CoverImageUrl', settings.barberCards?.barber1CoverImage || '');
                     }
 
+                    const barber2ImageFile = document.getElementById('barber2Image').files[0];
+                    if (barber2ImageFile) {
+                        formData.append('barber2Image', barber2ImageFile);
+                    } else {
+                        formData.append('barber2ImageUrl', settings.barberCards?.barber2Image || '');
+                    }
+
+                    const barber2CoverFile = document.getElementById('barber2CoverImage').files[0];
+                    if (barber2CoverFile) {
+                        formData.append('barber2CoverImage', barber2CoverFile);
+                    } else {
+                        formData.append('barber2CoverImageUrl', settings.barberCards?.barber2CoverImage || '');
+                    }
+
+                    const barber3ImageFile = document.getElementById('barber3Image').files[0];
+                    if (barber3ImageFile) {
+                        formData.append('barber3Image', barber3ImageFile);
+                    } else {
+                        formData.append('barber3ImageUrl', settings.barberCards?.barber3Image || '');
+                    }
+
+                    const barber3CoverFile = document.getElementById('barber3CoverImage').files[0];
+                    if (barber3CoverFile) {
+                        formData.append('barber3CoverImage', barber3CoverFile);
+                    } else {
+                        formData.append('barber3CoverImageUrl', settings.barberCards?.barber3CoverImage || '');
+                    }
+
                     const aboutHighlights = document.getElementById('aboutHighlights').value
                         .split('\n')
                         .map(item => item.trim())
@@ -3232,9 +3302,18 @@
                         footerText: document.getElementById('footerText').value,
                         barberCards: {
                             barber1Name: document.getElementById('barber1Name').value,
+                            barber1Role: settings.barberCards?.barber1Role || '',
                             barber1Description: document.getElementById('barber1Description').value,
                             barber1Image: settings.barberCards?.barber1Image || '',
                             barber1CoverImage: settings.barberCards?.barber1CoverImage || '',
+                            barber2Name: document.getElementById('barber2Name').value,
+                            barber2Description: document.getElementById('barber2Description').value,
+                            barber2Image: settings.barberCards?.barber2Image || '',
+                            barber2CoverImage: settings.barberCards?.barber2CoverImage || '',
+                            barber3Name: document.getElementById('barber3Name').value,
+                            barber3Description: document.getElementById('barber3Description').value,
+                            barber3Image: settings.barberCards?.barber3Image || '',
+                            barber3CoverImage: settings.barberCards?.barber3CoverImage || '',
                             barber1LunchBreak: {
                                 enabled: false
                             }
