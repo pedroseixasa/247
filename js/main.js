@@ -857,35 +857,60 @@ document.addEventListener("DOMContentLoaded", function () {
 
   async function loadStaffData() {
     try {
-      const response = await fetch(`${API_BASE_URL}/barbers`);
-      if (!response.ok) return;
+      const [siteSettingsResponse, barbersResponse] = await Promise.all([
+        fetch(`${API_BASE_URL}/site-settings`),
+        fetch(`${API_BASE_URL}/barbers`),
+      ]);
 
-      const barbers = await response.json();
-      if (!Array.isArray(barbers) || barbers.length === 0) return;
+      if (!siteSettingsResponse.ok) return;
 
-      const topStaffName = document.getElementById("staffName1")?.textContent;
-      const referenceName = normalizeText(topStaffName || "Diogo Cunha");
+      const [settings, publicBarbers] = await Promise.all([
+        siteSettingsResponse.json(),
+        barbersResponse.ok ? barbersResponse.json() : Promise.resolve([]),
+      ]);
 
-      const sortedStaff = barbers
-        .filter((barber) => normalizeText(barber?.name || "") !== referenceName)
-        .filter((barber) => barber && barber.isActive !== false);
+      const barberCards = settings?.barberCards || {};
+      const fallbackBarbers = Array.isArray(publicBarbers)
+        ? publicBarbers.filter(
+            (barber) =>
+              normalizeText(barber?.name || "") !==
+              normalizeText(barberCards.barber1Name || "Diogo Cunha"),
+          )
+        : [];
 
-      const staffSlots = [
-        { index: 2, barber: sortedStaff[0] },
-        { index: 3, barber: sortedStaff[1] },
+      const staffEntries = [
+        {
+          index: 1,
+          name: barberCards.barber1Name || "Diogo Cunha",
+          description:
+            barberCards.barber1Description ||
+            "Especialista em cortes clássicos e modernos, com mais de 5 anos de experiência. Dedicado a criar o estilo perfeito para cada cliente.",
+        },
+        {
+          index: 2,
+          name: barberCards.barber2Name || fallbackBarbers[0]?.name || "",
+          description:
+            barberCards.barber2Description || fallbackBarbers[0]?.bio || "",
+        },
+        {
+          index: 3,
+          name: barberCards.barber3Name || fallbackBarbers[1]?.name || "",
+          description:
+            barberCards.barber3Description || fallbackBarbers[1]?.bio || "",
+        },
       ];
 
-      staffSlots.forEach(({ index, barber }) => {
-        if (!barber) return;
-
-        const nameEl = document.getElementById(`staffName${index}`);
-        if (nameEl && barber.name) {
-          nameEl.textContent = barber.name;
+      staffEntries.forEach((entry) => {
+        const nameEl = document.getElementById(`staffName${entry.index}`);
+        if (nameEl && entry.name) {
+          nameEl.textContent = entry.name;
         }
 
-        const descEl = document.getElementById(`staffDescription${index}`);
-        if (descEl && barber.bio) {
-          descEl.textContent = barber.bio;
+        const descEl = document.getElementById(
+          `staffDescription${entry.index}`,
+        );
+        if (descEl && entry.description) {
+          descEl.textContent = entry.description;
         }
       });
     } catch (error) {
