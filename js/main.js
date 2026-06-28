@@ -1501,9 +1501,11 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   function validateStep(step) {
-    if (step === 1 && !bookingState.barber) {
-      showBookingError("Por favor, selecione um barbeiro");
-      return false;
+    if (step === 1) {
+      if (!bookingState.barber || !barbers[bookingState.barber]) {
+        showBookingError("Por favor, selecione um barbeiro");
+        return false;
+      }
     }
     if (step === 2 && (!bookingState.date || !bookingState.time)) {
       showBookingError("Por favor, selecione data e horário");
@@ -1968,8 +1970,19 @@ document.addEventListener("DOMContentLoaded", function () {
     hideBookingError();
 
     // Preparar dados para enviar à API
+    // Verificar se barbeiro está selecionado e existe
+    const selectedBarber = bookingState.barber
+      ? barbers[bookingState.barber]
+      : null;
+    if (!selectedBarber || !selectedBarber.id) {
+      showBookingError(
+        "Barbeiro não encontrado. Por favor, volta ao passo 1 e seleciona um barbeiro.",
+      );
+      return;
+    }
+
     const reservationData = {
-      barberId: barbers[bookingState.barber].id,
+      barberId: selectedBarber.id,
       serviceId: bookingState.serviceId,
       clientName: name,
       clientPhone: phone,
