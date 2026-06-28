@@ -5162,6 +5162,89 @@
         setTimeout(registerServiceWorkerForPush, 2000);
     </script>
 
+    <style>
+        .address-banner {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 0.9rem 1rem;
+            background: #1a1a1a;
+            border-top: 2px solid #c9a961;
+            color: #ffffff;
+            font-family: 'Manrope', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        .address-banner[hidden] {
+            display: none;
+        }
+
+        .address-banner__text {
+            margin: 0;
+            flex: 1;
+            min-width: 0;
+            font-size: clamp(0.82rem, 2.2vw, 0.98rem);
+            line-height: 1.45;
+        }
+
+        .address-banner__highlight {
+            color: #c9a961;
+            font-weight: 600;
+        }
+
+        .address-banner__close {
+            border: 0;
+            background: transparent;
+            color: #ffffff;
+            font-size: 1.2rem;
+            line-height: 1;
+            cursor: pointer;
+            padding: 0.2rem 0.35rem;
+            flex-shrink: 0;
+            transition: color 0.18s ease;
+        }
+
+        .address-banner__close:hover,
+        .address-banner__close:focus-visible {
+            color: #c9a961;
+            outline: none;
+        }
+    </style>
+
+    <div id="addressBanner" class="address-banner" role="status" aria-live="polite">
+        <p class="address-banner__text">
+            <span class="address-banner__highlight">📍 Nova Morada!</span> Venham visitar-nos no nosso novo espaço —
+            Ninte Qu4tro Se7e Barbearia, R. Sousa Magalhães 247, Almada.
+        </p>
+        <button id="closeAddressBanner" class="address-banner__close" type="button" aria-label="Fechar aviso de nova morada">✕</button>
+    </div>
+
+    <script>
+        (function () {
+            const banner = document.getElementById('addressBanner');
+            const closeButton = document.getElementById('closeAddressBanner');
+
+            if (!banner || !closeButton) return;
+
+            function updateBodyPaddingForBanner() {
+                document.body.style.paddingBottom = banner.hidden ? '0px' : `${banner.offsetHeight}px`;
+            }
+
+            closeButton.addEventListener('click', function () {
+                banner.hidden = true;
+                updateBodyPaddingForBanner();
+            });
+
+            updateBodyPaddingForBanner();
+            window.addEventListener('resize', updateBodyPaddingForBanner);
+        })();
+    </script>
+
 </body>
 
 </html>
