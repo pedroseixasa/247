@@ -849,8 +849,47 @@ document.addEventListener("DOMContentLoaded", function () {
       const data = await response.json();
       if (!response.ok) return;
       applySiteSettings(data);
+      void loadStaffData();
     } catch (error) {
       // Erro ao carregar configurações
+    }
+  }
+
+  async function loadStaffData() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/barbers`);
+      if (!response.ok) return;
+
+      const barbers = await response.json();
+      if (!Array.isArray(barbers) || barbers.length === 0) return;
+
+      const topStaffName = document.getElementById("staffName1")?.textContent;
+      const referenceName = normalizeText(topStaffName || "Diogo Cunha");
+
+      const sortedStaff = barbers
+        .filter((barber) => normalizeText(barber?.name || "") !== referenceName)
+        .filter((barber) => barber && barber.isActive !== false);
+
+      const staffSlots = [
+        { index: 2, barber: sortedStaff[0] },
+        { index: 3, barber: sortedStaff[1] },
+      ];
+
+      staffSlots.forEach(({ index, barber }) => {
+        if (!barber) return;
+
+        const nameEl = document.getElementById(`staffName${index}`);
+        if (nameEl && barber.name) {
+          nameEl.textContent = barber.name;
+        }
+
+        const descEl = document.getElementById(`staffDescription${index}`);
+        if (descEl && barber.bio) {
+          descEl.textContent = barber.bio;
+        }
+      });
+    } catch (error) {
+      // Falha silenciosa para não quebrar a página se a API estiver indisponível
     }
   }
 
