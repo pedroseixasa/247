@@ -185,7 +185,7 @@ async function sendBookingConfirmation({
             
             <div class="footer">
               <p><strong>24.7 Barbearia</strong></p>
-              <p class="address">📍 R. Cap. Leitão 84B, 2800-133 Almada, Portugal</p>
+              <p class="address">📍 R. Marcos de Assunção, 2805-290 Almada, Portugal</p>
               <p>📞 +351 963 988 807</p>
               <p>Este email foi enviado automaticamente. Por favor não responda.</p>
             </div>

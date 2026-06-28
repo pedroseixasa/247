@@ -42,7 +42,7 @@ const defaultSiteSettings = {
     brandName: "24.7 Barbearia",
     logoImage: "images/logo.jpg",
     hoursText: "📅 Ter–Sáb 09:00–19:00",
-    addressText: "📍 R. Cap. Leitão 84B",
+    addressText: "📍 R. Marcos de Assunção",
     phoneText: "+351 963 988 807",
     phoneHref: "tel:+351963988807",
   },
@@ -108,7 +108,7 @@ const defaultSiteSettings = {
   },
   contact: {
     title: "Localização & Contacto",
-    addressText: "R. Cap. Leitão 84B, 2800-133 Almada",
+    addressText: " R. Marcos de Assunção, 2805-290 Almada",
     phoneText: "+351 963 988 807",
     phoneHref: "tel:+351963988807",
     mapEmbedUrl:
