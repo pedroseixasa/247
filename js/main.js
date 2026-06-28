@@ -945,11 +945,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const barberIds = [
       "6998aaf59119a721cdc1e136", // Diogo Cunha
+      "6a2010697f572a55a79466c7", // barbeiro1
+      "6a2010697f572a55a79466c8", // barbeiro2
     ];
 
     const barberKeyMap = {
       "6998aaf59119a721cdc1e136": "diogo-cunha",
+      "6a2010697f572a55a79466c7": "barbeiro1",
+      "6a2010697f572a55a79466c8": "barbeiro2",
     };
+
+    const barbersGrid = document.querySelector(".barbers-grid");
+    if (barbersGrid) barbersGrid.innerHTML = "";
 
     for (const barberId of barberIds) {
       try {
@@ -978,6 +985,35 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         if (barberData.absences) {
           window["absences_" + barberKey] = barberData.absences;
+        }
+
+        // Renderiza o card na grid
+        if (barbersGrid) {
+          const initials = barberData.name
+            .split(" ")
+            .map((n) => n[0])
+            .join("")
+            .toUpperCase()
+            .slice(0, 2);
+
+          const card = document.createElement("div");
+          card.className = "barber-card";
+          card.setAttribute("data-barber", barberKey);
+          card.innerHTML = `
+            <div class="barber-avatar">${initials}</div>
+            <h4 class="barber-name">${barberData.name}</h4>
+            <p class="barber-role">Barbeiro Profissional</p>
+          `;
+          card.addEventListener("click", function () {
+            document
+              .querySelectorAll(".barber-card")
+              .forEach((c) => c.classList.remove("selected"));
+            this.classList.add("selected");
+            if (window.bookingState)
+              window.bookingState.barber = this.getAttribute("data-barber");
+            bookingState.barber = this.getAttribute("data-barber");
+          });
+          barbersGrid.appendChild(card);
         }
       } catch (error) {
         console.error(`Erro ao carregar dados do barbeiro ${barberId}:`, error);
@@ -1010,6 +1046,7 @@ document.addEventListener("DOMContentLoaded", function () {
     selectedMonth: new Date().getMonth(),
     selectedYear: new Date().getFullYear(),
   };
+  window.bookingState = bookingState;
 
   const barbers = {
     "diogo-cunha": {
@@ -1319,16 +1356,6 @@ document.addEventListener("DOMContentLoaded", function () {
       document.body.style.overflow = "";
       resetBooking();
     }
-
-    // Seleção de barbeiro
-    const barberCards = document.querySelectorAll(".barber-card");
-    barberCards.forEach((card) => {
-      card.addEventListener("click", function () {
-        barberCards.forEach((c) => c.classList.remove("selected"));
-        this.classList.add("selected");
-        bookingState.barber = this.getAttribute("data-barber");
-      });
-    });
 
     // Navegação de passos
     const nextBtn = document.getElementById("bookingNext");

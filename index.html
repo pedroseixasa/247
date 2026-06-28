@@ -48,7 +48,7 @@
 
     <!-- Performance: Preload critical assets -->
     <link rel="preload" href="images/logo.jpg" as="image">
-    <link rel="preload" href="css/mobile-responsive.css?v=202606281919" as="style">
+    <link rel="preload" href="css/mobile-responsive.css?v=202606281855" as="style">
 
     <!-- Performance: DNS Prefetch for external resources -->
     <link rel="dns-prefetch" href="https://two4-7-barbearia.onrender.com">
@@ -4315,7 +4315,7 @@
     </style>
 
     <!-- Mobile Responsive Styles -->
-    <link rel="stylesheet" href="css/mobile-responsive.css?v=202606281919">
+    <link rel="stylesheet" href="css/mobile-responsive.css?v=202606281855">
 
     <script defer type="text/javascript">
         (function () {
@@ -4531,30 +4531,71 @@
                 </div>
 
                 <div class="staff-grid" id="staffGrid">
-                    <!-- Barbeiro 1 -->
-                    <div class="staff-member">
-                        <div class="about-card-3d">
-                            <div class="about-card staff-card" data-staff="1">
-                                <div class="about-card-wrapper">
-                                    <img id="staffCoverImage1" src="images/cunhacorte.png"
-                                        onerror="this.onerror=null;this.src='images/cunhacorte.png';"
-                                        class="about-cover-image" alt="Barbeiro 1">
+
+                    <!-- Linha de cima: Diogo centrado -->
+                    <div style="display:flex; justify-content:center;">
+                        <div class="staff-member">
+                            <div class="about-card-3d">
+                                <div class="about-card staff-card" data-staff="1">
+                                    <div class="about-card-wrapper">
+                                        <img id="staffCoverImage1" src="images/cunhacorte.png"
+                                            onerror="this.onerror=null;this.src='images/cunhacorte.png';"
+                                            class="about-cover-image" alt="Barbeiro 1">
+                                    </div>
+                                    <img id="staffCharacterImage1" src="images/cunha.png"
+                                        onerror="this.onerror=null;this.src='images/cunha.png';"
+                                        class="about-character-image" alt="Barbeiro 1">
                                 </div>
-                                <img id="staffCharacterImage1" src="images/cunha.png"
-                                    onerror="this.onerror=null;this.src='images/cunha.png';"
-                                    class="about-character-image" alt="Barbeiro 1">
                             </div>
-                        </div>
-                        <div class="staff-info">
-                            <h3 class="staff-name" id="staffName1">Diogo Cunha</h3>
-                            <p class="staff-description" id="staffDescription1">Especialista em cortes clássicos e
-                                modernos,
-                                com mais de 5 anos de experiência. Dedicado a criar o estilo perfeito para cada cliente.
-                            </p>
+                            <div class="staff-info">
+                                <h3 class="staff-name" id="staffName1">Diogo Cunha</h3>
+                                <p class="staff-description" id="staffDescription1">Especialista em cortes clássicos e
+                                    modernos,
+                                    com mais de 5 anos de experiência. Dedicado a criar o estilo perfeito para cada
+                                    cliente.</p>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Barbeiro 2 REMOVED - Single barber system -->
+                    <!-- Linha de baixo: 2 barbeiros lado a lado -->
+                    <div style="display:flex; justify-content:center; gap:8rem; flex-wrap:wrap;">
+                        <div class="staff-member">
+                            <div class="about-card-3d">
+                                <div class="about-card staff-card" data-staff="2">
+                                    <div class="about-card-wrapper">
+                                        <img src="images/cunhacorte.png"
+                                            onerror="this.onerror=null;this.src='images/cunhacorte.png';"
+                                            class="about-cover-image" alt="Barbeiro 2">
+                                    </div>
+                                    <img src="images/cunha.png" onerror="this.onerror=null;this.src='images/cunha.png';"
+                                        class="about-character-image" alt="Barbeiro 2">
+                                </div>
+                            </div>
+                            <div class="staff-info">
+                                <h3 class="staff-name">NOME BARBEIRO 2</h3>
+                                <p class="staff-description">Descrição do barbeiro 2.</p>
+                            </div>
+                        </div>
+
+                        <div class="staff-member">
+                            <div class="about-card-3d">
+                                <div class="about-card staff-card" data-staff="3">
+                                    <div class="about-card-wrapper">
+                                        <img src="images/cunhacorte.png"
+                                            onerror="this.onerror=null;this.src='images/cunhacorte.png';"
+                                            class="about-cover-image" alt="Barbeiro 3">
+                                    </div>
+                                    <img src="images/cunha.png" onerror="this.onerror=null;this.src='images/cunha.png';"
+                                        class="about-character-image" alt="Barbeiro 3">
+                                </div>
+                            </div>
+                            <div class="staff-info">
+                                <h3 class="staff-name">NOME BARBEIRO 3</h3>
+                                <p class="staff-description">Descrição do barbeiro 3.</p>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </section>
@@ -4666,7 +4707,7 @@
         </div>
     </footer>
 
-    <script src="js/main.js?v=202606281919"></script>
+    <script src="js/main.js?v=202606281855"></script>
 
     <!-- Modal de Reservas -->
     <div class="booking-modal" id="bookingModal">
