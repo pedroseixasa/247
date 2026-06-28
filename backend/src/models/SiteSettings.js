@@ -88,6 +88,26 @@ const siteSettingsSchema = new mongoose.Schema(
         startTime: String,
         endTime: String,
       },
+      barber2Name: String,
+      barber2Role: String,
+      barber2Description: String,
+      barber2Image: String,
+      barber2CoverImage: String,
+      barber2LunchBreak: {
+        enabled: { type: Boolean, default: false },
+        startTime: String,
+        endTime: String,
+      },
+      barber3Name: String,
+      barber3Role: String,
+      barber3Description: String,
+      barber3Image: String,
+      barber3CoverImage: String,
+      barber3LunchBreak: {
+        enabled: { type: Boolean, default: false },
+        startTime: String,
+        endTime: String,
+      },
     },
     showcase: {
       cards: [

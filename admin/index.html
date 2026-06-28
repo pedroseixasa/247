@@ -3033,11 +3033,54 @@
                             <small style="color: var(--text-light);">Selecione uma imagem (será otimizada e guardada na BD)</small>
                             ${settings.barberCards?.barber1CoverImage ? `<p style="margin-top: 0.5rem; color: var(--text-light); font-size: 0.9rem;">Imagem atual: <strong>${settings.barberCards.barber1CoverImage.split('/').pop()}</strong></p>` : ''}
                         </div>
+                        
 
                         <div class="form-group">
                             <label>Rodapé</label>
                             <input type="text" id="footerText" value="${settings.footerText || ''}">
                         </div>
+
+                        <div class="form-group">
+  <label>Barbeiro 2 Nome</label>
+  <input type="text" id="barber2Name" value="${settings.barberCards?.barber2Name || ''}">
+</div>
+<div class="form-group">
+  <label>Barbeiro 2 Descrição</label>
+  <textarea id="barber2Description" rows="3">${settings.barberCards?.barber2Description || ''}</textarea>
+</div>
+<div class="form-group">
+  <label>Barbeiro 2 Imagem 3D</label>
+  <input type="file" id="barber2Image" accept="image/*">
+  <small style="color:var(--text-light)">Selecione uma imagem — será otimizada e guardada na BD</small>
+  ${settings.barberCards?.barber2Image ? `<p style="margin-top:0.5rem;color:var(--text-light);font-size:0.9rem">Imagem atual <strong>${settings.barberCards.barber2Image.split('/').pop()}</strong></p>` : ''}
+</div>
+<div class="form-group">
+  <label>Barbeiro 2 Imagem de Fundo</label>
+  <input type="file" id="barber2CoverImage" accept="image/*">
+  <small style="color:var(--text-light)">Selecione uma imagem — será otimizada e guardada na BD</small>
+  ${settings.barberCards?.barber2CoverImage ? `<p style="margin-top:0.5rem;color:var(--text-light);font-size:0.9rem">Imagem atual <strong>${settings.barberCards.barber2CoverImage.split('/').pop()}</strong></p>` : ''}
+</div>
+
+<div class="form-group">
+  <label>Barbeiro 3 Nome</label>
+  <input type="text" id="barber3Name" value="${settings.barberCards?.barber3Name || ''}">
+</div>
+<div class="form-group">
+  <label>Barbeiro 3 Descrição</label>
+  <textarea id="barber3Description" rows="3">${settings.barberCards?.barber3Description || ''}</textarea>
+</div>
+<div class="form-group">
+  <label>Barbeiro 3 Imagem 3D</label>
+  <input type="file" id="barber3Image" accept="image/*">
+  <small style="color:var(--text-light)">Selecione uma imagem — será otimizada e guardada na BD</small>
+  ${settings.barberCards?.barber3Image ? `<p style="margin-top:0.5rem;color:var(--text-light);font-size:0.9rem">Imagem atual <strong>${settings.barberCards.barber3Image.split('/').pop()}</strong></p>` : ''}
+</div>
+<div class="form-group">
+  <label>Barbeiro 3 Imagem de Fundo</label>
+  <input type="file" id="barber3CoverImage" accept="image/*">
+  <small style="color:var(--text-light)">Selecione uma imagem — será otimizada e guardada na BD</small>
+  ${settings.barberCards?.barber3CoverImage ? `<p style="margin-top:0.5rem;color:var(--text-light);font-size:0.9rem">Imagem atual <strong>${settings.barberCards.barber3CoverImage.split('/').pop()}</strong></p>` : ''}
+</div>
 
                         <hr style="margin: 2rem 0; border: none; border-top: 1px solid #ddd;">
                         

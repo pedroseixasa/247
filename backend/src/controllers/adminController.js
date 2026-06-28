@@ -1164,6 +1164,32 @@ exports.updateSiteContent = async (req, res) => {
         req.barber1CoverImageUrl || req.body.barber1CoverImageUrl;
     }
 
+    // Barbeiro 2
+    if (req.barber2ImageBase64)
+      data.barberCards.barber2Image = req.barber2ImageBase64;
+    else if (req.barber2ImageUrl || req.body.barber2ImageUrl)
+      data.barberCards.barber2Image =
+        req.barber2ImageUrl || req.body.barber2ImageUrl;
+
+    if (req.barber2CoverImageBase64)
+      data.barberCards.barber2CoverImage = req.barber2CoverImageBase64;
+    else if (req.barber2CoverImageUrl || req.body.barber2CoverImageUrl)
+      data.barberCards.barber2CoverImage =
+        req.barber2CoverImageUrl || req.body.barber2CoverImageUrl;
+
+    // Barbeiro 3
+    if (req.barber3ImageBase64)
+      data.barberCards.barber3Image = req.barber3ImageBase64;
+    else if (req.barber3ImageUrl || req.body.barber3ImageUrl)
+      data.barberCards.barber3Image =
+        req.barber3ImageUrl || req.body.barber3ImageUrl;
+
+    if (req.barber3CoverImageBase64)
+      data.barberCards.barber3CoverImage = req.barber3CoverImageBase64;
+    else if (req.barber3CoverImageUrl || req.body.barber3CoverImageUrl)
+      data.barberCards.barber3CoverImage =
+        req.barber3CoverImageUrl || req.body.barber3CoverImageUrl;
+
     // Showcase Cards Images (2 Cards)
     if (!data.showcase) {
       data.showcase = { cards: [] };
