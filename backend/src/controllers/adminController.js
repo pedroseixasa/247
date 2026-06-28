@@ -42,7 +42,7 @@ const defaultSiteSettings = {
     brandName: "24.7 Barbearia",
     logoImage: "images/logo.jpg",
     hoursText: "📅 Ter–Sáb 09:00–19:00",
-    addressText: "📍 R. Marcos de Assunção",
+    addressText: "📍 R. Marcos de Assunção 4E",
     phoneText: "+351 963 988 807",
     phoneHref: "tel:+351963988807",
   },
@@ -108,15 +108,20 @@ const defaultSiteSettings = {
   },
   contact: {
     title: "Localização & Contacto",
-    addressText: " R. Marcos de Assunção, 2805-290 Almada",
+    addressText: " R. Marcos de Assunção 4E, 2805-290 Almada",
     phoneText: "+351 963 988 807",
     phoneHref: "tel:+351963988807",
     mapEmbedUrl:
       "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3114.0838!2d-9.161209!3d38.678998!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzjCsDQwJzQ0LjQiTiA5wrAwOSc0MC40Ilc!5e0!3m2!1spt-PT!2spt!4v1234567890!5m2!1spt-PT!2spt",
   },
   hoursRows: [
-    { label: "SEGUNDA A SABADO", value: "09:00 – 19:00", className: "open" },
+    { label: "TERCA A SABADO", value: "10:00 – 20:00", className: "open" },
     { label: "DOMINGO", value: "Encerrado", className: "closed" },
+    {
+      label: "SEGUNDA-FEIRA",
+      value: "Encerrado",
+      className: "closed",
+    },
   ],
   cta: {
     title: "Pronto para o seu próximo corte?",
@@ -138,6 +143,22 @@ async function getOrCreateSiteSettings() {
   let settings = await SiteSettings.findOne();
   if (!settings) {
     settings = await SiteSettings.create(defaultSiteSettings);
+  } else {
+    const legacyHoursRows = [
+      {
+        label: "SEGUNDA A SABADO",
+        value: "09:00 – 19:00",
+        className: "open",
+      },
+      { label: "DOMINGO", value: "Encerrado", className: "closed" },
+    ];
+
+    const normalizedHoursRows = JSON.stringify(settings.hoursRows || []);
+    const legacySignature = JSON.stringify(legacyHoursRows);
+    if (normalizedHoursRows === legacySignature) {
+      settings.hoursRows = defaultSiteSettings.hoursRows;
+      await settings.save();
+    }
   }
   return settings;
 }
