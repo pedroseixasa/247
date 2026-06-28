@@ -1210,6 +1210,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const barberSettings = settings?.barberCards;
     if (!barberSettings) return;
 
+    // ── BARBER 1 (Diogo Cunha) ──
     const barber1 = barbers["diogo-cunha"];
     if (barber1 && barberSettings.barber1Name) {
       barber1.name = barberSettings.barber1Name;
@@ -1227,10 +1228,93 @@ document.addEventListener("DOMContentLoaded", function () {
       if (roleEl) roleEl.textContent = barberSettings.barber1Role;
     }
 
+    // ── STAFF VISUAL CARDS (secção Equipa no site) ──
+    // Barber 1
+    const staffName1 = document.getElementById("staffName1");
+    if (staffName1 && barberSettings.barber1Name)
+      staffName1.textContent = barberSettings.barber1Name;
+
+    const staffDesc1 = document.getElementById("staffDescription1");
+    if (staffDesc1 && barberSettings.barber1Description)
+      staffDesc1.textContent = barberSettings.barber1Description;
+
+    const staffCover1 = document.getElementById("staffCoverImage1");
+    if (staffCover1 && barberSettings.barber1CoverImage)
+      staffCover1.setAttribute("src", barberSettings.barber1CoverImage);
+
+    const staffChar1 = document.getElementById("staffCharacterImage1");
+    if (staffChar1 && barberSettings.barber1Image)
+      staffChar1.setAttribute("src", barberSettings.barber1Image);
+
+    // Barber 2
+    const barber2 = barbers["barbeiro1"];
+    if (barber2 && barberSettings.barber2Name)
+      barber2.name = barberSettings.barber2Name;
+
+    const barber2Card = document.querySelector(
+      '.barber-card[data-barber="barbeiro1"]',
+    );
+    if (barber2Card && barberSettings.barber2Name) {
+      const nameEl = barber2Card.querySelector(".barber-name");
+      if (nameEl) nameEl.textContent = barberSettings.barber2Name;
+    }
+    if (barber2Card && barberSettings.barber2Role) {
+      const roleEl = barber2Card.querySelector(".barber-role");
+      if (roleEl) roleEl.textContent = barberSettings.barber2Role;
+    }
+
+    const staffName2 = document.getElementById("staffName2");
+    if (staffName2 && barberSettings.barber2Name)
+      staffName2.textContent = barberSettings.barber2Name;
+
+    const staffDesc2 = document.getElementById("staffDescription2");
+    if (staffDesc2 && barberSettings.barber2Description)
+      staffDesc2.textContent = barberSettings.barber2Description;
+
+    const staffCover2 = document.getElementById("staffCoverImage2");
+    if (staffCover2 && barberSettings.barber2CoverImage)
+      staffCover2.setAttribute("src", barberSettings.barber2CoverImage);
+
+    const staffChar2 = document.getElementById("staffCharacterImage2");
+    if (staffChar2 && barberSettings.barber2Image)
+      staffChar2.setAttribute("src", barberSettings.barber2Image);
+
+    // Barber 3
+    const barber3 = barbers["barbeiro2"];
+    if (barber3 && barberSettings.barber3Name)
+      barber3.name = barberSettings.barber3Name;
+
+    const barber3Card = document.querySelector(
+      '.barber-card[data-barber="barbeiro2"]',
+    );
+    if (barber3Card && barberSettings.barber3Name) {
+      const nameEl = barber3Card.querySelector(".barber-name");
+      if (nameEl) nameEl.textContent = barberSettings.barber3Name;
+    }
+    if (barber3Card && barberSettings.barber3Role) {
+      const roleEl = barber3Card.querySelector(".barber-role");
+      if (roleEl) roleEl.textContent = barberSettings.barber3Role;
+    }
+
+    const staffName3 = document.getElementById("staffName3");
+    if (staffName3 && barberSettings.barber3Name)
+      staffName3.textContent = barberSettings.barber3Name;
+
+    const staffDesc3 = document.getElementById("staffDescription3");
+    if (staffDesc3 && barberSettings.barber3Description)
+      staffDesc3.textContent = barberSettings.barber3Description;
+
+    const staffCover3 = document.getElementById("staffCoverImage3");
+    if (staffCover3 && barberSettings.barber3CoverImage)
+      staffCover3.setAttribute("src", barberSettings.barber3CoverImage);
+
+    const staffChar3 = document.getElementById("staffCharacterImage3");
+    if (staffChar3 && barberSettings.barber3Image)
+      staffChar3.setAttribute("src", barberSettings.barber3Image);
+
     // Keep booking card name synced with filming override
     applyFilmingStaffOverrides();
   };
-
   // Função para atualizar lunchBreak de um barbeiro (carregado do endpoint /api/barbers/:id)
   window.updateBarberLunchBreak = function (barberKey, lunchBreak) {
     if (!barberKey || !barbers[barberKey]) {
