@@ -72,10 +72,6 @@ const optimizeUploadedImages = async (req, res, next) => {
       "loaderImage",
       "barber1Image",
       "barber1CoverImage",
-      "barber2Image",
-      "barber2CoverImage",
-      "barber3Image",
-      "barber3CoverImage",
       "serviceImage",
     ];
 
