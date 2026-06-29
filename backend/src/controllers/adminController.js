@@ -159,6 +159,75 @@ async function getOrCreateSiteSettings() {
       settings.hoursRows = defaultSiteSettings.hoursRows;
       await settings.save();
     }
+
+    const existingBarberCards = settings.barberCards?.toObject
+      ? settings.barberCards.toObject()
+      : settings.barberCards || {};
+
+    const needsBarberCardBackfill =
+      !existingBarberCards.barber2Name ||
+      !existingBarberCards.barber2Description ||
+      !existingBarberCards.barber3Name ||
+      !existingBarberCards.barber3Description;
+
+    if (needsBarberCardBackfill) {
+      const activeBarbers = await Barber.find({ isActive: true })
+        .select("name bio photo avatar role")
+        .lean();
+
+      const fallbackBarbers = activeBarbers
+        .map((barber) => ({
+          ...barber,
+          photo: barber.photo || barber.avatar || null,
+          avatar: barber.avatar || barber.photo || null,
+        }))
+        .filter(
+          (barber) =>
+            (barber.name || "").trim() &&
+            barber.name !== existingBarberCards.barber1Name,
+        )
+        .sort((left, right) => {
+          if (left.role !== right.role) {
+            return left.role === "admin" ? -1 : 1;
+          }
+
+          return left.name.localeCompare(right.name, "pt-PT");
+        });
+
+      const nextBarberCards = { ...existingBarberCards };
+      const barber2Fallback = fallbackBarbers[0] || {};
+      const barber3Fallback = fallbackBarbers[1] || {};
+
+      if (!nextBarberCards.barber2Name && barber2Fallback.name) {
+        nextBarberCards.barber2Name = barber2Fallback.name;
+      }
+      if (!nextBarberCards.barber2Description && barber2Fallback.bio) {
+        nextBarberCards.barber2Description = barber2Fallback.bio;
+      }
+      if (!nextBarberCards.barber2Image && barber2Fallback.photo) {
+        nextBarberCards.barber2Image = barber2Fallback.photo;
+      }
+      if (!nextBarberCards.barber2CoverImage && barber2Fallback.avatar) {
+        nextBarberCards.barber2CoverImage = barber2Fallback.avatar;
+      }
+
+      if (!nextBarberCards.barber3Name && barber3Fallback.name) {
+        nextBarberCards.barber3Name = barber3Fallback.name;
+      }
+      if (!nextBarberCards.barber3Description && barber3Fallback.bio) {
+        nextBarberCards.barber3Description = barber3Fallback.bio;
+      }
+      if (!nextBarberCards.barber3Image && barber3Fallback.photo) {
+        nextBarberCards.barber3Image = barber3Fallback.photo;
+      }
+      if (!nextBarberCards.barber3CoverImage && barber3Fallback.avatar) {
+        nextBarberCards.barber3CoverImage = barber3Fallback.avatar;
+      }
+
+      settings.barberCards = nextBarberCards;
+      settings.markModified("barberCards");
+      await settings.save();
+    }
   }
   return settings;
 }

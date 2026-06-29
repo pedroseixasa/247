@@ -2413,6 +2413,38 @@ document.addEventListener("DOMContentLoaded", function () {
 (function initStaff() {
   const API_BASE_URL = "https://two4-7-barbearia.onrender.com/api";
 
+  function applyStaffCardText(cardIndex, barberCards) {
+    const suffix = String(cardIndex);
+
+    const name = document.getElementById(`staffName${suffix}`);
+    const description = document.getElementById(`staffDescription${suffix}`);
+    const coverImage = document.getElementById(`staffCoverImage${suffix}`);
+    const characterImage = document.getElementById(
+      `staffCharacterImage${suffix}`,
+    );
+
+    const nameKey = `barber${suffix}Name`;
+    const descriptionKey = `barber${suffix}Description`;
+    const coverImageKey = `barber${suffix}CoverImage`;
+    const characterImageKey = `barber${suffix}Image`;
+
+    if (barberCards?.[nameKey] && name) {
+      name.textContent = barberCards[nameKey];
+    }
+
+    if (barberCards?.[descriptionKey] && description) {
+      description.textContent = barberCards[descriptionKey];
+    }
+
+    if (barberCards?.[coverImageKey] && coverImage) {
+      coverImage.src = barberCards[coverImageKey];
+    }
+
+    if (barberCards?.[characterImageKey] && characterImage) {
+      characterImage.src = barberCards[characterImageKey];
+    }
+  }
+
   // Load staff data from backend
   async function loadStaffData() {
     try {
@@ -2424,23 +2456,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (!barberCards) return;
 
-      // Update Barbeiro 1
-      if (barberCards.barber1Name) {
-        const name1 = document.getElementById("staffName1");
-        if (name1) name1.textContent = barberCards.barber1Name;
-      }
-      if (barberCards.barber1Description) {
-        const desc1 = document.getElementById("staffDescription1");
-        if (desc1) desc1.textContent = barberCards.barber1Description;
-      }
-      if (barberCards.barber1CoverImage) {
-        const img1 = document.getElementById("staffCoverImage1");
-        if (img1) img1.src = barberCards.barber1CoverImage;
-      }
-      if (barberCards.barber1Image) {
-        const char1 = document.getElementById("staffCharacterImage1");
-        if (char1) char1.src = barberCards.barber1Image;
-      }
+      applyStaffCardText(1, barberCards);
+      applyStaffCardText(2, barberCards);
+      applyStaffCardText(3, barberCards);
 
       applyFilmingStaffOverrides();
     } catch (error) {

@@ -2809,6 +2809,21 @@
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
+                let publicBarbers = [];
+                try {
+                    publicBarbers = await fetchJson(`${API_URL}/barbers`);
+                } catch (error) {
+                    publicBarbers = [];
+                }
+
+                const barberCards = settings.barberCards || {};
+                const fallbackBarbers = Array.isArray(publicBarbers)
+                    ? publicBarbers.filter(barber => (barber?.name || '').trim() && (barber?.name || '') !== (barberCards.barber1Name || 'Diogo Cunha'))
+                    : [];
+
+                const barber2Fallback = fallbackBarbers[0] || {};
+                const barber3Fallback = fallbackBarbers[1] || {};
+
                 const hoursRowsText = (settings.hoursRows || [])
                     .map(row => `${row.label} | ${row.value} | ${row.className || ''}`)
                     .join('\n');
@@ -3042,11 +3057,11 @@
 
                         <div class="form-group">
   <label>Barbeiro 2 Nome</label>
-  <input type="text" id="barber2Name" value="${settings.barberCards?.barber2Name || ''}">
+    <input type="text" id="barber2Name" value="${settings.barberCards?.barber2Name || barber2Fallback.name || ''}">
 </div>
 <div class="form-group">
   <label>Barbeiro 2 Descrição</label>
-  <textarea id="barber2Description" rows="3">${settings.barberCards?.barber2Description || ''}</textarea>
+    <textarea id="barber2Description" rows="3">${settings.barberCards?.barber2Description || barber2Fallback.bio || ''}</textarea>
 </div>
 <div class="form-group">
   <label>Barbeiro 2 Imagem 3D</label>
@@ -3063,11 +3078,11 @@
 
 <div class="form-group">
   <label>Barbeiro 3 Nome</label>
-  <input type="text" id="barber3Name" value="${settings.barberCards?.barber3Name || ''}">
+    <input type="text" id="barber3Name" value="${settings.barberCards?.barber3Name || barber3Fallback.name || ''}">
 </div>
 <div class="form-group">
   <label>Barbeiro 3 Descrição</label>
-  <textarea id="barber3Description" rows="3">${settings.barberCards?.barber3Description || ''}</textarea>
+    <textarea id="barber3Description" rows="3">${settings.barberCards?.barber3Description || barber3Fallback.bio || ''}</textarea>
 </div>
 <div class="form-group">
   <label>Barbeiro 3 Imagem 3D</label>
