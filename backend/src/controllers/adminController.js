@@ -112,7 +112,7 @@ const defaultSiteSettings = {
     phoneText: "+351 963 988 807",
     phoneHref: "tel:+351963988807",
     mapEmbedUrl:
-      "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3114.0838!2d-9.161209!3d38.678998!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzjCsDQwJzQ0LjQiTiA5wrAwOSc0MC40Ilc!5e0!3m2!1spt-PT!2spt!4v1234567890!5m2!1spt-PT!2spt",
+      "https://www.google.com/maps?q=R.%20Marcos%20de%20Assun%C3%A7%C3%A3o%204E,%202805-290%20Almada&output=embed",
   },
   hoursRows: [
     { label: "TERCA A SABADO", value: "10:00 – 20:00", className: "open" },
@@ -157,6 +157,20 @@ async function getOrCreateSiteSettings() {
     const legacySignature = JSON.stringify(legacyHoursRows);
     if (normalizedHoursRows === legacySignature) {
       settings.hoursRows = defaultSiteSettings.hoursRows;
+      await settings.save();
+    }
+
+    const legacyMapEmbedUrl =
+      "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3114.0838!2d-9.161209!3d38.678998!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzjCsDQwJzQ0LjQiTiA5wrAwOSc0MC40Ilc!5e0!3m2!1spt-PT!2spt!4v1234567890!5m2!1spt-PT!2spt";
+    const newMapEmbedUrl =
+      "https://www.google.com/maps?q=R.%20Marcos%20de%20Assun%C3%A7%C3%A3o%204E,%202805-290%20Almada&output=embed";
+
+    if (
+      !settings.contact?.mapEmbedUrl ||
+      settings.contact.mapEmbedUrl === legacyMapEmbedUrl
+    ) {
+      settings.contact = settings.contact || {};
+      settings.contact.mapEmbedUrl = newMapEmbedUrl;
       await settings.save();
     }
   }

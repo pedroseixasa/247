@@ -4105,6 +4105,167 @@
             }
         }
 
+        .location-banner-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 10001;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .location-banner-modal.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .location-banner-modal-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.62);
+            backdrop-filter: blur(8px);
+        }
+
+        .location-banner-modal-content {
+            position: relative;
+            width: min(92vw, 560px);
+            background: linear-gradient(180deg, #ffffff 0%, #faf7f2 100%);
+            border: 1px solid rgba(139, 115, 85, 0.14);
+            border-radius: 24px;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+            overflow: hidden;
+            animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .location-banner-top {
+            background: linear-gradient(135deg, rgba(139, 115, 85, 0.12), rgba(201, 169, 97, 0.16));
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-bottom: 1px solid rgba(139, 115, 85, 0.1);
+        }
+
+        .location-banner-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: #1a1a1a;
+            color: #fff;
+            font-size: 1rem;
+            flex: 0 0 auto;
+        }
+
+        .location-banner-kicker {
+            font-size: 0.78rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 0.2rem;
+            font-weight: 700;
+        }
+
+        .location-banner-body {
+            padding: 1.4rem 1.5rem 1.5rem;
+        }
+
+        .location-banner-image {
+            width: 100%;
+            display: block;
+            border-radius: 18px;
+            margin-bottom: 1rem;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .location-banner-title {
+            font-family: var(--font-headline);
+            font-size: 1.3rem;
+            line-height: 1.15;
+            color: var(--primary);
+            margin-bottom: 0.55rem;
+        }
+
+        .location-banner-text {
+            color: var(--text-light);
+            margin-bottom: 0.9rem;
+            font-size: 0.98rem;
+        }
+
+        .location-banner-address {
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+        }
+
+        .location-banner-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .location-banner-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 44px;
+            padding: 0.8rem 1.25rem;
+            border-radius: 999px;
+            border: 1px solid transparent;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 180ms ease;
+        }
+
+        .location-banner-btn--primary {
+            background: #1a1a1a;
+            color: #fff;
+        }
+
+        .location-banner-btn--primary:hover {
+            transform: translateY(-2px);
+            background: var(--accent);
+        }
+
+        .location-banner-btn--ghost {
+            background: transparent;
+            color: var(--text-dark);
+            border-color: rgba(0, 0, 0, 0.12);
+        }
+
+        .location-banner-btn--ghost:hover {
+            border-color: rgba(0, 0, 0, 0.28);
+            background: rgba(0, 0, 0, 0.03);
+        }
+
+        .location-banner-close {
+            position: absolute;
+            top: 0.9rem;
+            right: 0.9rem;
+            width: 38px;
+            height: 38px;
+            border: none;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.05);
+            color: var(--text-dark);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 180ms ease;
+        }
+
+        .location-banner-close:hover {
+            background: rgba(0, 0, 0, 0.1);
+            transform: rotate(90deg);
+        }
+
         .success-icon {
             margin: 0 auto 1.5rem;
             width: 80px;
@@ -4648,7 +4809,7 @@
                     <!-- Right Column: Map -->
                     <div class="map-container" aria-label="Mapa da localização da 24.7 Barbearia">
                         <iframe id="map"
-                            src="https://www.google.com/maps/embed?pb=!1m23!1m12!1m3!1d256.5433882575038!2d-9.170518028904569!3d38.67129680006336!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m8!3e6!4m0!4m5!1s0xd1934de36a2b41b%3A0xadb3e741e5224bd7!2sEscola%20Secund%C3%A1ria%20Fern%C3%A3o%20Mendes%20Pinto%2C%20R.%20Lu%C3%ADs%20Serr%C3%A3o%20Pimentel%203%2C%202800-996%20Almada!3m2!1d38.672923999999995!2d-9.1688387!5e1!3m2!1spt-PT!2spt!4v1782668365031!5m2!1spt-PT!2spt"
+                            src="https://www.google.com/maps?q=R.%20Marcos%20de%20Assun%C3%A7%C3%A3o%204E,%202805-290%20Almada&output=embed"
                             width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"
                             referrerpolicy="no-referrer-when-downgrade">
                         </iframe>
@@ -4708,6 +4869,37 @@
     </footer>
 
     <script src="js/main.js?v=202606290017"></script>
+
+    <!-- Modal de Aviso de Nova Morada -->
+    <div class="location-banner-modal" id="locationBannerModal" aria-hidden="true">
+        <div class="location-banner-modal-overlay" data-location-banner-close></div>
+        <div class="location-banner-modal-content" role="dialog" aria-modal="true"
+            aria-labelledby="locationBannerTitle">
+            <button class="location-banner-close" type="button" data-location-banner-close aria-label="Fechar aviso">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+            </button>
+            <div class="location-banner-top">
+                <div class="location-banner-badge">!</div>
+                <div>
+                    <div class="location-banner-kicker">Nova morada</div>
+                    <strong>24.7 Barbearia</strong>
+                </div>
+            </div>
+            <div class="location-banner-body">
+                <img class="location-banner-image" src="images/newLoc.png" alt="Nova localização da 24.7 Barbearia">
+                <h2 class="location-banner-title" id="locationBannerTitle">Nova morada</h2>
+                <p class="location-banner-text">Visita-nos aqui:</p>
+                <p class="location-banner-address">R. Marcos de Assunção 4E, 2805-290 Almada</p>
+                <div class="location-banner-actions">
+                    <a class="location-banner-btn location-banner-btn--primary" href="#contact"
+                        data-location-banner-close>Ver no mapa</a>
+
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal de Reservas -->
     <div class="booking-modal" id="bookingModal">

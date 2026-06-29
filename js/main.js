@@ -164,6 +164,61 @@ window.addEventListener(
   window.addEventListener("load", hideLoader);
 })();
 
+// ===== LOCATION ANNOUNCEMENT MODAL =====
+(function () {
+  const bannerExpiresAt = new Date("2026-07-29T23:59:59+01:00").getTime();
+
+  function initLocationBanner() {
+    const modal = document.getElementById("locationBannerModal");
+    if (!modal) return;
+
+    const shouldShow = Date.now() < bannerExpiresAt;
+
+    const closeModal = () => {
+      modal.classList.remove("active");
+      modal.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+    };
+
+    const openModal = () => {
+      modal.classList.add("active");
+      modal.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+    };
+
+    modal
+      .querySelectorAll("[data-location-banner-close]")
+      .forEach((element) => {
+        element.addEventListener("click", (event) => {
+          const targetHref =
+            element.tagName === "A" ? element.getAttribute("href") : null;
+
+          event.preventDefault();
+          closeModal();
+
+          if (targetHref && targetHref.startsWith("#")) {
+            const target = document.querySelector(targetHref);
+            if (target) {
+              window.setTimeout(() => {
+                target.scrollIntoView({ behavior: "smooth", block: "start" });
+              }, 150);
+            }
+          }
+        });
+      });
+
+    if (shouldShow) {
+      window.setTimeout(openModal, 3200);
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initLocationBanner);
+  } else {
+    initLocationBanner();
+  }
+})();
+
 // ===== ACORDEÃO DOS SERVIÇOS =====
 document.querySelectorAll(".service-card").forEach((card) => {
   const toggle = card.querySelector(".service-toggle");
@@ -610,6 +665,15 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  function buildMapsEmbedUrl(addressText) {
+    if (!addressText) return "";
+
+    const normalizedAddress = String(addressText).trim();
+    if (!normalizedAddress) return "";
+
+    return `https://www.google.com/maps?q=${encodeURIComponent(normalizedAddress)}&output=embed`;
+  }
+
   function setStaffCard(staffIndex, barberCards) {
     const suffix = String(staffIndex);
     setText(`staffName${suffix}`, barberCards?.[`barber${suffix}Name`]);
@@ -738,8 +802,13 @@ document.addEventListener("DOMContentLoaded", function () {
     setHref("contactPhoneLink", settings.contact?.phoneHref);
 
     const mapEl = document.getElementById("map");
-    if (mapEl && settings.contact?.mapEmbedUrl) {
-      mapEl.setAttribute("src", settings.contact.mapEmbedUrl);
+    if (mapEl) {
+      const mapUrl =
+        buildMapsEmbedUrl(settings.contact?.addressText) ||
+        settings.contact?.mapEmbedUrl;
+      if (mapUrl) {
+        mapEl.setAttribute("src", mapUrl);
+      }
     }
 
     const hoursTable = document.getElementById("hoursTable");
