@@ -610,6 +610,23 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  function setStaffCard(staffIndex, barberCards) {
+    const suffix = String(staffIndex);
+    setText(`staffName${suffix}`, barberCards?.[`barber${suffix}Name`]);
+    setText(
+      `staffDescription${suffix}`,
+      barberCards?.[`barber${suffix}Description`],
+    );
+    setSrc(
+      `staffCoverImage${suffix}`,
+      barberCards?.[`barber${suffix}CoverImage`],
+    );
+    setSrc(
+      `staffCharacterImage${suffix}`,
+      barberCards?.[`barber${suffix}Image`],
+    );
+  }
+
   function setHeroBackgroundImage(value) {
     const heroSection = document.querySelector(".hero");
     if (!heroSection) {
@@ -707,6 +724,10 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       });
     }
+
+    setStaffCard(1, settings.barberCards);
+    setStaffCard(2, settings.barberCards);
+    setStaffCard(3, settings.barberCards);
 
     applyFilmingGalleryOverrides();
     applyFilmingStaffOverrides();
