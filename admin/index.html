@@ -1817,6 +1817,7 @@
                                     </thead>
                                     <tbody>
                                         ${(stats.monthlyBreakdown || []).map((item, idx) => {
+                        const reservationsCount = item.count ?? item.totalReservations ?? item.reservas ?? 0;
                         const revenuePast = item.revenuePast || 0;
                         const revenueFuture = item.revenueFuture || 0;
                         const isAggregated = item.isAggregated || false;
@@ -1826,7 +1827,7 @@
                                                     ${item.label}
                                                     ${isAggregated ? '<span style="background: #3498db; color: white; font-size: 0.7rem; padding: 0.15rem 0.4rem; border-radius: 3px; margin-left: 0.5rem; white-space: nowrap;">Agregado</span>' : ''}
                                                 </td>
-                                                <td style="text-align: right; padding: 1rem; color: #666; white-space: nowrap;">${item.count}</td>
+                                                <td style="text-align: right; padding: 1rem; color: #666; white-space: nowrap;">${reservationsCount}</td>
                                                 <td style="text-align: right; padding: 1rem; font-weight: 600; color: #27ae60; white-space: nowrap;">${formatCurrency(revenuePast)}</td>
                                                 <td style="text-align: right; padding: 1rem; font-weight: 600; color: #3498db; white-space: nowrap;">${formatCurrency(revenueFuture)}</td>
                                                 <td style="text-align: right; padding: 1rem; font-weight: 600; color: #2c3e50; white-space: nowrap;">${formatCurrency(revenuePast)}</td>
