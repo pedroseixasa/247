@@ -1264,12 +1264,19 @@
 
         function normalizeCurrentUser(user) {
             if (!user || typeof user !== 'object') {
-                return { role: null };
+                return { role: null, _id: null, id: null };
             }
+            const normalizedId = user._id || user.id || null;
             return {
                 ...user,
+                _id: normalizedId,
+                id: normalizedId,
                 role: user.role || null
             };
+        }
+
+        function getCurrentUserId() {
+            return currentUser?._id || currentUser?.id || '';
         }
 
         let currentUser;
@@ -1717,7 +1724,7 @@
                 container.innerHTML = '<p>A carregar dashboard...</p>';
 
                 const isAdmin = currentUser && currentUser.role === 'admin';
-                const selectedBarberId = isAdmin ? getDefaultBarberId() : (currentUser._id || currentUser.id || '');
+                const selectedBarberId = isAdmin ? getDefaultBarberId() : getCurrentUserId();
                 const selectedYear = new Date().getFullYear();
                 const statsUrl = buildDashboardUrl(selectedBarberId, selectedYear, isAdmin);
 
@@ -2005,7 +2012,7 @@
                 const defaultBarberId = userRole === 'admin' ? '' : getDefaultBarberId();
                 const barberOptions = userRole === 'admin'
                     ? buildBarberOptions(barbers, defaultBarberId)
-                    : `<option value="${currentUser._id}" selected>${currentUser.name}</option>`;
+                    : `<option value="${getCurrentUserId()}" selected>${currentUser.name}</option>`;
 
                 let reservationsUrl;
                 if (userRole === 'barber') {
@@ -2216,7 +2223,7 @@
 
                 const getManualTargetBarberId = () => {
                     if (userRole === 'barber') {
-                        return currentUser?._id || '';
+                        return getCurrentUserId();
                     }
 
                     return document.getElementById('reservationsBarberFilter')?.value
@@ -2319,7 +2326,7 @@
                             return;
                         }
 
-                        if (userRole === 'barber' && barberId !== currentUser?._id) {
+                        if (userRole === 'barber' && barberId !== getCurrentUserId()) {
                             showStatusModal('Sem permissão para criar reservas para outro barbeiro.', 'error');
                             return;
                         }
@@ -2378,7 +2385,7 @@
                             || '';
                     }
 
-                    return currentUser?._id || '';
+                    return getCurrentUserId();
                 };
 
                 const renderRecurringRulesSection = (rules) => {
@@ -2449,7 +2456,7 @@
                         const selectedBarberId = document.getElementById('reservationsBarberFilter')?.value || '';
                         const barberId = userRole === 'admin'
                             ? selectedBarberId
-                            : (currentUser?._id || '');
+                            : getCurrentUserId();
 
                         const url = barberId
                             ? `${API_URL}/admin/recurring-rules?barberId=${barberId}`
@@ -2630,7 +2637,7 @@
                         const ruleId = document.getElementById('recurringRuleId')?.value || '';
                         const barberId = userRole === 'admin'
                             ? (document.getElementById('recurringRuleBarberId')?.value || '')
-                            : (currentUser?._id || '');
+                            : getCurrentUserId();
                         const serviceId = document.getElementById('recurringRuleServiceId')?.value || '';
                         const clientName = document.getElementById('recurringRuleClientName')?.value.trim();
                         const clientPhone = document.getElementById('recurringRuleClientPhone')?.value.trim();
