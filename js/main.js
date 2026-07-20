@@ -1280,6 +1280,10 @@ function syncBookingBarberCardsFromSettings(settings) {
   ];
 
   entries.forEach((entry) => {
+    if (barbers[entry.barberKey]) {
+      barbers[entry.barberKey].name = entry.name;
+    }
+
     if (shouldHideBookingBarber(entry.name)) {
       removeBookingBarberCard(entry.barberKey);
       return;
@@ -1289,9 +1293,27 @@ function syncBookingBarberCardsFromSettings(settings) {
   });
 }
 
+function getSelectedBookingBarberDisplayName() {
+  const selectedCard = document.querySelector(
+    ".barbers-grid .barber-card.selected .barber-name",
+  );
+  if (selectedCard?.textContent?.trim()) {
+    return selectedCard.textContent.trim();
+  }
+
+  if (bookingState.barber && barbers[bookingState.barber]?.name) {
+    return barbers[bookingState.barber].name;
+  }
+
+  return "-";
+}
+
 function shouldTemporarilyHideStaffCard(staffIndex, barberName) {
-  return TEMPORARILY_HIDDEN_STAFF_NAMES.has(
-    normalizeTemporaryStaffName(barberName),
+  const normalizedName = normalizeTemporaryStaffName(barberName);
+  return (
+    TEMPORARILY_HIDDEN_STAFF_NAMES.has(normalizedName) ||
+    !normalizedName ||
+    normalizedName.startsWith("nome barbeiro")
   );
 }
 
@@ -2302,10 +2324,16 @@ function updateTemporaryStaffVisibility(staffIndex, barberName) {
     const summaryDate = document.getElementById("summaryDate");
     const summaryTime = document.getElementById("summaryTime");
 
+    const selectedBookingBarberName =
+      document
+        .querySelector(".barbers-grid .barber-card.selected .barber-name")
+        ?.textContent?.trim() ||
+      barbers[bookingState.barber]?.name ||
+      "-";
+
     if (summaryService) summaryService.textContent = bookingState.service;
     if (summaryPrice) summaryPrice.textContent = bookingState.servicePrice;
-    if (summaryBarber)
-      summaryBarber.textContent = barbers[bookingState.barber].name;
+    if (summaryBarber) summaryBarber.textContent = selectedBookingBarberName;
     if (summaryDate)
       summaryDate.textContent = bookingState.date.toLocaleDateString("pt-PT");
     if (summaryTime) summaryTime.textContent = bookingState.time;
