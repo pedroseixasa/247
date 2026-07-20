@@ -1274,8 +1274,8 @@ function syncBookingBarberCardsFromSettings(settings) {
 }
 
 function shouldTemporarilyHideStaffCard(staffIndex, barberName) {
-  return (
-    TEMPORARILY_HIDDEN_STAFF_NAMES.has(normalizeTemporaryStaffName(barberName))
+  return TEMPORARILY_HIDDEN_STAFF_NAMES.has(
+    normalizeTemporaryStaffName(barberName),
   );
 }
 
