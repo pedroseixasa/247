@@ -691,28 +691,6 @@ document.addEventListener("DOMContentLoaded", function () {
     );
   }
 
-  const TEMPORARILY_HIDDEN_STAFF_NAMES = new Set(["julio cardoso"]);
-
-  function normalizeStaffName(value) {
-    return String(value || "")
-      .trim()
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "");
-  }
-
-  function updateTemporaryStaffVisibility(staffIndex, barberName) {
-    const staffMember = document.getElementById(`staffMember${staffIndex}`);
-    if (!staffMember) return;
-
-    const isHidden = TEMPORARILY_HIDDEN_STAFF_NAMES.has(
-      normalizeStaffName(barberName),
-    );
-
-    staffMember.classList.toggle("is-temporarily-hidden", isHidden);
-    staffMember.setAttribute("aria-hidden", isHidden ? "true" : "false");
-  }
-
   function setHeroBackgroundImage(value) {
     const heroSection = document.querySelector(".hero");
     if (!heroSection) {
@@ -820,6 +798,10 @@ document.addEventListener("DOMContentLoaded", function () {
     updateTemporaryStaffVisibility(3, settings.barberCards?.barber3Name);
     applyFilmingGalleryOverrides();
     applyFilmingStaffOverrides();
+
+    updateTemporaryStaffVisibility(1, settings.barberCards?.barber1Name);
+    updateTemporaryStaffVisibility(2, settings.barberCards?.barber2Name);
+    updateTemporaryStaffVisibility(3, settings.barberCards?.barber3Name);
 
     setText("contactTitle", settings.contact?.title);
     setText("contactAddress", settings.contact?.addressText);
@@ -1168,6 +1150,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Renderiza o card na grid
         if (barbersGrid) {
+          const staffSlotIndex = barberIds.indexOf(barberId) + 1;
+          if (shouldTemporarilyHideStaffCard(staffSlotIndex, barberData.name)) {
+            console.log("👻 Skipping hidden booking barber:", {
+              barberId,
+              barberKey,
+              staffSlotIndex,
+              name: barberData.name,
+            });
+            continue;
+          }
+
           const initials = barberData.name
             .split(" ")
             .map((n) => n[0])
@@ -1206,6 +1199,63 @@ document.addEventListener("DOMContentLoaded", function () {
     loadBarberData();
   });
 })();
+
+const TEMPORARILY_HIDDEN_STAFF_NAMES = new Set(["julio cardoso"]);
+const TEMPORARILY_HIDDEN_STAFF_INDICES = new Set([2]);
+
+function normalizeTemporaryStaffName(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+function shouldTemporarilyHideStaffCard(staffIndex, barberName) {
+  return (
+    TEMPORARILY_HIDDEN_STAFF_INDICES.has(Number(staffIndex)) ||
+    TEMPORARILY_HIDDEN_STAFF_NAMES.has(normalizeTemporaryStaffName(barberName))
+  );
+}
+
+function updateTemporaryStaffGridState() {
+  const staffGrid = document.getElementById("staffGrid");
+  if (!staffGrid) return;
+
+  const visibleBottomCards = [2, 3].reduce((count, staffIndex) => {
+    const staffMember = document.getElementById(`staffMember${staffIndex}`);
+    return (
+      count +
+      (staffMember && !staffMember.classList.contains("is-temporarily-hidden")
+        ? 1
+        : 0)
+    );
+  }, 0);
+
+  staffGrid.classList.toggle("single-visible", visibleBottomCards === 1);
+  console.log("🧭 Temporary staff layout state:", {
+    visibleBottomCards,
+    singleVisible: visibleBottomCards === 1,
+  });
+}
+
+function updateTemporaryStaffVisibility(staffIndex, barberName) {
+  const staffMember = document.getElementById(`staffMember${staffIndex}`);
+  if (!staffMember) return;
+
+  const hidden = shouldTemporarilyHideStaffCard(staffIndex, barberName);
+
+  console.log("👻 Temporary staff filter check:", {
+    staffIndex,
+    barberName,
+    normalizedName: normalizeTemporaryStaffName(barberName),
+    hidden,
+  });
+
+  staffMember.classList.toggle("is-temporarily-hidden", hidden);
+  staffMember.setAttribute("aria-hidden", hidden ? "true" : "false");
+  updateTemporaryStaffGridState();
+}
 
 // ===== SISTEMA DE RESERVAS =====
 (function () {
