@@ -691,6 +691,28 @@ document.addEventListener("DOMContentLoaded", function () {
     );
   }
 
+  const TEMPORARILY_HIDDEN_STAFF_NAMES = new Set(["julio cardoso"]);
+
+  function normalizeStaffName(value) {
+    return String(value || "")
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+  }
+
+  function updateTemporaryStaffVisibility(staffIndex, barberName) {
+    const staffMember = document.getElementById(`staffMember${staffIndex}`);
+    if (!staffMember) return;
+
+    const isHidden = TEMPORARILY_HIDDEN_STAFF_NAMES.has(
+      normalizeStaffName(barberName),
+    );
+
+    staffMember.classList.toggle("is-temporarily-hidden", isHidden);
+    staffMember.setAttribute("aria-hidden", isHidden ? "true" : "false");
+  }
+
   function setHeroBackgroundImage(value) {
     const heroSection = document.querySelector(".hero");
     if (!heroSection) {
@@ -793,6 +815,9 @@ document.addEventListener("DOMContentLoaded", function () {
     setStaffCard(2, settings.barberCards);
     setStaffCard(3, settings.barberCards);
 
+    updateTemporaryStaffVisibility(1, settings.barberCards?.barber1Name);
+    updateTemporaryStaffVisibility(2, settings.barberCards?.barber2Name);
+    updateTemporaryStaffVisibility(3, settings.barberCards?.barber3Name);
     applyFilmingGalleryOverrides();
     applyFilmingStaffOverrides();
 
@@ -1465,6 +1490,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const staffChar3 = document.getElementById("staffCharacterImage3");
     if (staffChar3 && barberSettings.barber3Image)
       staffChar3.setAttribute("src", barberSettings.barber3Image);
+
+    updateTemporaryStaffVisibility(1, barberSettings.barber1Name);
+    updateTemporaryStaffVisibility(2, barberSettings.barber2Name);
+    updateTemporaryStaffVisibility(3, barberSettings.barber3Name);
 
     // Keep booking card name synced with filming override
     applyFilmingStaffOverrides();
