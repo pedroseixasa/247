@@ -1117,7 +1117,6 @@ document.addEventListener("DOMContentLoaded", function () {
     };
 
     const barbersGrid = document.querySelector(".barbers-grid");
-    if (barbersGrid) barbersGrid.innerHTML = "";
 
     for (const barberId of barberIds) {
       try {
@@ -1150,42 +1149,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Renderiza o card na grid
         if (barbersGrid) {
-          const staffSlotIndex = barberIds.indexOf(barberId) + 1;
-          if (shouldTemporarilyHideStaffCard(staffSlotIndex, barberData.name)) {
+          if (shouldHideBookingBarber(barberData.name)) {
             console.log("👻 Skipping hidden booking barber:", {
               barberId,
               barberKey,
-              staffSlotIndex,
               name: barberData.name,
             });
+            removeBookingBarberCard(barberKey);
             continue;
           }
 
-          const initials = barberData.name
-            .split(" ")
-            .map((n) => n[0])
-            .join("")
-            .toUpperCase()
-            .slice(0, 2);
-
-          const card = document.createElement("div");
-          card.className = "barber-card";
-          card.setAttribute("data-barber", barberKey);
-          card.innerHTML = `
-            <div class="barber-avatar">${initials}</div>
-            <h4 class="barber-name">${barberData.name}</h4>
-            <p class="barber-role">Barbeiro Profissional</p>
-          `;
-          card.addEventListener("click", function () {
-            document
-              .querySelectorAll(".barber-card")
-              .forEach((c) => c.classList.remove("selected"));
-            this.classList.add("selected");
-            if (window.bookingState)
-              window.bookingState.barber = this.getAttribute("data-barber");
-            bookingState.barber = this.getAttribute("data-barber");
+          upsertBookingBarberCard(barbersGrid, {
+            barberKey,
+            name: barberData.name,
+            role: barberData.role || "Barbeiro Profissional",
           });
-          barbersGrid.appendChild(card);
         }
       } catch (error) {
         console.error(`Erro ao carregar dados do barbeiro ${barberId}:`, error);
@@ -1201,7 +1179,6 @@ document.addEventListener("DOMContentLoaded", function () {
 })();
 
 const TEMPORARILY_HIDDEN_STAFF_NAMES = new Set(["julio cardoso"]);
-const TEMPORARILY_HIDDEN_STAFF_INDICES = new Set([2]);
 
 function normalizeTemporaryStaffName(value) {
   return String(value || "")
@@ -1211,9 +1188,93 @@ function normalizeTemporaryStaffName(value) {
     .replace(/[\u0300-\u036f]/g, "");
 }
 
+function shouldHideBookingBarber(barberName) {
+  return TEMPORARILY_HIDDEN_STAFF_NAMES.has(
+    normalizeTemporaryStaffName(barberName),
+  );
+}
+
+function removeBookingBarberCard(barberKey) {
+  const card = document.querySelector(
+    `.barbers-grid .barber-card[data-barber="${barberKey}"]`,
+  );
+  if (card) {
+    card.remove();
+  }
+}
+
+function upsertBookingBarberCard(barbersGrid, { barberKey, name, role }) {
+  if (!barbersGrid || !barberKey || !name) return;
+
+  const existingCard = barbersGrid.querySelector(
+    `.barber-card[data-barber="${barberKey}"]`,
+  );
+  const initials = String(name)
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+
+  const card = existingCard || document.createElement("div");
+  card.className = "barber-card";
+  card.setAttribute("data-barber", barberKey);
+  card.innerHTML = `
+    <div class="barber-avatar">${initials}</div>
+    <h4 class="barber-name">${name}</h4>
+  `;
+
+  if (!existingCard) {
+    card.addEventListener("click", function () {
+      document
+        .querySelectorAll(".barber-card")
+        .forEach((c) => c.classList.remove("selected"));
+      this.classList.add("selected");
+      if (window.bookingState)
+        window.bookingState.barber = this.getAttribute("data-barber");
+      bookingState.barber = this.getAttribute("data-barber");
+    });
+    barbersGrid.appendChild(card);
+  }
+
+  return card;
+}
+
+function syncBookingBarberCardsFromSettings(settings) {
+  const barbersGrid = document.querySelector(".barbers-grid");
+  const barberCards = settings?.barberCards;
+  if (!barbersGrid || !barberCards) return;
+
+  const entries = [
+    {
+      barberKey: "diogo-cunha",
+      name: barberCards.barber1Name || "Diogo Cunha",
+      role: barberCards.barber1Role || "Barbeiro Profissional",
+    },
+    {
+      barberKey: "barbeiro1",
+      name: barberCards.barber2Name || "Barbeiro 2",
+      role: barberCards.barber2Role || "Barbeiro Profissional",
+    },
+    {
+      barberKey: "barbeiro2",
+      name: barberCards.barber3Name || "Barbeiro 3",
+      role: barberCards.barber3Role || "Barbeiro Profissional",
+    },
+  ];
+
+  entries.forEach((entry) => {
+    if (shouldHideBookingBarber(entry.name)) {
+      removeBookingBarberCard(entry.barberKey);
+      return;
+    }
+
+    upsertBookingBarberCard(barbersGrid, entry);
+  });
+}
+
 function shouldTemporarilyHideStaffCard(staffIndex, barberName) {
   return (
-    TEMPORARILY_HIDDEN_STAFF_INDICES.has(Number(staffIndex)) ||
     TEMPORARILY_HIDDEN_STAFF_NAMES.has(normalizeTemporaryStaffName(barberName))
   );
 }
@@ -1438,6 +1499,8 @@ function updateTemporaryStaffVisibility(staffIndex, barberName) {
   window.updateBookingBarbers = function (settings) {
     const barberSettings = settings?.barberCards;
     if (!barberSettings) return;
+
+    syncBookingBarberCardsFromSettings(settings);
 
     // ── BARBER 1 (Diogo Cunha) ──
     const barber1 = barbers["diogo-cunha"];
