@@ -1203,6 +1203,29 @@ function removeBookingBarberCard(barberKey) {
   }
 }
 
+function ensureBookingBarberSelectionHandler(barbersGrid) {
+  if (!barbersGrid || barbersGrid.dataset.selectionHandlerAttached === "true") {
+    return;
+  }
+
+  barbersGrid.dataset.selectionHandlerAttached = "true";
+  barbersGrid.addEventListener("click", function (event) {
+    const card = event.target.closest(".barber-card");
+    if (!card || !barbersGrid.contains(card)) return;
+
+    this.querySelectorAll(".barber-card").forEach((element) => {
+      element.classList.remove("selected");
+    });
+
+    card.classList.add("selected");
+    const barberKey = card.getAttribute("data-barber");
+    if (window.bookingState) {
+      window.bookingState.barber = barberKey;
+    }
+    bookingState.barber = barberKey;
+  });
+}
+
 function upsertBookingBarberCard(barbersGrid, { barberKey, name, role }) {
   if (!barbersGrid || !barberKey || !name) return;
 
@@ -1225,15 +1248,6 @@ function upsertBookingBarberCard(barbersGrid, { barberKey, name, role }) {
   `;
 
   if (!existingCard) {
-    card.addEventListener("click", function () {
-      document
-        .querySelectorAll(".barber-card")
-        .forEach((c) => c.classList.remove("selected"));
-      this.classList.add("selected");
-      if (window.bookingState)
-        window.bookingState.barber = this.getAttribute("data-barber");
-      bookingState.barber = this.getAttribute("data-barber");
-    });
     barbersGrid.appendChild(card);
   }
 
@@ -1244,6 +1258,8 @@ function syncBookingBarberCardsFromSettings(settings) {
   const barbersGrid = document.querySelector(".barbers-grid");
   const barberCards = settings?.barberCards;
   if (!barbersGrid || !barberCards) return;
+
+  ensureBookingBarberSelectionHandler(barbersGrid);
 
   const entries = [
     {
