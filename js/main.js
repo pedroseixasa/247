@@ -2462,7 +2462,10 @@ function updateTemporaryStaffVisibility(staffIndex, barberName) {
         return;
       }
 
-      const barberName = barbers[bookingState.barber]?.name || "Barbeiro";
+      const barberName =
+        document.querySelector(
+          '.barbers-grid .barber-card.selected .barber-name',
+        )?.textContent?.trim() || barbers[bookingState.barber]?.name || "Barbeiro";
       const dateLabel = bookingState.date
         ? bookingState.date.toLocaleDateString("pt-PT")
         : new Date(reservationData.reservationDate).toLocaleDateString("pt-PT");
