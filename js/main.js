@@ -1149,7 +1149,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Renderiza o card na grid
         if (barbersGrid) {
-          if (shouldHideBookingBarber(barberData.name)) {
+          if (shouldHideBookingBarber(barberKey, barberData.name)) {
             console.log("👻 Skipping hidden booking barber:", {
               barberId,
               barberKey,
@@ -1178,7 +1178,12 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 })();
 
-const TEMPORARILY_HIDDEN_STAFF_NAMES = new Set(["julio cardoso"]);
+const TEMPORARILY_HIDDEN_STAFF_NAMES = new Set([
+  "julio cardoso",
+  "pedro ferreira",
+]);
+const TEMPORARILY_HIDDEN_BOOKING_KEYS = new Set(["barbeiro1"]);
+const TEMPORARILY_HIDDEN_STAFF_INDICES = new Set([3]);
 
 function normalizeTemporaryStaffName(value) {
   return String(value || "")
@@ -1188,9 +1193,14 @@ function normalizeTemporaryStaffName(value) {
     .replace(/[\u0300-\u036f]/g, "");
 }
 
-function shouldHideBookingBarber(barberName) {
-  return TEMPORARILY_HIDDEN_STAFF_NAMES.has(
-    normalizeTemporaryStaffName(barberName),
+function shouldHideBookingBarber(barberKey, barberName) {
+  const normalizedName = normalizeTemporaryStaffName(barberName);
+  return (
+    TEMPORARILY_HIDDEN_BOOKING_KEYS.has(String(barberKey)) ||
+    TEMPORARILY_HIDDEN_STAFF_NAMES.has(normalizedName) ||
+    !normalizedName ||
+    normalizedName.startsWith("barbeiro") ||
+    normalizedName.startsWith("nome barbeiro")
   );
 }
 
@@ -1284,7 +1294,7 @@ function syncBookingBarberCardsFromSettings(settings) {
       barbers[entry.barberKey].name = entry.name;
     }
 
-    if (shouldHideBookingBarber(entry.name)) {
+    if (shouldHideBookingBarber(entry.barberKey, entry.name)) {
       removeBookingBarberCard(entry.barberKey);
       return;
     }
@@ -1312,6 +1322,7 @@ function shouldTemporarilyHideStaffCard(staffIndex, barberName) {
   const normalizedName = normalizeTemporaryStaffName(barberName);
   return (
     TEMPORARILY_HIDDEN_STAFF_NAMES.has(normalizedName) ||
+    TEMPORARILY_HIDDEN_STAFF_INDICES.has(Number(staffIndex)) ||
     !normalizedName ||
     normalizedName.startsWith("nome barbeiro")
   );
