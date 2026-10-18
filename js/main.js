@@ -942,7 +942,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
   async function loadSiteSettings() {
     try {
-      const response = await fetch(`${API_BASE_URL}/site-settings`);
+      const response = await fetch(`${API_BASE_URL}/site-settings`, {
+        cache: "no-store",
+      });
       const data = await response.json();
       if (!response.ok) return;
       applySiteSettings(data);
@@ -955,7 +957,7 @@ document.addEventListener("DOMContentLoaded", function () {
   async function loadStaffData() {
     try {
       const [siteSettingsResponse, barbersResponse] = await Promise.all([
-        fetch(`${API_BASE_URL}/site-settings`),
+        fetch(`${API_BASE_URL}/site-settings`, { cache: "no-store" }),
         fetch(`${API_BASE_URL}/barbers`),
       ]);
 
@@ -2740,7 +2742,9 @@ function updateTemporaryStaffVisibility(staffIndex, barberName) {
   // Load staff data from backend
   async function loadStaffData() {
     try {
-      const response = await fetch(`${API_BASE_URL}/site-settings`);
+      const response = await fetch(`${API_BASE_URL}/site-settings`, {
+        cache: "no-store",
+      });
       if (!response.ok) return;
 
       const data = await response.json();
