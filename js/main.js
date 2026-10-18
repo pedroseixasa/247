@@ -742,7 +742,7 @@ document.addEventListener("DOMContentLoaded", function () {
     setText("aboutEyebrow", settings.about?.eyebrow);
     setText("aboutTitle", settings.about?.title);
     setText("aboutText", settings.about?.text);
-    setSrc("aboutCoverImage", settings.about?.coverImage);
+    setSrc("aboutFeatureImage", settings.about?.coverImage);
     setSrc("aboutCharacterImage", settings.about?.characterImage);
 
     setText("aboutPaymentTitle", settings.about?.paymentCard?.title);
