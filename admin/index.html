@@ -219,6 +219,50 @@
             margin-bottom: 1.5rem;
         }
 
+        .settings-image-preview {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-top: 0.75rem;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .settings-image-preview img {
+            width: 96px;
+            height: 64px;
+            object-fit: cover;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: #f5f5f5;
+        }
+
+        .settings-image-preview-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+            gap: 0.75rem;
+            margin-top: 0.75rem;
+        }
+
+        .settings-image-preview-list .settings-image-preview {
+            display: block;
+            margin-top: 0;
+        }
+
+        .settings-image-preview-list .settings-image-preview img {
+            display: block;
+            width: 100%;
+            height: 96px;
+        }
+
+        .settings-image-preview-list .settings-image-preview span {
+            display: block;
+            margin-top: 0.25rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
         label {
             display: block;
             margin-bottom: 0.5rem;
@@ -2809,6 +2853,27 @@
             }
         }
 
+        function renderImagePreview(value, label = 'Imagem atual') {
+            if (!value) return '';
+
+            return `
+                <div class="settings-image-preview" data-image-preview>
+                    <img src="${value}" alt="${label}" loading="lazy">
+                    <span>${label}</span>
+                </div>
+            `;
+        }
+
+        function renderImagePreviewList(values, label = 'Imagem') {
+            if (!Array.isArray(values) || values.length === 0) return '';
+
+            return `
+                <div class="settings-image-preview-list">
+                    ${values.map((value, index) => renderImagePreview(value, `${label} ${index + 1}`)).join('')}
+                </div>
+            `;
+        }
+
         async function loadSettings(container) {
             try {
                 container.innerHTML = '<p>A carregar configurações...</p>';
@@ -2836,7 +2901,7 @@
                             <label>Imagem do loader</label>
                             <input type="file" id="loaderImage" accept="image/*">
                             <small style="color: var(--text-light);">Selecione uma imagem (sera otimizada e guardada na BD)</small>
-                            ${settings.loaderImage || settings.header?.logoImage ? `<p style="margin-top: 0.5rem; color: var(--text-light); font-size: 0.9rem;">Imagem atual: <strong>${(settings.loaderImage || settings.header?.logoImage || '').split('/').pop()}</strong></p>` : ''}
+                            ${renderImagePreview(settings.loaderImage || settings.header?.logoImage)}
                         </div>
 
                         <div class="form-group">
@@ -2847,7 +2912,7 @@
                             <label>Logo</label>
                             <input type="file" id="logoImage" accept="image/*">
                             <small style="color: var(--text-light);">Selecione uma imagem (será otimizada e guardada na BD)</small>
-                            ${settings.header?.logoImage ? `<p style="margin-top: 0.5rem; color: var(--text-light); font-size: 0.9rem;">Imagem atual: <strong>${settings.header.logoImage.split('/').pop()}</strong></p>` : ''}
+                            ${renderImagePreview(settings.header?.logoImage)}
                         </div>
                         <div class="form-group">
                             <label>Header: Horário</label>
@@ -2882,7 +2947,7 @@
                             <label>Hero: Imagem</label>
                             <input type="file" id="heroImage" accept="image/*">
                             <small style="color: var(--text-light);">Selecione uma imagem (será otimizada e guardada na BD)</small>
-                            ${settings.hero?.image ? `<p style="margin-top: 0.5rem; color: var(--text-light); font-size: 0.9rem;">Imagem atual: <strong>${settings.hero.image.split('/').pop()}</strong></p>` : ''}
+                            ${renderImagePreview(settings.hero?.image)}
                         </div>
 
                         <div class="form-group">
@@ -2905,19 +2970,19 @@
                             <label>Sobre: Imagem principal</label>
                             <input type="file" id="aboutCoverImage" accept="image/*">
                             <small style="color: var(--text-light);">Selecione uma imagem (será otimizada e guardada na BD)</small>
-                            ${settings.about?.coverImage ? `<p style="margin-top: 0.5rem; color: var(--text-light); font-size: 0.9rem;">Imagem atual: <strong>${settings.about.coverImage.split('/').pop()}</strong></p>` : ''}
+                            ${renderImagePreview(settings.about?.coverImage)}
                         </div>
                         <div class="form-group">
                             <label>Sobre: Imagem personagem</label>
                             <input type="file" id="aboutCharacterImage" accept="image/*">
                             <small style="color: var(--text-light);">Selecione uma imagem (será otimizada e guardada na BD)</small>
-                            ${settings.about?.characterImage ? `<p style="margin-top: 0.5rem; color: var(--text-light); font-size: 0.9rem;">Imagem atual: <strong>${settings.about.characterImage.split('/').pop()}</strong></p>` : ''}
+                            ${renderImagePreview(settings.about?.characterImage)}
                         </div>
                         <div class="form-group">
                             <label>Sobre: Imagens do carrossel (máx. 8)</label>
                             <input type="file" id="aboutCarouselImages" accept="image/*" multiple>
                             <small style="color: var(--text-light);">Carrega até 8 imagens verticais. As imagens serão otimizadas automaticamente.</small>
-                            ${settings.about?.carouselImages?.length ? `<p style="margin-top: 0.5rem; color: var(--text-light); font-size: 0.9rem;">Imagens atuais: <strong>${settings.about.carouselImages.length}</strong></p>` : ''}
+                            ${renderImagePreviewList(settings.about?.carouselImages, 'Carrossel')}
                         </div>
                         <div class="form-group">
                             <label>Sobre: Avaliação (valor)</label>
@@ -2965,7 +3030,7 @@
                             <label>Galeria: Logo</label>
                             <input type="file" id="galleryLogoImage" accept="image/*">
                             <small style="color: var(--text-light);">Selecione uma imagem (será otimizada e guardada na BD)</small>
-                            ${settings.gallery?.logoImage ? `<p style="margin-top: 0.5rem; color: var(--text-light); font-size: 0.9rem;">Imagem atual: <strong>${settings.gallery.logoImage.split('/').pop()}</strong></p>` : ''}
+                            ${renderImagePreview(settings.gallery?.logoImage)}
                         </div>
                         <div class="form-group">
                             <label>Instagram: URL</label>
@@ -2979,7 +3044,7 @@
                             <label>Imagens da galeria (min 3, max 10)</label>
                             <input type="file" id="galleryImages" accept="image/*" multiple>
                             <small style="color: var(--text-light);">Seleciona 3 a 10 imagens (serao otimizadas e guardadas na BD)</small>
-                            ${settings.gallery?.images?.length ? `<p style="margin-top: 0.5rem; color: var(--text-light); font-size: 0.9rem;">Imagens atuais: <strong>${settings.gallery.images.length}</strong></p>` : ''}
+                            ${renderImagePreviewList(settings.gallery?.images, 'Galeria')}
                         </div>
 
                         <div class="form-group">
@@ -3033,13 +3098,13 @@
                             <label>Barbeiro 1: Imagem 3D</label>
                             <input type="file" id="barber1Image" accept="image/*">
                             <small style="color: var(--text-light);">Selecione uma imagem (será otimizada e guardada na BD)</small>
-                            ${settings.barberCards?.barber1Image ? `<p style="margin-top: 0.5rem; color: var(--text-light); font-size: 0.9rem;">Imagem atual: <strong>${settings.barberCards.barber1Image.split('/').pop()}</strong></p>` : ''}
+                            ${renderImagePreview(settings.barberCards?.barber1Image)}
                         </div>
                         <div class="form-group">
                             <label>Barbeiro 1: Imagem de Fundo</label>
                             <input type="file" id="barber1CoverImage" accept="image/*">
                             <small style="color: var(--text-light);">Selecione uma imagem (será otimizada e guardada na BD)</small>
-                            ${settings.barberCards?.barber1CoverImage ? `<p style="margin-top: 0.5rem; color: var(--text-light); font-size: 0.9rem;">Imagem atual: <strong>${settings.barberCards.barber1CoverImage.split('/').pop()}</strong></p>` : ''}
+                            ${renderImagePreview(settings.barberCards?.barber1CoverImage)}
                         </div>
                         
 
@@ -3060,13 +3125,13 @@
   <label>Barbeiro 2 Imagem 3D</label>
   <input type="file" id="barber2Image" accept="image/*">
   <small style="color:var(--text-light)">Selecione uma imagem — será otimizada e guardada na BD</small>
-  ${settings.barberCards?.barber2Image ? `<p style="margin-top:0.5rem;color:var(--text-light);font-size:0.9rem">Imagem atual <strong>${settings.barberCards.barber2Image.split('/').pop()}</strong></p>` : ''}
+    ${renderImagePreview(settings.barberCards?.barber2Image)}
 </div>
 <div class="form-group">
   <label>Barbeiro 2 Imagem de Fundo</label>
   <input type="file" id="barber2CoverImage" accept="image/*">
   <small style="color:var(--text-light)">Selecione uma imagem — será otimizada e guardada na BD</small>
-  ${settings.barberCards?.barber2CoverImage ? `<p style="margin-top:0.5rem;color:var(--text-light);font-size:0.9rem">Imagem atual <strong>${settings.barberCards.barber2CoverImage.split('/').pop()}</strong></p>` : ''}
+    ${renderImagePreview(settings.barberCards?.barber2CoverImage)}
 </div>
 
 <div class="form-group">
@@ -3081,13 +3146,13 @@
   <label>Barbeiro 3 Imagem 3D</label>
   <input type="file" id="barber3Image" accept="image/*">
   <small style="color:var(--text-light)">Selecione uma imagem — será otimizada e guardada na BD</small>
-  ${settings.barberCards?.barber3Image ? `<p style="margin-top:0.5rem;color:var(--text-light);font-size:0.9rem">Imagem atual <strong>${settings.barberCards.barber3Image.split('/').pop()}</strong></p>` : ''}
+    ${renderImagePreview(settings.barberCards?.barber3Image)}
 </div>
 <div class="form-group">
   <label>Barbeiro 3 Imagem de Fundo</label>
   <input type="file" id="barber3CoverImage" accept="image/*">
   <small style="color:var(--text-light)">Selecione uma imagem — será otimizada e guardada na BD</small>
-  ${settings.barberCards?.barber3CoverImage ? `<p style="margin-top:0.5rem;color:var(--text-light);font-size:0.9rem">Imagem atual <strong>${settings.barberCards.barber3CoverImage.split('/').pop()}</strong></p>` : ''}
+    ${renderImagePreview(settings.barberCards?.barber3CoverImage)}
 </div>
 
                         <hr style="margin: 2rem 0; border: none; border-top: 1px solid #ddd;">
@@ -3110,6 +3175,26 @@
                         }
                     });
                 }
+
+                settingsForm.querySelectorAll('input[type="file"]').forEach((input) => {
+                    input.addEventListener('change', () => {
+                        const selectedFile = input.files?.[0];
+                        const formGroup = input.closest('.form-group');
+                        if (!formGroup) return;
+
+                        formGroup.querySelector('[data-image-preview="selected"]')?.remove();
+                        if (!selectedFile) return;
+
+                        const previewUrl = URL.createObjectURL(selectedFile);
+                        formGroup.insertAdjacentHTML(
+                            'beforeend',
+                            `<div class="settings-image-preview" data-image-preview="selected">
+                                <img src="${previewUrl}" alt="Nova imagem selecionada">
+                                <span>Nova imagem selecionada: ${selectedFile.name}</span>
+                            </div>`,
+                        );
+                    });
+                });
 
                 settingsForm.addEventListener('submit', async (e) => {
                     e.preventDefault();
